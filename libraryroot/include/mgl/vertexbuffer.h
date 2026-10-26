@@ -24,7 +24,7 @@
  * The clip outcode, bx/by/bz/bw, the texture Q and the normal-buffer
  * index are MGLVertex_t's own fields, outside V3DVertex. GLVertex4f and
  * the vertex-array gathers store the same position in bx/by/bz/bw as in
- * v.x/y/z/w; aclip.c and hclip.c clip bx/by/bz/bw as clip-space
+ * v.x/y/z/w; clip.c clip bx/by/bz/bw as clip-space
  * coordinates.
  *
  * Texture unit 0's coordinates are v.u0/v.v0 and unit 1's are v.u1/v.v1,
@@ -32,7 +32,7 @@
  *
  * color is the vertex color as floats; draw.c builds the color
  * attributes from it, and V3DVertex's own packed-UBYTE r/g/b/a are not
- * used. hclip.c's clip routines interpolate color as floats at every
+ * used. clip.c's clip routines interpolate color as floats at every
  * clip plane (GL_SMOOTH).
  */
 

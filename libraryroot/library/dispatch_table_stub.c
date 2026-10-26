@@ -14,243 +14,1118 @@ static void stub_call(const char *name)
 }
 
 void Stub_GLActiveTextureARB(GLcontext context, GLenum unit) { stub_call("GLActiveTextureARB"); }
+
 void Stub_GLAlphaFunc(GLcontext context, GLenum func, GLclampf ref) { stub_call("GLAlphaFunc"); }
+
 void Stub_GLArrayElement(GLcontext context, GLint i) { stub_call("GLArrayElement"); }
+
 void Stub_GLBegin(GLcontext context, GLenum mode) { stub_call("GLBegin"); }
+
 void Stub_GLBindTexture(GLcontext context, GLenum target, GLuint texture) { stub_call("GLBindTexture"); }
+
 void Stub_GLBlendFunc(GLcontext context, GLenum sfactor, GLenum dfactor) { stub_call("GLBlendFunc"); }
+
 void Stub_GLClear(GLcontext context, GLbitfield mask) { stub_call("GLClear"); }
+
 void Stub_GLClearColor(GLcontext context, GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) { stub_call("GLClearColor"); }
+
 void Stub_GLClearDepth(GLcontext context, GLclampd depth) { stub_call("GLClearDepth"); }
+
 void Stub_GLColor3fv(GLcontext context, GLfloat *v) { stub_call("GLColor3fv"); }
+
 void Stub_GLColor3ubv(GLcontext context, GLubyte *v) { stub_call("GLColor3ubv"); }
+
 void Stub_GLColor4f(GLcontext context, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) { stub_call("GLColor4f"); }
+
 void Stub_GLColor4fv(GLcontext context, GLfloat *v) { stub_call("GLColor4fv"); }
+
 void Stub_GLColor4ub(GLcontext context, GLubyte red, GLubyte green, GLubyte blue, GLubyte alhpa) { stub_call("GLColor4ub"); }
+
 void Stub_GLColor4ubv(GLcontext context, GLubyte *v) { stub_call("GLColor4ubv"); }
+
 void Stub_GLColorMask(GLcontext context, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) { stub_call("GLColorMask"); }
+
 void Stub_GLColorPointer(GLcontext context, GLint size, GLenum type, GLsizei stride, const GLvoid *pointer) { stub_call("GLColorPointer"); }
+
 void Stub_GLColorTable(GLcontext context, GLenum target, GLenum internalformat, GLint width, GLenum format, GLenum type, GLvoid *data) { stub_call("GLColorTable"); }
+
 void Stub_GLCullFace(GLcontext context, GLenum mode) { stub_call("GLCullFace"); }
+
 void Stub_GLDeleteTextures(GLcontext context, GLsizei n, const GLuint *textures) { stub_call("GLDeleteTextures"); }
+
 void Stub_GLDepthFunc(GLcontext context, GLenum func) { stub_call("GLDepthFunc"); }
+
 void Stub_GLDepthMask(GLcontext context, GLboolean flag) { stub_call("GLDepthMask"); }
+
 void Stub_GLDepthRange(GLcontext context, GLclampd n, GLclampd f) { stub_call("GLDepthRange"); }
+
 void Stub_GLDisableClientState(GLcontext context, GLenum cap) { stub_call("GLDisableClientState"); }
+
 void Stub_GLDrawArrays(GLcontext context, GLenum mode, GLint first, GLsizei count) { stub_call("GLDrawArrays"); }
+
 void Stub_GLDrawBuffer(GLcontext context, GLenum mode) { stub_call("GLDrawBuffer"); }
+
 void Stub_GLDrawElements(GLcontext context, GLenum mode, GLsizei count, GLenum type, const GLvoid *indices) { stub_call("GLDrawElements"); }
+
 void Stub_GLEnableClientState(GLcontext context, GLenum cap) { stub_call("GLEnableClientState"); }
+
 void Stub_GLEnd(GLcontext context) { stub_call("GLEnd"); }
+
 void Stub_GLFinish(GLcontext context) { stub_call("GLFinish"); }
+
 void Stub_GLFlush(GLcontext context) { stub_call("GLFlush"); }
+
 void Stub_GLFogf(GLcontext context, GLenum pname, GLfloat param) { stub_call("GLFogf"); }
+
 void Stub_GLFogfv(GLcontext context, GLenum pname, GLfloat *param) { stub_call("GLFogfv"); }
+
 void Stub_GLFrontFace(GLcontext context, GLenum mode) { stub_call("GLFrontFace"); }
+
 void Stub_GLFrustum(GLcontext context, GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar) { stub_call("GLFrustum"); }
+
 void Stub_GLGenTextures(GLcontext context, GLsizei n, GLuint *textures) { stub_call("GLGenTextures"); }
+
 void Stub_GLGetBooleanv(GLcontext context, GLenum pname, GLboolean *params) { stub_call("GLGetBooleanv"); }
-GLenum Stub_GLGetError(GLcontext context) { stub_call("GLGetError"); return 0; }
+
+GLenum Stub_GLGetError(GLcontext context)
+{
+    stub_call("GLGetError");
+    return 0;
+}
+
 void Stub_GLGetFloatv(GLcontext context, GLenum pname, GLfloat *params) { stub_call("GLGetFloatv"); }
+
 void Stub_GLGetIntegerv(GLcontext context, GLenum pname, GLint *params) { stub_call("GLGetIntegerv"); }
-const GLubyte* Stub_GLGetString(GLcontext context, GLenum name) { static const GLubyte text[]="MiniGL Direct Dispatch Stub"; stub_call("GLGetString"); return text; }
+
+const GLubyte *Stub_GLGetString(GLcontext context, GLenum name)
+{
+    static const GLubyte text[] = "MiniGL Direct Dispatch Stub";
+    stub_call("GLGetString");
+    return text;
+}
+
 void Stub_GLHint(GLcontext context, GLenum target, GLenum mode) { stub_call("GLHint"); }
-GLboolean Stub_GLIsEnabled(GLcontext context, GLenum cap) { stub_call("GLIsEnabled"); return GL_TRUE; }
+
+GLboolean Stub_GLIsEnabled(GLcontext context, GLenum cap)
+{
+    stub_call("GLIsEnabled");
+    return GL_TRUE;
+}
+
 void Stub_GLLoadIdentity(GLcontext context) { stub_call("GLLoadIdentity"); }
+
 void Stub_GLLoadMatrixd(GLcontext context, const GLdouble *m) { stub_call("GLLoadMatrixd"); }
+
 void Stub_GLLoadMatrixf(GLcontext context, const GLfloat *m) { stub_call("GLLoadMatrixf"); }
+
 void Stub_GLLockArrays(GLcontext context, GLuint first, GLsizei count) { stub_call("GLLockArrays"); }
+
 void Stub_GLMatrixMode(GLcontext context, GLenum mode) { stub_call("GLMatrixMode"); }
+
 void Stub_GLMultMatrixd(GLcontext context, const GLdouble *m) { stub_call("GLMultMatrixd"); }
+
 void Stub_GLMultMatrixf(GLcontext context, const GLfloat *m) { stub_call("GLMultMatrixf"); }
+
 void Stub_GLMultiTexCoord2fARB(GLcontext context, GLenum unit, GLfloat s, GLfloat t) { stub_call("GLMultiTexCoord2fARB"); }
+
 void Stub_GLMultiTexCoord2fvARB(GLcontext context, GLenum unit, GLfloat *v) { stub_call("GLMultiTexCoord2fvARB"); }
+
 void Stub_GLNormal3f(GLcontext context, GLfloat x, GLfloat y, GLfloat z) { stub_call("GLNormal3f"); }
+
 void Stub_GLOrtho(GLcontext context, GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar) { stub_call("GLOrtho"); }
+
 void Stub_GLPixelStorei(GLcontext context, GLenum pname, GLint param) { stub_call("GLPixelStorei"); }
+
 void Stub_GLPointSize(GLcontext context, GLfloat size) { stub_call("GLPointSize"); }
+
 void Stub_GLPolygonMode(GLcontext context, GLenum face, GLenum mode) { stub_call("GLPolygonMode"); }
+
 void Stub_GLPopMatrix(GLcontext context) { stub_call("GLPopMatrix"); }
+
 void Stub_GLPushMatrix(GLcontext context) { stub_call("GLPushMatrix"); }
+
 void Stub_GLReadPixels(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels) { stub_call("GLReadPixels"); }
+
 void Stub_GLRotated(GLcontext context, GLdouble angle, GLdouble x, GLdouble y, GLdouble z) { stub_call("GLRotated"); }
+
 void Stub_GLRotatef(GLcontext context, GLfloat angle, GLfloat x, GLfloat y, GLfloat z) { stub_call("GLRotatef"); }
+
 void Stub_GLRotatefEXT(GLcontext context, GLfloat angle, const GLint xyz) { stub_call("GLRotatefEXT"); }
+
 void Stub_GLRotatefEXTs(GLcontext context, GLfloat sin_an, GLfloat cos_an, const GLint xyz) { stub_call("GLRotatefEXTs"); }
+
 void Stub_GLScaled(GLcontext context, GLdouble x, GLdouble y, GLdouble z) { stub_call("GLScaled"); }
+
 void Stub_GLScalef(GLcontext context, GLfloat x, GLfloat y, GLfloat z) { stub_call("GLScalef"); }
+
 void Stub_GLScissor(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei height) { stub_call("GLScissor"); }
+
 void Stub_GLShadeModel(GLcontext context, GLenum mode) { stub_call("GLShadeModel"); }
+
 void Stub_GLTexCoord2f(GLcontext context, GLfloat s, GLfloat t) { stub_call("GLTexCoord2f"); }
+
 void Stub_GLTexCoord2fv(GLcontext context, GLfloat *v) { stub_call("GLTexCoord2fv"); }
+
 void Stub_GLTexCoord4f(GLcontext context, GLfloat s, GLfloat t, GLfloat r, GLfloat q) { stub_call("GLTexCoord4f"); }
+
 void Stub_GLTexCoord4fv(GLcontext context, GLfloat *v) { stub_call("GLTexCoord4fv"); }
+
 void Stub_GLTexCoordPointer(GLcontext context, GLint size, GLenum type, GLsizei stride, const GLvoid *pointer) { stub_call("GLTexCoordPointer"); }
+
 void Stub_GLTexEnvi(GLcontext context, GLenum target, GLenum pname, GLint param) { stub_call("GLTexEnvi"); }
+
 void Stub_GLTexGeni(GLcontext context, GLenum coord, GLenum mode, GLenum map) { stub_call("GLTexGeni"); }
+
 void Stub_GLTexImage2D(GLcontext context, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels) { stub_call("GLTexImage2D"); }
+
 void Stub_GLTexParameteri(GLcontext context, GLenum target, GLenum pname, GLint param) { stub_call("GLTexParameteri"); }
+
 void Stub_GLTexSubImage2D(GLcontext context, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels) { stub_call("GLTexSubImage2D"); }
+
 void Stub_GLTranslated(GLcontext context, GLdouble x, GLdouble y, GLdouble z) { stub_call("GLTranslated"); }
+
 void Stub_GLTranslatef(GLcontext context, GLfloat x, GLfloat y, GLfloat z) { stub_call("GLTranslatef"); }
+
 void Stub_GLULookAt(GLfloat ex, GLfloat ey, GLfloat ez, GLfloat cx, GLfloat cy, GLfloat cz, GLfloat ux, GLfloat uy, GLfloat uz) { stub_call("GLULookAt"); }
+
 void Stub_GLUPerspective(GLfloat fovy, GLfloat aspect, GLfloat znear, GLfloat zfar) { stub_call("GLUPerspective"); }
+
 void Stub_GLUnlockArrays(GLcontext context) { stub_call("GLUnlockArrays"); }
+
 void Stub_GLVertex2fv(GLcontext context, GLfloat *v) { stub_call("GLVertex2fv"); }
+
 void Stub_GLVertex3fv(GLcontext context, GLfloat *v) { stub_call("GLVertex3fv"); }
+
 void Stub_GLVertex4f(GLcontext context, GLfloat x, GLfloat y, GLfloat z, GLfloat w) { stub_call("GLVertex4f"); }
+
 void Stub_GLVertex4fv(GLcontext context, GLfloat *v) { stub_call("GLVertex4fv"); }
+
 void Stub_GLVertexPointer(GLcontext context, GLint size, GLenum type, GLsizei stride, const GLvoid *pointer) { stub_call("GLVertexPointer"); }
+
 void Stub_GLViewport(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei height) { stub_call("GLViewport"); }
+
 void Stub_MGLClearPointer(GLcontext context) { stub_call("MGLClearPointer"); }
-void * Stub_MGLCreateContext(int offx, int offy, int w, int h) { stub_call("MGLCreateContext"); mini_CurrentContext=(GLcontext)&fake_context_storage[0]; return (void *)mini_CurrentContext; }
-void * Stub_MGLCreateContextFromID(GLint ID, GLint *w, GLint *h) { stub_call("MGLCreateContextFromID"); if (w) *w=0; if (h) *h=0; mini_CurrentContext=(GLcontext)&fake_context_storage[0]; return (void *)mini_CurrentContext; }
-void Stub_MGLDeleteContext(GLcontext context) { stub_call("MGLDeleteContext"); mini_CurrentContext=(GLcontext)0; }
+
+void *Stub_MGLCreateContext(int offx, int offy, int w, int h)
+{
+    stub_call("MGLCreateContext");
+    mini_CurrentContext = (GLcontext)&fake_context_storage[0];
+    return (void *)mini_CurrentContext;
+}
+
+void *Stub_MGLCreateContextFromID(GLint ID, GLint *w, GLint *h)
+{
+    stub_call("MGLCreateContextFromID");
+    if (w)
+        *w = 0;
+    if (h)
+        *h = 0;
+    mini_CurrentContext = (GLcontext)&fake_context_storage[0];
+    return (void *)mini_CurrentContext;
+}
+
+void Stub_MGLDeleteContext(GLcontext context)
+{
+    stub_call("MGLDeleteContext");
+    mini_CurrentContext = (GLcontext)0;
+}
+
 void Stub_MGLDrawMultitexBuffer(GLcontext context, GLenum BSrc, GLenum BDst, GLenum TexEnv) { stub_call("MGLDrawMultitexBuffer"); }
+
 void Stub_MGLEnableSync(GLcontext context, GLboolean enable) { stub_call("MGLEnableSync"); }
+
 void Stub_MGLExit(GLcontext context) { stub_call("MGLExit"); }
-void * Stub_MGLGetInputWindowHandle(GLcontext context) { stub_call("MGLGetInputWindowHandle"); return (void *)0; }
-void * Stub_MGLGetWindowHandle(GLcontext context) { stub_call("MGLGetWindowHandle"); return (void *)0; }
+
+void *Stub_MGLGetInputWindowHandle(GLcontext context)
+{
+    stub_call("MGLGetInputWindowHandle");
+    return (void *)0;
+}
+
+void *Stub_MGLGetWindowHandle(GLcontext context)
+{
+    stub_call("MGLGetWindowHandle");
+    return (void *)0;
+}
+
 void Stub_MGLIdleFunc(GLcontext context, IdleFn i) { stub_call("MGLIdleFunc"); }
+
 void Stub_MGLKeyFunc(GLcontext context, KeyHandlerFn k) { stub_call("MGLKeyFunc"); }
-GLboolean Stub_MGLLockBack(GLcontext context, MGLLockInfo *info) { stub_call("MGLLockBack"); return GL_TRUE; }
-GLboolean Stub_MGLLockDisplay(GLcontext context) { stub_call("MGLLockDisplay"); return GL_TRUE; }
+
+GLboolean Stub_MGLLockBack(GLcontext context, MGLLockInfo *info)
+{
+    stub_call("MGLLockBack");
+    return GL_TRUE;
+}
+
+GLboolean Stub_MGLLockDisplay(GLcontext context)
+{
+    stub_call("MGLLockDisplay");
+    return GL_TRUE;
+}
+
 void Stub_MGLLockMode(GLcontext context, GLenum lockMode) { stub_call("MGLLockMode"); }
+
 void Stub_MGLMainLoop(GLcontext context) { stub_call("MGLMainLoop"); }
+
 void Stub_MGLMinTriArea(GLcontext context, GLfloat area) { stub_call("MGLMinTriArea"); }
+
 void Stub_MGLMouseFunc(GLcontext context, MouseHandlerFn m) { stub_call("MGLMouseFunc"); }
+
 void Stub_MGLPrintMatrix(GLcontext context, int mode) { stub_call("MGLPrintMatrix"); }
+
 void Stub_MGLPrintMatrixStack(GLcontext context, int mode) { stub_call("MGLPrintMatrixStack"); }
+
 void Stub_MGLResizeContext(GLcontext context, GLsizei width, GLsizei height) { stub_call("MGLResizeContext"); }
+
 void Stub_MGLSetPointer(GLcontext context) { stub_call("MGLSetPointer"); }
+
 void Stub_MGLSetState(GLcontext context, GLenum cap, GLboolean state) { stub_call("MGLSetState"); }
+
 void Stub_MGLSetZOffset(GLcontext context, GLfloat offset) { stub_call("MGLSetZOffset"); }
+
 void Stub_MGLSpecialFunc(GLcontext context, SpecialHandlerFn s) { stub_call("MGLSpecialFunc"); }
+
 void Stub_MGLSwitchDisplay(GLcontext context) { stub_call("MGLSwitchDisplay"); }
+
 void Stub_MGLTexMemStat(GLcontext context, GLint *Current, GLint *Peak) { stub_call("MGLTexMemStat"); }
+
 void Stub_MGLUnlockDisplay(GLcontext context) { stub_call("MGLUnlockDisplay"); }
+
 void Stub_MGLWriteShotPPM(GLcontext context, char *filename) { stub_call("MGLWriteShotPPM"); }
+
 void Stub_mglChooseGuardBand(GLboolean flag) { stub_call("mglChooseGuardBand"); }
+
 void Stub_mglChooseMtexBufferSize(int size) { stub_call("mglChooseMtexBufferSize"); }
+
 void Stub_mglChooseNumberOfBuffers(int number) { stub_call("mglChooseNumberOfBuffers"); }
+
 void Stub_mglChoosePixelDepth(int depth) { stub_call("mglChoosePixelDepth"); }
+
 void Stub_mglChooseTextureBufferSize(int size) { stub_call("mglChooseTextureBufferSize"); }
+
 void Stub_mglChooseVertexBufferSize(int size) { stub_call("mglChooseVertexBufferSize"); }
+
 void Stub_mglChooseWindowMode(GLboolean flag) { stub_call("mglChooseWindowMode"); }
-GLint Stub_mglGetSupportedScreenModes(MGLScreenModeCallback CallbackFn) { stub_call("mglGetSupportedScreenModes"); return 0; }
+
+GLint Stub_mglGetSupportedScreenModes(MGLScreenModeCallback CallbackFn)
+{
+    stub_call("mglGetSupportedScreenModes");
+    return 0;
+}
+
 void Stub_mglProhibitAlphaFallback(GLboolean flag) { stub_call("mglProhibitAlphaFallback"); }
+
 void Stub_mglProhibitMipMapping(GLboolean flag) { stub_call("mglProhibitMipMapping"); }
+
 void Stub_mglProposeCloseDesktop(GLboolean closeme) { stub_call("mglProposeCloseDesktop"); }
 
 static void Stub_GLCopyTexImage2D(GLcontext context, GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border)
 {
-    (void)context; (void)target; (void)level; (void)internalformat;
-    (void)x; (void)y; (void)width; (void)height; (void)border; stub_call("GLCopyTexImage2D");
+    (void)context;
+    (void)target;
+    (void)level;
+    (void)internalformat;
+    (void)x;
+    (void)y;
+    (void)width;
+    (void)height;
+    (void)border;
+    stub_call("GLCopyTexImage2D");
 }
 
 static void Stub_GLCopyTexSubImage2D(GLcontext context, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
 {
-    (void)context; (void)target; (void)level; (void)xoffset; (void)yoffset;
-    (void)x; (void)y; (void)width; (void)height; stub_call("GLCopyTexSubImage2D");
+    (void)context;
+    (void)target;
+    (void)level;
+    (void)xoffset;
+    (void)yoffset;
+    (void)x;
+    (void)y;
+    (void)width;
+    (void)height;
+    stub_call("GLCopyTexSubImage2D");
 }
 
 static void Stub_GLTexGenfv(GLcontext context, GLenum coord, GLenum pname, const GLfloat *params)
 {
-    (void)context; (void)coord; (void)pname; (void)params; stub_call("GLTexGenfv");
+    (void)context;
+    (void)coord;
+    (void)pname;
+    (void)params;
+    stub_call("GLTexGenfv");
 }
 
 static void Stub_GLLineWidth(GLcontext context, GLfloat width)
 {
-    (void)context; (void)width; stub_call("GLLineWidth");
+    (void)context;
+    (void)width;
+    stub_call("GLLineWidth");
 }
 
 static void Stub_GLPolygonOffset(GLcontext context, GLfloat factor, GLfloat units)
 {
-    (void)context; (void)factor; (void)units; stub_call("GLPolygonOffset");
+    (void)context;
+    (void)factor;
+    (void)units;
+    stub_call("GLPolygonOffset");
 }
 
 /* Appended 2026-09-08, matching the four new table entries. */
-static void Stub_GLClientActiveTextureARB(GLcontext context, GLenum unit) { (void)context; (void)unit; stub_call("GLClientActiveTextureARB"); }
-static void Stub_GLInterleavedArrays(GLcontext context, GLenum format, GLsizei stride, const GLvoid *pointer) { (void)context; (void)format; (void)stride; (void)pointer; stub_call("GLInterleavedArrays"); }
-static void Stub_GLMultiDrawArrays(GLcontext context, GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount) { (void)context; (void)mode; (void)first; (void)count; (void)primcount; stub_call("GLMultiDrawArrays"); }
-static GLboolean Stub_GLIsTexture(GLcontext context, GLuint texture) { (void)context; (void)texture; stub_call("GLIsTexture"); return GL_FALSE; }
-static void Stub_mglChooseZBufferDepth(int bits) { (void)bits; stub_call("mglChooseZBufferDepth"); }
-static void Stub_GLBlendEquation(GLcontext context, GLenum mode) { (void)context; (void)mode; stub_call("GLBlendEquation"); }
-static void Stub_GLBlendFuncSeparate(GLcontext context, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha) { (void)context; (void)srcRGB; (void)dstRGB; (void)srcAlpha; (void)dstAlpha; stub_call("GLBlendFuncSeparate"); }
+static void Stub_GLClientActiveTextureARB(GLcontext context, GLenum unit)
+{
+    (void)context;
+    (void)unit;
+    stub_call("GLClientActiveTextureARB");
+}
+
+static void Stub_GLInterleavedArrays(GLcontext context, GLenum format, GLsizei stride, const GLvoid *pointer)
+{
+    (void)context;
+    (void)format;
+    (void)stride;
+    (void)pointer;
+    stub_call("GLInterleavedArrays");
+}
+
+static void Stub_GLMultiDrawArrays(GLcontext context, GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount)
+{
+    (void)context;
+    (void)mode;
+    (void)first;
+    (void)count;
+    (void)primcount;
+    stub_call("GLMultiDrawArrays");
+}
+
+static GLboolean Stub_GLIsTexture(GLcontext context, GLuint texture)
+{
+    (void)context;
+    (void)texture;
+    stub_call("GLIsTexture");
+    return GL_FALSE;
+}
+
+static void Stub_mglChooseZBufferDepth(int bits)
+{
+    (void)bits;
+    stub_call("mglChooseZBufferDepth");
+}
+
+static void Stub_GLBlendEquation(GLcontext context, GLenum mode)
+{
+    (void)context;
+    (void)mode;
+    stub_call("GLBlendEquation");
+}
+
+static void Stub_GLBlendFuncSeparate(GLcontext context, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+{
+    (void)context;
+    (void)srcRGB;
+    (void)dstRGB;
+    (void)srcAlpha;
+    (void)dstAlpha;
+    stub_call("GLBlendFuncSeparate");
+}
 
 /* Appended 2026-09-12 (audit item 10), matching table entries 141 to 151. */
-static GLboolean Stub_GLAreTexturesResident(GLcontext context, GLsizei n, const GLuint *textures, GLboolean *residences) { (void)context; (void)n; (void)textures; (void)residences; stub_call("GLAreTexturesResident"); return GL_TRUE; }
-static void Stub_GLEdgeFlag(GLcontext context, GLboolean flag) { (void)context; (void)flag; stub_call("GLEdgeFlag"); }
-static void Stub_GLEdgeFlagPointer(GLcontext context, GLsizei stride, const GLvoid *pointer) { (void)context; (void)stride; (void)pointer; stub_call("GLEdgeFlagPointer"); }
-static void Stub_GLEdgeFlagv(GLcontext context, const GLboolean *flag) { (void)context; (void)flag; stub_call("GLEdgeFlagv"); }
-static void Stub_GLGetDoublev(GLcontext context, GLenum pname, GLdouble *params) { (void)context; (void)pname; (void)params; stub_call("GLGetDoublev"); }
-static void Stub_GLGetPointerv(GLcontext context, GLenum pname, GLvoid **params) { (void)context; (void)pname; (void)params; stub_call("GLGetPointerv"); }
-static void Stub_GLIndexi(GLcontext context, GLint c) { (void)context; (void)c; stub_call("GLIndexi"); }
-static void Stub_GLIndexiv(GLcontext context, const GLint *c) { (void)context; (void)c; stub_call("GLIndexiv"); }
-static void Stub_GLIndexPointer(GLcontext context, GLenum type, GLsizei stride, const GLvoid *pointer) { (void)context; (void)type; (void)stride; (void)pointer; stub_call("GLIndexPointer"); }
-static void Stub_GLPrioritizeTextures(GLcontext context, GLsizei n, const GLuint *textures, const GLclampf *priorities) { (void)context; (void)n; (void)textures; (void)priorities; stub_call("GLPrioritizeTextures"); }
-static void Stub_GLReadBuffer(GLcontext context, GLenum mode) { (void)context; (void)mode; stub_call("GLReadBuffer"); }
-static void * Stub_MGLCreateContextFromWindow(struct Window *window) { (void)window; stub_call("MGLCreateContextFromWindow"); return NULL; }
-static void * Stub_MGLCreateContextFromBitMap(struct BitMap *bitmap) { (void)bitmap; stub_call("MGLCreateContextFromBitMap"); return NULL; }
+static GLboolean Stub_GLAreTexturesResident(GLcontext context, GLsizei n, const GLuint *textures, GLboolean *residences)
+{
+    (void)context;
+    (void)n;
+    (void)textures;
+    (void)residences;
+    stub_call("GLAreTexturesResident");
+    return GL_TRUE;
+}
+
+static void Stub_GLEdgeFlag(GLcontext context, GLboolean flag)
+{
+    (void)context;
+    (void)flag;
+    stub_call("GLEdgeFlag");
+}
+
+static void Stub_GLEdgeFlagPointer(GLcontext context, GLsizei stride, const GLvoid *pointer)
+{
+    (void)context;
+    (void)stride;
+    (void)pointer;
+    stub_call("GLEdgeFlagPointer");
+}
+
+static void Stub_GLEdgeFlagv(GLcontext context, const GLboolean *flag)
+{
+    (void)context;
+    (void)flag;
+    stub_call("GLEdgeFlagv");
+}
+
+static void Stub_GLGetDoublev(GLcontext context, GLenum pname, GLdouble *params)
+{
+    (void)context;
+    (void)pname;
+    (void)params;
+    stub_call("GLGetDoublev");
+}
+
+static void Stub_GLGetPointerv(GLcontext context, GLenum pname, GLvoid **params)
+{
+    (void)context;
+    (void)pname;
+    (void)params;
+    stub_call("GLGetPointerv");
+}
+
+static void Stub_GLIndexi(GLcontext context, GLint c)
+{
+    (void)context;
+    (void)c;
+    stub_call("GLIndexi");
+}
+
+static void Stub_GLIndexiv(GLcontext context, const GLint *c)
+{
+    (void)context;
+    (void)c;
+    stub_call("GLIndexiv");
+}
+
+static void Stub_GLIndexPointer(GLcontext context, GLenum type, GLsizei stride, const GLvoid *pointer)
+{
+    (void)context;
+    (void)type;
+    (void)stride;
+    (void)pointer;
+    stub_call("GLIndexPointer");
+}
+
+static void Stub_GLPrioritizeTextures(GLcontext context, GLsizei n, const GLuint *textures, const GLclampf *priorities)
+{
+    (void)context;
+    (void)n;
+    (void)textures;
+    (void)priorities;
+    stub_call("GLPrioritizeTextures");
+}
+
+static void Stub_GLReadBuffer(GLcontext context, GLenum mode)
+{
+    (void)context;
+    (void)mode;
+    stub_call("GLReadBuffer");
+}
+
+static void *Stub_MGLCreateContextFromWindow(struct Window *window)
+{
+    (void)window;
+    stub_call("MGLCreateContextFromWindow");
+    return NULL;
+}
+
+static void *Stub_MGLCreateContextFromBitMap(struct BitMap *bitmap)
+{
+    (void)bitmap;
+    stub_call("MGLCreateContextFromBitMap");
+    return NULL;
+}
+
 /* Stub bodies for the 47 entries appended for 28.0. Base MiniGL has no
  * lighting, no display lists, no GLU quadrics and no GLUT at all. */
-static void Stub_GLLightf(GLcontext context, GLenum light, GLenum pname, GLfloat param) { (void)context; (void)light; (void)pname; (void)param; stub_call("GLLightf"); }
-static void Stub_GLLightfv(GLcontext context, GLenum light, GLenum pname, const GLfloat *params) { (void)context; (void)light; (void)pname; (void)params; stub_call("GLLightfv"); }
-static void Stub_GLMaterialf(GLcontext context, GLenum face, GLenum pname, GLfloat param) { (void)context; (void)face; (void)pname; (void)param; stub_call("GLMaterialf"); }
-static void Stub_GLMaterialfv(GLcontext context, GLenum face, GLenum pname, const GLfloat *params) { (void)context; (void)face; (void)pname; (void)params; stub_call("GLMaterialfv"); }
-static void Stub_GLLightModelf(GLcontext context, GLenum pname, GLfloat param) { (void)context; (void)pname; (void)param; stub_call("GLLightModelf"); }
-static void Stub_GLLightModelfv(GLcontext context, GLenum pname, const GLfloat *params) { (void)context; (void)pname; (void)params; stub_call("GLLightModelfv"); }
-static void Stub_GLGetLightfv(GLcontext context, GLenum light, GLenum pname, GLfloat *params) { (void)context; (void)light; (void)pname; (void)params; stub_call("GLGetLightfv"); }
-static void Stub_GLGetMaterialfv(GLcontext context, GLenum face, GLenum pname, GLfloat *params) { (void)context; (void)face; (void)pname; (void)params; stub_call("GLGetMaterialfv"); }
-static GLuint Stub_GLGenLists(GLcontext context, GLsizei range) { (void)context; (void)range; stub_call("GLGenLists"); return 0; }
-static void Stub_GLDeleteLists(GLcontext context, GLuint list, GLsizei range) { (void)context; (void)list; (void)range; stub_call("GLDeleteLists"); }
-static GLboolean Stub_GLIsList(GLcontext context, GLuint list) { (void)context; (void)list; stub_call("GLIsList"); return GL_FALSE; }
-static void Stub_GLNewList(GLcontext context, GLuint list, GLenum mode) { (void)context; (void)list; (void)mode; stub_call("GLNewList"); }
-static void Stub_GLEndList(GLcontext context) { (void)context; stub_call("GLEndList"); }
-static void Stub_GLCallList(GLcontext context, GLuint list) { (void)context; (void)list; stub_call("GLCallList"); }
-static GLint Stub_GLUBuild2DMipmaps(GLcontext context, GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *data) { (void)context; (void)target; (void)internalFormat; (void)width; (void)height; (void)format; (void)type; (void)data; stub_call("GLUBuild2DMipmaps"); return 0; }
-static const GLubyte * Stub_GLUErrorString(GLenum errCode) { (void)errCode; stub_call("GLUErrorString"); return NULL; }
-static GLUquadricObj * Stub_GLUNewQuadric(void) { stub_call("GLUNewQuadric"); return NULL; }
-static void Stub_GLUDeleteQuadric(GLUquadricObj *q) { (void)q; stub_call("GLUDeleteQuadric"); }
-static void Stub_GLUQuadricNormals(GLUquadricObj *q, GLenum normals) { (void)q; (void)normals; stub_call("GLUQuadricNormals"); }
-static void Stub_GLUQuadricTexture(GLUquadricObj *q, GLboolean textureCoords) { (void)q; (void)textureCoords; stub_call("GLUQuadricTexture"); }
-static void Stub_GLUQuadricDrawStyle(GLUquadricObj *q, GLenum drawStyle) { (void)q; (void)drawStyle; stub_call("GLUQuadricDrawStyle"); }
-static void Stub_GLUQuadricOrientation(GLUquadricObj *q, GLenum orientation) { (void)q; (void)orientation; stub_call("GLUQuadricOrientation"); }
-static void Stub_GLUCylinder(GLUquadricObj *q, GLdouble base, GLdouble top, GLdouble height, GLint slices, GLint stacks) { (void)q; (void)base; (void)top; (void)height; (void)slices; (void)stacks; stub_call("GLUCylinder"); }
-static void Stub_GLUSphere(GLUquadricObj *q, GLdouble radius, GLint slices, GLint stacks) { (void)q; (void)radius; (void)slices; (void)stacks; stub_call("GLUSphere"); }
-static void Stub_GLUDisk(GLUquadricObj *q, GLdouble inner, GLdouble outer, GLint slices, GLint loops) { (void)q; (void)inner; (void)outer; (void)slices; (void)loops; stub_call("GLUDisk"); }
-static void Stub_GLUTInit(int *argcp, char **argv) { (void)argcp; (void)argv; stub_call("GLUTInit"); }
-static void Stub_GLUTInitDisplayMode(unsigned int mode) { (void)mode; stub_call("GLUTInitDisplayMode"); }
-static void Stub_GLUTInitWindowSize(int width, int height) { (void)width; (void)height; stub_call("GLUTInitWindowSize"); }
-static void Stub_GLUTInitWindowPosition(int x, int y) { (void)x; (void)y; stub_call("GLUTInitWindowPosition"); }
-static int Stub_GLUTCreateWindow(const char *title) { (void)title; stub_call("GLUTCreateWindow"); return 0; }
-static void Stub_GLUTMainLoop(void) { stub_call("GLUTMainLoop"); }
-static void Stub_GLUTDisplayFunc(void (*func)(void)) { (void)func; stub_call("GLUTDisplayFunc"); }
-static void Stub_GLUTIdleFunc(void (*func)(void)) { (void)func; stub_call("GLUTIdleFunc"); }
-static void Stub_GLUTKeyboardFunc(void (*func)(unsigned char key, int x, int y)) { (void)func; stub_call("GLUTKeyboardFunc"); }
-static void Stub_GLUTReshapeFunc(void (*func)(int width, int height)) { (void)func; stub_call("GLUTReshapeFunc"); }
-static void Stub_GLUTSwapBuffers(void) { stub_call("GLUTSwapBuffers"); }
-static void Stub_GLUTPostRedisplay(void) { stub_call("GLUTPostRedisplay"); }
-static int Stub_GLUTGet(GLenum state) { (void)state; stub_call("GLUTGet"); return 0; }
-static void Stub_GLUTGameModeString(const char *string) { (void)string; stub_call("GLUTGameModeString"); }
-static int Stub_GLUTEnterGameMode(void) { stub_call("GLUTEnterGameMode"); return 0; }
-static void Stub_GLUTLeaveGameMode(void) { stub_call("GLUTLeaveGameMode"); }
-static int Stub_GLUTGameModeGet(GLenum query) { (void)query; stub_call("GLUTGameModeGet"); return 0; }
-static void Stub_GLUTSolidCube(GLdouble size) { (void)size; stub_call("GLUTSolidCube"); }
-static void Stub_GLUTSolidSphere(GLdouble radius, GLint slices, GLint stacks) { (void)radius; (void)slices; (void)stacks; stub_call("GLUTSolidSphere"); }
-static void Stub_GLUTSolidCone(GLdouble base, GLdouble height, GLint slices, GLint stacks) { (void)base; (void)height; (void)slices; (void)stacks; stub_call("GLUTSolidCone"); }
-static void Stub_GLUTSolidTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings) { (void)innerRadius; (void)outerRadius; (void)sides; (void)rings; stub_call("GLUTSolidTorus"); }
-static void Stub_GLUTSolidDodecahedron(void) { stub_call("GLUTSolidDodecahedron"); }
-static void Stub_GLNormalPointer(GLcontext context, GLenum type, GLsizei stride, const GLvoid *pointer) { stub_call("GLNormalPointer"); }
-static void Stub_GLUQuadricCallback(GLUquadricObj *q, GLenum which, MGLUfuncptr fn) { (void)q; (void)which; (void)fn; stub_call("GLUQuadricCallback"); }
-static void Stub_GLColorMaterial(GLcontext context, GLenum face, GLenum mode) { (void)context; (void)face; (void)mode; stub_call("GLColorMaterial"); }
-static void Stub_GLTexEnvfv(GLcontext context, GLenum target, GLenum pname, const GLfloat *params) { (void)context; (void)target; (void)pname; (void)params; stub_call("GLTexEnvfv"); }
+static void Stub_GLLightf(GLcontext context, GLenum light, GLenum pname, GLfloat param)
+{
+    (void)context;
+    (void)light;
+    (void)pname;
+    (void)param;
+    stub_call("GLLightf");
+}
 
+static void Stub_GLLightfv(GLcontext context, GLenum light, GLenum pname, const GLfloat *params)
+{
+    (void)context;
+    (void)light;
+    (void)pname;
+    (void)params;
+    stub_call("GLLightfv");
+}
+
+static void Stub_GLMaterialf(GLcontext context, GLenum face, GLenum pname, GLfloat param)
+{
+    (void)context;
+    (void)face;
+    (void)pname;
+    (void)param;
+    stub_call("GLMaterialf");
+}
+
+static void Stub_GLMaterialfv(GLcontext context, GLenum face, GLenum pname, const GLfloat *params)
+{
+    (void)context;
+    (void)face;
+    (void)pname;
+    (void)params;
+    stub_call("GLMaterialfv");
+}
+
+static void Stub_GLLightModelf(GLcontext context, GLenum pname, GLfloat param)
+{
+    (void)context;
+    (void)pname;
+    (void)param;
+    stub_call("GLLightModelf");
+}
+
+static void Stub_GLLightModelfv(GLcontext context, GLenum pname, const GLfloat *params)
+{
+    (void)context;
+    (void)pname;
+    (void)params;
+    stub_call("GLLightModelfv");
+}
+
+static void Stub_GLGetLightfv(GLcontext context, GLenum light, GLenum pname, GLfloat *params)
+{
+    (void)context;
+    (void)light;
+    (void)pname;
+    (void)params;
+    stub_call("GLGetLightfv");
+}
+
+static void Stub_GLGetMaterialfv(GLcontext context, GLenum face, GLenum pname, GLfloat *params)
+{
+    (void)context;
+    (void)face;
+    (void)pname;
+    (void)params;
+    stub_call("GLGetMaterialfv");
+}
+
+static GLuint Stub_GLGenLists(GLcontext context, GLsizei range)
+{
+    (void)context;
+    (void)range;
+    stub_call("GLGenLists");
+    return 0;
+}
+
+static void Stub_GLDeleteLists(GLcontext context, GLuint list, GLsizei range)
+{
+    (void)context;
+    (void)list;
+    (void)range;
+    stub_call("GLDeleteLists");
+}
+
+static GLboolean Stub_GLIsList(GLcontext context, GLuint list)
+{
+    (void)context;
+    (void)list;
+    stub_call("GLIsList");
+    return GL_FALSE;
+}
+
+static void Stub_GLNewList(GLcontext context, GLuint list, GLenum mode)
+{
+    (void)context;
+    (void)list;
+    (void)mode;
+    stub_call("GLNewList");
+}
+
+static void Stub_GLEndList(GLcontext context)
+{
+    (void)context;
+    stub_call("GLEndList");
+}
+
+static void Stub_GLCallList(GLcontext context, GLuint list)
+{
+    (void)context;
+    (void)list;
+    stub_call("GLCallList");
+}
+
+static GLint Stub_GLUBuild2DMipmaps(GLcontext context, GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *data)
+{
+    (void)context;
+    (void)target;
+    (void)internalFormat;
+    (void)width;
+    (void)height;
+    (void)format;
+    (void)type;
+    (void)data;
+    stub_call("GLUBuild2DMipmaps");
+    return 0;
+}
+
+static const GLubyte *Stub_GLUErrorString(GLenum errCode)
+{
+    (void)errCode;
+    stub_call("GLUErrorString");
+    return NULL;
+}
+
+static GLUquadricObj *Stub_GLUNewQuadric(void)
+{
+    stub_call("GLUNewQuadric");
+    return NULL;
+}
+
+static void Stub_GLUDeleteQuadric(GLUquadricObj *q)
+{
+    (void)q;
+    stub_call("GLUDeleteQuadric");
+}
+
+static void Stub_GLUQuadricNormals(GLUquadricObj *q, GLenum normals)
+{
+    (void)q;
+    (void)normals;
+    stub_call("GLUQuadricNormals");
+}
+
+static void Stub_GLUQuadricTexture(GLUquadricObj *q, GLboolean textureCoords)
+{
+    (void)q;
+    (void)textureCoords;
+    stub_call("GLUQuadricTexture");
+}
+
+static void Stub_GLUQuadricDrawStyle(GLUquadricObj *q, GLenum drawStyle)
+{
+    (void)q;
+    (void)drawStyle;
+    stub_call("GLUQuadricDrawStyle");
+}
+
+static void Stub_GLUQuadricOrientation(GLUquadricObj *q, GLenum orientation)
+{
+    (void)q;
+    (void)orientation;
+    stub_call("GLUQuadricOrientation");
+}
+
+static void Stub_GLUCylinder(GLUquadricObj *q, GLdouble base, GLdouble top, GLdouble height, GLint slices, GLint stacks)
+{
+    (void)q;
+    (void)base;
+    (void)top;
+    (void)height;
+    (void)slices;
+    (void)stacks;
+    stub_call("GLUCylinder");
+}
+
+static void Stub_GLUSphere(GLUquadricObj *q, GLdouble radius, GLint slices, GLint stacks)
+{
+    (void)q;
+    (void)radius;
+    (void)slices;
+    (void)stacks;
+    stub_call("GLUSphere");
+}
+
+static void Stub_GLUDisk(GLUquadricObj *q, GLdouble inner, GLdouble outer, GLint slices, GLint loops)
+{
+    (void)q;
+    (void)inner;
+    (void)outer;
+    (void)slices;
+    (void)loops;
+    stub_call("GLUDisk");
+}
+
+static void Stub_GLUTInit(int *argcp, char **argv)
+{
+    (void)argcp;
+    (void)argv;
+    stub_call("GLUTInit");
+}
+
+static void Stub_GLUTInitDisplayMode(unsigned int mode)
+{
+    (void)mode;
+    stub_call("GLUTInitDisplayMode");
+}
+
+static void Stub_GLUTInitWindowSize(int width, int height)
+{
+    (void)width;
+    (void)height;
+    stub_call("GLUTInitWindowSize");
+}
+
+static void Stub_GLUTInitWindowPosition(int x, int y)
+{
+    (void)x;
+    (void)y;
+    stub_call("GLUTInitWindowPosition");
+}
+
+static int Stub_GLUTCreateWindow(const char *title)
+{
+    (void)title;
+    stub_call("GLUTCreateWindow");
+    return 0;
+}
+
+static void Stub_GLUTMainLoop(void) { stub_call("GLUTMainLoop"); }
+
+static void Stub_GLUTDisplayFunc(void (*func)(void))
+{
+    (void)func;
+    stub_call("GLUTDisplayFunc");
+}
+
+static void Stub_GLUTIdleFunc(void (*func)(void))
+{
+    (void)func;
+    stub_call("GLUTIdleFunc");
+}
+
+static void Stub_GLUTKeyboardFunc(void (*func)(unsigned char key, int x, int y))
+{
+    (void)func;
+    stub_call("GLUTKeyboardFunc");
+}
+
+static void Stub_GLUTReshapeFunc(void (*func)(int width, int height))
+{
+    (void)func;
+    stub_call("GLUTReshapeFunc");
+}
+
+static void Stub_GLUTSwapBuffers(void) { stub_call("GLUTSwapBuffers"); }
+
+static void Stub_GLUTPostRedisplay(void) { stub_call("GLUTPostRedisplay"); }
+
+static int Stub_GLUTGet(GLenum state)
+{
+    (void)state;
+    stub_call("GLUTGet");
+    return 0;
+}
+
+static void Stub_GLUTGameModeString(const char *string)
+{
+    (void)string;
+    stub_call("GLUTGameModeString");
+}
+
+static int Stub_GLUTEnterGameMode(void)
+{
+    stub_call("GLUTEnterGameMode");
+    return 0;
+}
+
+static void Stub_GLUTLeaveGameMode(void) { stub_call("GLUTLeaveGameMode"); }
+
+static int Stub_GLUTGameModeGet(GLenum query)
+{
+    (void)query;
+    stub_call("GLUTGameModeGet");
+    return 0;
+}
+
+static void Stub_GLUTSolidCube(GLdouble size)
+{
+    (void)size;
+    stub_call("GLUTSolidCube");
+}
+
+static void Stub_GLUTSolidSphere(GLdouble radius, GLint slices, GLint stacks)
+{
+    (void)radius;
+    (void)slices;
+    (void)stacks;
+    stub_call("GLUTSolidSphere");
+}
+
+static void Stub_GLUTSolidCone(GLdouble base, GLdouble height, GLint slices, GLint stacks)
+{
+    (void)base;
+    (void)height;
+    (void)slices;
+    (void)stacks;
+    stub_call("GLUTSolidCone");
+}
+
+static void Stub_GLUTSolidTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings)
+{
+    (void)innerRadius;
+    (void)outerRadius;
+    (void)sides;
+    (void)rings;
+    stub_call("GLUTSolidTorus");
+}
+
+static void Stub_GLUTSolidDodecahedron(void) { stub_call("GLUTSolidDodecahedron"); }
+
+static void Stub_GLNormalPointer(GLcontext context, GLenum type, GLsizei stride, const GLvoid *pointer) { stub_call("GLNormalPointer"); }
+
+static void Stub_GLUQuadricCallback(GLUquadricObj *q, GLenum which, MGLUfuncptr fn)
+{
+    (void)q;
+    (void)which;
+    (void)fn;
+    stub_call("GLUQuadricCallback");
+}
+
+static void Stub_GLColorMaterial(GLcontext context, GLenum face, GLenum mode)
+{
+    (void)context;
+    (void)face;
+    (void)mode;
+    stub_call("GLColorMaterial");
+}
+
+static void Stub_GLTexEnvfv(GLcontext context, GLenum target, GLenum pname, const GLfloat *params)
+{
+    (void)context;
+    (void)target;
+    (void)pname;
+    (void)params;
+    stub_call("GLTexEnvfv");
+}
 
 static void Stub_GLNormal3fv(GLcontext context, GLfloat *n)
 {
-    if (!n) return;
+    if (!n)
+        return;
     Stub_GLNormal3f(context, n[0], n[1], n[2]);
+}
+
+static void Stub_GLGetTexParameteriv(GLcontext context, GLenum target, GLenum pname, GLint *params)
+{
+    stub_call("GLGetTexParameteriv");
+}
+
+static void Stub_GLGetTexEnviv(GLcontext context, GLenum target, GLenum pname, GLint *params)
+{
+    stub_call("GLGetTexEnviv");
+}
+
+static void Stub_GLGetTexEnvfv(GLcontext context, GLenum target, GLenum pname, GLfloat *params)
+{
+    stub_call("GLGetTexEnvfv");
+}
+
+static void Stub_GLGetTexGeniv(GLcontext context, GLenum coord, GLenum pname, GLint *params)
+{
+    stub_call("GLGetTexGeniv");
+}
+
+static void Stub_GLGetTexGenfv(GLcontext context, GLenum coord, GLenum pname, GLfloat *params)
+{
+    stub_call("GLGetTexGenfv");
+}
+
+static void Stub_GLGetTexLevelParameteriv(GLcontext context, GLenum target, GLint level, GLenum pname, GLint *params)
+{
+    stub_call("GLGetTexLevelParameteriv");
+}
+
+static void Stub_GLGetTexImage(GLcontext context, GLenum target, GLint level, GLenum format, GLenum type, GLvoid *pixels)
+{
+    stub_call("GLGetTexImage");
+}
+
+static void Stub_GLDrawElementsBaseVertex(GLcontext context, GLenum mode, GLsizei count, GLenum type, const GLvoid *indices, GLint basevertex)
+{
+    stub_call("GLDrawElementsBaseVertex");
+}
+
+static void Stub_GLInsertEventMarkerEXT(GLcontext context, GLsizei length, const GLchar *marker)
+{
+    stub_call("GLInsertEventMarkerEXT");
+}
+
+static void Stub_GLPushGroupMarkerEXT(GLcontext context, GLsizei length, const GLchar *marker)
+{
+    stub_call("GLPushGroupMarkerEXT");
+}
+
+static void Stub_GLPopGroupMarkerEXT(GLcontext context)
+{
+    stub_call("GLPopGroupMarkerEXT");
+}
+
+static void Stub_GLGenVertexArrays(GLcontext context, GLsizei n, GLuint *ids)
+{
+    stub_call("GLGenVertexArrays");
+}
+
+static GLboolean Stub_GLIsVertexArray(GLcontext context, GLuint id)
+{
+    stub_call("GLIsVertexArray");
+    return GL_FALSE;
+}
+
+static void Stub_GLBindVertexArray(GLcontext context, GLuint id)
+{
+    stub_call("GLBindVertexArray");
+}
+
+static void Stub_GLDeleteVertexArrays(GLcontext context, GLsizei n, const GLuint *ids)
+{
+    stub_call("GLDeleteVertexArrays");
+}
+
+static void Stub_GLClipControlEXT(GLcontext context, GLenum origin, GLenum depth)
+{
+    stub_call("GLClipControlEXT");
+}
+
+static void Stub_GLStencilFunc(GLcontext context, GLenum func, GLint ref, GLuint mask)
+{
+    stub_call("GLStencilFunc");
+}
+
+static void Stub_GLStencilMask(GLcontext context, GLuint mask)
+{
+    stub_call("GLStencilMask");
+}
+
+static void Stub_GLStencilOp(GLcontext context, GLenum fail, GLenum zfail, GLenum zpass)
+{
+    stub_call("GLStencilOp");
+}
+
+static void Stub_GLClearStencil(GLcontext context, GLint s)
+{
+    stub_call("GLClearStencil");
+}
+
+static ULONG Stub_MGLSetTexChromaBounds(GLcontext context, GLuint texture, ULONG rgba_lower, ULONG rgba_upper, ULONG mode)
+{
+    stub_call("MGLSetTexChromaBounds");
+    return 5;
+}
+
+static void Stub_GLLogicOp(GLcontext context, GLenum opcode)
+{
+    stub_call("GLLogicOp");
+}
+
+static void Stub_GLRectf(GLcontext context, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
+{
+    stub_call("GLRectf");
+}
+
+static void Stub_GLTexImage1D(GLcontext context, GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
+{
+    stub_call("GLTexImage1D");
+}
+
+static void Stub_GLPushAttrib(GLcontext context, GLbitfield mask)
+{
+    stub_call("GLPushAttrib");
+}
+
+static void Stub_GLPopAttrib(GLcontext context)
+{
+    stub_call("GLPopAttrib");
+}
+
+static void Stub_GLRasterPos4f(GLcontext context, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+{
+    stub_call("GLRasterPos4f");
+}
+
+static void Stub_GLPixelZoom(GLcontext context, GLfloat xfactor, GLfloat yfactor)
+{
+    stub_call("GLPixelZoom");
+}
+
+static void Stub_GLDrawPixels(GLcontext context, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels)
+{
+    stub_call("GLDrawPixels");
+}
+
+static void Stub_GLCopyPixels(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei height, GLenum type)
+{
+    stub_call("GLCopyPixels");
+}
+
+static void Stub_GLBitmap(GLcontext context, GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap)
+{
+    stub_call("GLBitmap");
+}
+
+static GLint Stub_GLUScaleImage(GLcontext context, GLenum format, GLint wIn, GLint hIn, GLenum typeIn, const GLvoid *dataIn, GLint wOut, GLint hOut, GLenum typeOut, GLvoid *dataOut)
+{
+    stub_call("GLUScaleImage");
+    return 0;
+}
+
+static const GLubyte *Stub_GLUGetString(GLenum name)
+{
+    stub_call("GLUGetString");
+    return NULL;
+}
+
+static void Stub_GLUOrtho2D(GLcontext context, GLdouble left, GLdouble right, GLdouble bottom, GLdouble top)
+{
+    stub_call("GLUOrtho2D");
+}
+
+static GLint Stub_GLUProject(GLcontext context, GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint *viewport, GLdouble *winX, GLdouble *winY, GLdouble *winZ)
+{
+    stub_call("GLUProject");
+    return 0;
+}
+
+static GLint Stub_GLUUnProject(GLcontext context, GLdouble winX, GLdouble winY, GLdouble winZ, const GLdouble *model, const GLdouble *proj, const GLint *viewport, GLdouble *objX, GLdouble *objY, GLdouble *objZ)
+{
+    stub_call("GLUUnProject");
+    return 0;
+}
+
+static void Stub_GLUPickMatrix(GLcontext context, GLdouble x, GLdouble y, GLdouble width, GLdouble height, const GLint *viewport)
+{
+    stub_call("GLUPickMatrix");
+}
+
+/* no backend behind the passthrough, 5 = W3D_NOT_SUPPORTED */
+static LONG Stub_mglQuery(GLcontext context, ULONG query, ULONG destfmt)
+{
+    stub_call("mglQuery");
+    return 5L;
+}
+
+static void *Stub_mglGetScreenmodeList(void)
+{
+    stub_call("mglGetScreenmodeList");
+    return (void *)0;
+}
+
+static void Stub_mglFreeScreenmodeList(void *list)
+{
+    stub_call("mglFreeScreenmodeList");
+}
+
+static LONG Stub_mglGetModeDriverInfo(ULONG modeID, MGLModeDriverInfo *info)
+{
+    stub_call("mglGetModeDriverInfo");
+    return 0;
+}
+
+static LONG Stub_mglQueryMode(ULONG modeID, ULONG query, ULONG destfmt)
+{
+    stub_call("mglQueryMode");
+    return 5L;
+}
+
+/* 2 = W3D_TEXFMT_UNSUPPORTED */
+static ULONG Stub_mglModeTexFmt(ULONG modeID, ULONG texfmt, ULONG destfmt)
+{
+    stub_call("mglModeTexFmt");
+    return 2L;
 }
 
 const MGLDispatchTable MiniGLDispatchTable = {
@@ -477,4 +1352,47 @@ const MGLDispatchTable MiniGLDispatchTable = {
     Stub_GLColorMaterial,
     Stub_GLTexEnvfv,
     Stub_GLNormal3fv, /* 29.1: append-only slot 205. */
+    Stub_mglQuery,
+    Stub_mglGetScreenmodeList,
+    Stub_mglFreeScreenmodeList,
+    Stub_mglGetModeDriverInfo,
+    Stub_mglQueryMode,
+    Stub_mglModeTexFmt,
+    Stub_GLGetTexParameteriv,
+    Stub_GLGetTexEnviv,
+    Stub_GLGetTexEnvfv,
+    Stub_GLGetTexGeniv,
+    Stub_GLGetTexGenfv,
+    Stub_GLGetTexLevelParameteriv,
+    Stub_GLGetTexImage,
+    Stub_GLDrawElementsBaseVertex,
+    Stub_GLInsertEventMarkerEXT,
+    Stub_GLPushGroupMarkerEXT,
+    Stub_GLPopGroupMarkerEXT,
+    Stub_GLGenVertexArrays,
+    Stub_GLIsVertexArray,
+    Stub_GLBindVertexArray,
+    Stub_GLDeleteVertexArrays,
+    Stub_GLClipControlEXT,
+    Stub_GLStencilFunc,
+    Stub_GLStencilMask,
+    Stub_GLStencilOp,
+    Stub_GLClearStencil,
+    Stub_MGLSetTexChromaBounds,
+    Stub_GLLogicOp,
+    Stub_GLRectf,
+    Stub_GLTexImage1D,
+    Stub_GLPushAttrib,
+    Stub_GLPopAttrib,
+    Stub_GLRasterPos4f,
+    Stub_GLPixelZoom,
+    Stub_GLDrawPixels,
+    Stub_GLCopyPixels,
+    Stub_GLBitmap,
+    Stub_GLUScaleImage,
+    Stub_GLUGetString,
+    Stub_GLUOrtho2D,
+    Stub_GLUProject,
+    Stub_GLUUnProject,
+    Stub_GLUPickMatrix,
 };

@@ -1,3 +1,55 @@
+# Classic (changes and additions: 29.2)
+
+Stencil (full API)
+glStencilFunc, glStencilOp, glStencilMask, glClearStencil
+Implicit Enums: GL_STENCIL_FUNC/REF/VALUE_MASK/WRITEMASK/CLEAR_VALUE/FAIL/PASS_*, GL_STENCIL_BITS, GL_STENCIL_INDEX, GL_STENCIL_BUFFER_BIT, GL_KEEP/INCR/DECR, GL_NEVER..ALWAYS
+
+logic op
+glLogicOp, GL_LOGIC_OP_MODE, all 16 ops (GL_CLEAR...GL_SET)
+
+Attribute stack
+glPushAttrib, glPopAttrib, all GL_*_BIT (CURRENT, POINT, LINE, POLYGON, LIGHTING, FOG, TRANSFORM, ENABLE, HINT, TEXTURE, SCISSOR, ALL_ATTRIB_BITS...), GL_ATTRIB_STACK_DEPTH
+
+Rect
+glRectf/i/d/s (the last 3 wrappers to GLRectf)
+
+Vertex Array Objects
+glGenVertexArrays, glBindVertexArray, glIsVertexArray, glDeleteVertexArrays (GL_OES_vertex_array_object)
+glDrawElementsBaseVertex
+
+New interleaved formats: GL_N3F_V3F, GL_C4F_N3F_V3F, GL_T2F_C4F_N3F_V3F, GL_T2F_C4F_V3F, GL_T2F_N3F_V3F, GL_T4F_C4F_N3F_V4F, GL_T4F_V4F
+
+Debug markers
+glInsertEventMarkerEXT, glPushGroupMarkerEXT, glPopGroupMarkerEXT (GL_EXT_debug_marker)
+
+Control clip
+glClipControlEXT (GL_LOWER_LEFT/UPPER_LEFT, GL_NEGATIVE_ONE_TO_ONE/ZERO_TO_ONE)
+
+Textures
+glTexImage1D
+Getters: glGetTexImage, glGetTexLevelParameteriv, glGetTexParameteriv, glGetTexEnvfv/iv, glGetTexGenfv/iv GL_TEXTURE4..15 + _ARB (expansion to 16 units)
+Enums: GL_TEXTURE_WIDTH/HEIGHT/INTERNAL_FORMAT/BORDER/*_SIZE, GL_RGBA4, GL_TEXTURE_BINDING_2D
+
+Readback
+Complete pixel-store pack for glReadPixels (PackRowLength, PackSkipPixels/Rows, PackSwapBytes, PackLsbFirst)
+GL_OES_read_format, GL_IMPLEMENTATION_COLOR_READ_TYPE/FORMAT_OES
+
+raster
+GL_CURRENT_RASTER_POSITION(+_VALID), GL_ZOOM_X/Y, GL_COLOR/DEPTH/STENCIL
+
+GLU
+gluGetString, gluOrtho2D, gluPickMatrix, gluProject, gluUnProject, gluScaleImage
+
+Own mgl* API
+mglSetTexChromaBounds (chroma key per texture)
+mglGetModeDriverInfo, mglQueryMode, mglModeTexFmt
+
+Generic queries MGL_Q_* (VAO_MAX, VAO_FREE, VB_SIZE, MARKER_DEPTH, LOGICOP)
+
+GL_POLYGON_OFFSET_LINE, GL_POLYGON_OFFSET_POINT, GL_SHARED_TEXTURE_PALETTE_EXT
+
+new clipping, replaces hclip/aclip), light.c
+
 # PiStorm3D
 
 PiStorm3D is a hardware-accelerated MiniGL implementation for classic Amiga systems using the Raspberry Pi VideoCore V3D GPU through PiStorm systems based on Raspberry Pi 4 / CM4 / 4B hardware.

@@ -15,7 +15,7 @@
 #ifndef __MGL_MODES_H
 #define __MGL_MODES_H
 
-#pragma pack(push,2)
+#pragma pack(push, 2)
 #include <Warp3D/Warp3D.h>
 #pragma pack(pop)
 
@@ -23,18 +23,18 @@
 
 typedef struct
 {
-	GLint id; // blackbox id used for mglCreateContextID()
-	GLint width,height;     // screenmode size
-	GLint bit_depth;        // depth of mode
-	char  mode_name[MGL_MAX_MODE]; // name for this mode
+    GLint id;                     // blackbox id used for mglCreateContextID()
+    GLint width, height;          // screenmode size
+    GLint bit_depth;              // depth of mode
+    char mode_name[MGL_MAX_MODE]; // name for this mode
 } MGLScreenMode;
 
 typedef struct
 {
-	ULONG width,height,depth;
-	ULONG pixel_format;
-	void *base_address;
-	ULONG pitch;
+    ULONG width, height, depth;
+    ULONG pixel_format;
+    void *base_address;
+    ULONG pitch;
 } MGLLockInfo;
 
 typedef GLboolean (*MGLScreenModeCallback)(MGLScreenMode *);

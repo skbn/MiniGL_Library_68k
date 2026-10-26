@@ -27,33 +27,34 @@
 #include <mgl/gl.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* GLUTInitDisplayMode bits. GLUT_RGB, GLUT_RGBA and GLUT_SINGLE are all 0 --
  * that is GLUT's own definition, not an omission: they are the defaults and
  * carry no bit. */
-#define GLUT_RGB                    0x0000
-#define GLUT_RGBA                   0x0000
-#define GLUT_INDEX                  0x0001
-#define GLUT_SINGLE                 0x0000
-#define GLUT_DOUBLE                 0x0002
-#define GLUT_ACCUM                  0x0004
-#define GLUT_ALPHA                  0x0008
-#define GLUT_DEPTH                  0x0010
-#define GLUT_STENCIL                0x0020
-#define GLUT_MULTISAMPLE            0x0080
-#define GLUT_STEREO                 0x0100
-#define GLUT_LUMINANCE              0x0200
+#define GLUT_RGB 0x0000
+#define GLUT_RGBA 0x0000
+#define GLUT_INDEX 0x0001
+#define GLUT_SINGLE 0x0000
+#define GLUT_DOUBLE 0x0002
+#define GLUT_ACCUM 0x0004
+#define GLUT_ALPHA 0x0008
+#define GLUT_DEPTH 0x0010
+#define GLUT_STENCIL 0x0020
+#define GLUT_MULTISAMPLE 0x0080
+#define GLUT_STEREO 0x0100
+#define GLUT_LUMINANCE 0x0200
 
 /* GLUTGameModeGet queries. */
-#define GLUT_GAME_MODE_ACTIVE           0x0000
-#define GLUT_GAME_MODE_POSSIBLE         0x0001
-#define GLUT_GAME_MODE_WIDTH            0x0002
-#define GLUT_GAME_MODE_HEIGHT           0x0003
-#define GLUT_GAME_MODE_PIXEL_DEPTH      0x0004
-#define GLUT_GAME_MODE_REFRESH_RATE     0x0005
-#define GLUT_GAME_MODE_DISPLAY_CHANGED  0x0006
+#define GLUT_GAME_MODE_ACTIVE 0x0000
+#define GLUT_GAME_MODE_POSSIBLE 0x0001
+#define GLUT_GAME_MODE_WIDTH 0x0002
+#define GLUT_GAME_MODE_HEIGHT 0x0003
+#define GLUT_GAME_MODE_PIXEL_DEPTH 0x0004
+#define GLUT_GAME_MODE_REFRESH_RATE 0x0005
+#define GLUT_GAME_MODE_DISPLAY_CHANGED 0x0006
 
 /*
  * GLUTGet queries. SPELLED DECIMAL, which GLUT's own header does for exactly
@@ -77,66 +78,66 @@ extern "C" {
  * AutoDoc for what each answers and why a zero here is a fact rather than a
  * placeholder.
  */
-#define GLUT_WINDOW_X                   100
-#define GLUT_WINDOW_Y                   101
-#define GLUT_WINDOW_WIDTH               102
-#define GLUT_WINDOW_HEIGHT              103
-#define GLUT_WINDOW_BUFFER_SIZE         104
-#define GLUT_WINDOW_STENCIL_SIZE        105
-#define GLUT_WINDOW_DEPTH_SIZE          106
-#define GLUT_WINDOW_RED_SIZE            107
-#define GLUT_WINDOW_GREEN_SIZE          108
-#define GLUT_WINDOW_BLUE_SIZE           109
-#define GLUT_WINDOW_ALPHA_SIZE          110
-#define GLUT_WINDOW_ACCUM_RED_SIZE      111
-#define GLUT_WINDOW_ACCUM_GREEN_SIZE    112
-#define GLUT_WINDOW_ACCUM_BLUE_SIZE     113
-#define GLUT_WINDOW_ACCUM_ALPHA_SIZE    114
-#define GLUT_WINDOW_DOUBLEBUFFER        115
-#define GLUT_WINDOW_RGBA                116
-#define GLUT_WINDOW_PARENT              117
-#define GLUT_WINDOW_NUM_CHILDREN        118
-#define GLUT_WINDOW_COLORMAP_SIZE       119
-#define GLUT_WINDOW_NUM_SAMPLES         120
-#define GLUT_WINDOW_STEREO              121
-#define GLUT_WINDOW_CURSOR              122
-#define GLUT_WINDOW_FORMAT_ID           123
-#define GLUT_SCREEN_WIDTH               200
-#define GLUT_SCREEN_HEIGHT              201
-#define GLUT_SCREEN_WIDTH_MM            202
-#define GLUT_SCREEN_HEIGHT_MM           203
-#define GLUT_MENU_NUM_ITEMS             300
-#define GLUT_DISPLAY_MODE_POSSIBLE      400
-#define GLUT_INIT_WINDOW_X              500
-#define GLUT_INIT_WINDOW_Y              501
-#define GLUT_INIT_WINDOW_WIDTH          502
-#define GLUT_INIT_WINDOW_HEIGHT         503
-#define GLUT_INIT_DISPLAY_MODE          504
+#define GLUT_WINDOW_X 100
+#define GLUT_WINDOW_Y 101
+#define GLUT_WINDOW_WIDTH 102
+#define GLUT_WINDOW_HEIGHT 103
+#define GLUT_WINDOW_BUFFER_SIZE 104
+#define GLUT_WINDOW_STENCIL_SIZE 105
+#define GLUT_WINDOW_DEPTH_SIZE 106
+#define GLUT_WINDOW_RED_SIZE 107
+#define GLUT_WINDOW_GREEN_SIZE 108
+#define GLUT_WINDOW_BLUE_SIZE 109
+#define GLUT_WINDOW_ALPHA_SIZE 110
+#define GLUT_WINDOW_ACCUM_RED_SIZE 111
+#define GLUT_WINDOW_ACCUM_GREEN_SIZE 112
+#define GLUT_WINDOW_ACCUM_BLUE_SIZE 113
+#define GLUT_WINDOW_ACCUM_ALPHA_SIZE 114
+#define GLUT_WINDOW_DOUBLEBUFFER 115
+#define GLUT_WINDOW_RGBA 116
+#define GLUT_WINDOW_PARENT 117
+#define GLUT_WINDOW_NUM_CHILDREN 118
+#define GLUT_WINDOW_COLORMAP_SIZE 119
+#define GLUT_WINDOW_NUM_SAMPLES 120
+#define GLUT_WINDOW_STEREO 121
+#define GLUT_WINDOW_CURSOR 122
+#define GLUT_WINDOW_FORMAT_ID 123
+#define GLUT_SCREEN_WIDTH 200
+#define GLUT_SCREEN_HEIGHT 201
+#define GLUT_SCREEN_WIDTH_MM 202
+#define GLUT_SCREEN_HEIGHT_MM 203
+#define GLUT_MENU_NUM_ITEMS 300
+#define GLUT_DISPLAY_MODE_POSSIBLE 400
+#define GLUT_INIT_WINDOW_X 500
+#define GLUT_INIT_WINDOW_Y 501
+#define GLUT_INIT_WINDOW_WIDTH 502
+#define GLUT_INIT_WINDOW_HEIGHT 503
+#define GLUT_INIT_DISPLAY_MODE 504
 
 /* glutGet(GLUT_WINDOW_CURSOR)'s answer: the cursor a window has when nothing
  * has called glutSetCursor, which is GLUT's own initial value for every window
  * (glut_win.c:671). There is no glutSetCursor here to change it. */
-#define GLUT_CURSOR_INHERIT             100
+#define GLUT_CURSOR_INHERIT 100
 
-/* Lifecycle. */
-extern void GLUTInit(int *argcp, char **argv);
-extern void GLUTInitDisplayMode(unsigned int mode);
-extern void GLUTInitWindowSize(int width, int height);
-extern void GLUTInitWindowPosition(int x, int y);
-extern int  GLUTCreateWindow(const char *title);
-extern void GLUTMainLoop(void);
+    /* Lifecycle. */
+    extern void GLUTInit(int *argcp, char **argv);
+    extern void GLUTInitDisplayMode(unsigned int mode);
+    extern void GLUTInitWindowSize(int width, int height);
+    extern void GLUTInitWindowPosition(int x, int y);
+    extern int GLUTCreateWindow(const char *title);
+    extern void GLUTMainLoop(void);
 
-/* Callback registration. GLUTKeyboardFunc's (key, x, y) signature is GLUT's;
- * the driver's own KeyHandlerFn takes only the key, so mglglut_main.c passes
- * x = y = 0. MiniGLV3D delivers no mouse position with a keystroke. */
-extern void GLUTDisplayFunc(void (*func)(void));
-extern void GLUTIdleFunc(void (*func)(void));
-extern void GLUTKeyboardFunc(void (*func)(unsigned char key, int x, int y));
-extern void GLUTReshapeFunc(void (*func)(int width, int height));
+    /* Callback registration. GLUTKeyboardFunc's (key, x, y) signature is GLUT's;
+     * the driver's own KeyHandlerFn takes only the key, so mglglut_main.c passes
+     * x = y = 0. MiniGLV3D delivers no mouse position with a keystroke. */
+    extern void GLUTDisplayFunc(void (*func)(void));
+    extern void GLUTIdleFunc(void (*func)(void));
+    extern void GLUTKeyboardFunc(void (*func)(unsigned char key, int x, int y));
+    extern void GLUTReshapeFunc(void (*func)(int width, int height));
 
-/* Frame control. */
-extern void GLUTSwapBuffers(void);
-extern void GLUTPostRedisplay(void);
+    /* Frame control. */
+    extern void GLUTSwapBuffers(void);
+    extern void GLUTPostRedisplay(void);
 
 /*
  * GLUTGet. GLUT_ELAPSED_TIME is the only query implemented, because it is the
@@ -150,24 +151,23 @@ extern void GLUTPostRedisplay(void);
  * zero delta between two calls, which is normal on any clock read twice inside
  * one tick.
  */
-#define GLUT_ELAPSED_TIME               0x02BC
-extern int  GLUTGet(GLenum state);
+#define GLUT_ELAPSED_TIME 0x02BC
+    extern int GLUTGet(GLenum state);
 
-/* Fullscreen ("game mode"). GLUTGameModeString parses GLUT's own
- * "WIDTHxHEIGHT:BPP@REFRESH" form; every field is optional. */
-extern void GLUTGameModeString(const char *string);
-extern int  GLUTEnterGameMode(void);
-extern void GLUTLeaveGameMode(void);
-extern int  GLUTGameModeGet(GLenum query);
+    /* Fullscreen ("game mode"). GLUTGameModeString parses GLUT's own
+     * "WIDTHxHEIGHT:BPP@REFRESH" form; every field is optional. */
+    extern void GLUTGameModeString(const char *string);
+    extern int GLUTEnterGameMode(void);
+    extern void GLUTLeaveGameMode(void);
+    extern int GLUTGameModeGet(GLenum query);
 
-/* Solid shapes. These take GLdouble because GLUT does; the tessellators
- * narrow to GLfloat internally, which is what the driver consumes. */
-extern void GLUTSolidCube(GLdouble size);
-extern void GLUTSolidSphere(GLdouble radius, GLint slices, GLint stacks);
-extern void GLUTSolidCone(GLdouble base, GLdouble height, GLint slices, GLint stacks);
-extern void GLUTSolidTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings);
-extern void GLUTSolidDodecahedron(void);
-
+    /* Solid shapes. These take GLdouble because GLUT does; the tessellators
+     * narrow to GLfloat internally, which is what the driver consumes. */
+    extern void GLUTSolidCube(GLdouble size);
+    extern void GLUTSolidSphere(GLdouble radius, GLint slices, GLint stacks);
+    extern void GLUTSolidCone(GLdouble base, GLdouble height, GLint slices, GLint stacks);
+    extern void GLUTSolidTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings);
+    extern void GLUTSolidDodecahedron(void);
 
 #ifndef USE_MGLAPI
 
@@ -206,8 +206,8 @@ extern void GLUTSolidDodecahedron(void);
 #define glutSolidTorus(inner, outer, sides, rings) GLUTSolidTorus(inner, outer, sides, rings)
 #define glutSwapBuffers() GLUTSwapBuffers()
 
-#endif /* USE_MGLAPI not defined -- a library client gets its glut* macros
-                * from <libraries/minigl_dispatch.h> instead */
+#endif /* USE_MGLAPI not defined -- a library client gets its glut* macros \
+        * from <libraries/minigl_dispatch.h> instead */
 
 #ifdef __cplusplus
 }

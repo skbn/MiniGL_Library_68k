@@ -6,7 +6,7 @@
 /***/
 /** This file is part of the Warp3D Project.*/
 /** Warp3D is copyrighted*/
-/** (C) 1998 Sam Jordan, Hans-Jörg Frieden, Thomas Frieden*/
+/** (C) 1998 Sam Jordan, Hans-Jï¿½rg Frieden, Thomas Frieden*/
 /** All rights reserved*/
 /***/
 /** See the documentation for conditions.*/

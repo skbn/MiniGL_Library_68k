@@ -29,7 +29,7 @@ else ifneq ($(VARIANT),stock)
 $(error VARIANT must be stock or ortho)
 endif
 INC := -I$(Q3)/include -Iinclude -Ilibrary
-Q3_NAMES := context vertexbuffer draw texture fog hclip init glu aclip vertexelements vertexarray others matrix
+Q3_NAMES := context vertexbuffer draw texture fog hclip init glu aclip vertexelements vertexarray light others matrix
 LIB_NAMES := minigl_library dispatch_table_classic debug_output runtime_shim math_shim
 Q3_OBJS := $(addprefix $(OBJ)/q3/,$(addsuffix .o,$(Q3_NAMES)))
 LIB_OBJS := $(addprefix $(OBJ)/library/,$(addsuffix .o,$(LIB_NAMES)))

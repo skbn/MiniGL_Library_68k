@@ -1,1906 +1,2221 @@
-/*
- * $Id: texture.c,v 1.1.1.1 2000/04/07 19:44:51 tfrieden Exp $
- *
- * $Date: 2000/04/07 19:44:51 $
- * $Revision: 1.1.1.1 $
- *
- * (C) 1999 by Hyperion
- * All rights reserved
- *
- * This file is part of the MiniGL library project
- * See the file Licence.txt for more details
- *
- */
+#include "mglint.h"
 
-#include "sysinc.h"
+static const ULONG tex_fmtneg[12][4] =
+    {
+        {0},
+        {W3D_A8R8G8B8, W3D_A4R4G4B4, W3D_A1R5G5B5, 0}, /* CHUNKY: expand through palette */
+        {W3D_A4R4G4B4, W3D_A8R8G8B8, 0, 0},            /* A1R5G5B5 */
+        {W3D_A4R4G4B4, W3D_R8G8B8, 0, 0},              /* R5G6B5 */
+        {W3D_R5G6B5, W3D_A4R4G4B4, 0, 0},              /* R8G8B8 */
+        {W3D_A1R5G5B5, W3D_A8R8G8B8, 0, 0},            /* A4R4G4B4 */
+        {W3D_A4R4G4B4, W3D_A1R5G5B5, W3D_R8G8B8A8, 0}, /* A8R8G8B8 */
+        {W3D_L8A8, W3D_A4R4G4B4, W3D_A1R5G5B5, 0},     /* A8 */
+        {W3D_R5G6B5, W3D_R8G8B8, W3D_A4R4G4B4, 0},     /* L8 */
+        {W3D_A4R4G4B4, W3D_A8R8G8B8, 0, 0},            /* L8A8 */
+        {W3D_A4R4G4B4, 0, 0, 0},                       /* I8 */
+        {W3D_A8R8G8B8, W3D_A4R4G4B4, W3D_A1R5G5B5, 0}, /* R8G8B8A8 */
+};
 
-/* QuarkTex reads optional colors even when the selected mode ignores them. */
-static W3D_Color safe_zero_color = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h> //inlined memcpy
-
-//static char rcsid[] = "$Id: texture.c,v 1.1.1.1 2000/04/07 19:44:51 tfrieden Exp $";
-
-#ifndef __PPC__
-extern struct ExecBase *SysBase;
-#endif
-
-void tex_FreeTextures(GLcontext context);
-void tex_SetEnv(GLcontext context, GLenum env);
-ULONG tex_GLFilter2W3D(GLenum filter);
-void tex_SetFilter(GLcontext context, GLenum min, GLenum mag);
-void tex_SetWrap(GLcontext context, GLenum wrap_s, GLenum wrap_t);
-
-/*
-** Surgeon: support for GL_ALPHA, GL_LUMINANCE and GL_LUMINANCE_ALPHA
-** The support is indirect because GL_ALPHA and GL_LUMINANCE are converted to A4R4G4B4.
-** Funnily A8 and L8 are supported in hardware by Voodoo3 but these formats seem to have some Warp3D related problems. */
-
-//NOTE: warp3D has problem with one byte/pixel formats
-//#define EIGHTBIT_TEXTURES 1
-
-//Formats directly supported by Warp3D:
-
-static void SHORT4444_4444(GLcontext context, GLubyte *input, UWORD *output, int width, int height);
-static void SHORT565_565(GLcontext context, GLubyte *input, UWORD *output, int width, int height);
-
-//supported, but not in hardware on voodoo3:
-
-static void L8A8_L8A8(GLcontext context, GLubyte *input, UWORD *output, int width, int height);
-
-#ifdef EIGHTBIT_TEXTURES
-
-void EIGHT_EIGHT(GLcontext context, GLubyte *input, UWORD *output, int width, int height);
-
-#endif
-
-
-//conversion routines:
-
-static void SHORT565_4444(GLcontext context, GLubyte *input, UWORD *output, int width, int height);
-static void SHORT4444_565(GLcontext context, GLubyte *input, UWORD *output, int width, int height);
-static void A8_ARGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height);
-static void L8_ARGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height);
-static void RGBA_RGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height);
-static void RGBA_ARGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height);
-static void RGB_RGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height);
-static void RGB_ARGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height);
-//void RGBA4_ARGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height);
-
-ULONG MGLConvert(GLcontext context, const GLvoid *inputp, UWORD *output, int width, int height, GLenum internalformat, GLenum format);
-
-static ULONG Allocated_Size = 0;
-static ULONG Peak_Size	    = 0;
-
-void *tex_Alloc(ULONG size)
+static int tex_fmtbpp(ULONG fmt)
 {
-	ULONG *x;
-	Allocated_Size += size+4;
-	x = (ULONG *)malloc(size+4);
-	*x = size;
+    switch (fmt)
+    {
+    case W3D_CHUNKY:
+    case W3D_A8:
+    case W3D_L8:
+    case W3D_I8:
+        return 1;
+    case W3D_L8A8:
+    case W3D_R5G6B5:
+    case W3D_A1R5G5B5:
+    case W3D_A4R4G4B4:
+        return 2;
+    case W3D_R8G8B8:
+        return 3;
+    case W3D_A8R8G8B8:
+    case W3D_R8G8B8A8:
+        return 4;
+    }
 
-	if (Allocated_Size > Peak_Size)
-		Peak_Size = Allocated_Size;
-
-	return x+1;
+    return 0;
 }
 
-void tex_Free(void *chunk)
+GLenum tex_srcfmt(GLenum format, GLenum type, int *sid, int *bpp)
 {
-	ULONG *mem = (ULONG *)chunk;
-	mem--;
-	Allocated_Size -= *mem;
-	Allocated_Size -= 4;
-	free(mem);
+    if (type == GL_UNSIGNED_BYTE)
+    {
+        switch (format)
+        {
+        case GL_RGBA:
+            *sid = SRC_RGBA8;
+            *bpp = 4;
+            break;
+        case GL_RGB:
+            *sid = SRC_RGB8;
+            *bpp = 3;
+            break;
+        case GL_ALPHA:
+            *sid = SRC_A8;
+            *bpp = 1;
+            break;
+        case GL_LUMINANCE:
+            *sid = SRC_L8;
+            *bpp = 1;
+            break;
+        case GL_LUMINANCE_ALPHA:
+            *sid = SRC_LA8;
+            *bpp = 2;
+            break;
+        case GL_INTENSITY:
+            *sid = SRC_I8;
+            *bpp = 1;
+            break;
+        case GL_COLOR_INDEX:
+            *sid = SRC_IDX8;
+            *bpp = 1;
+            break;
+        case GL_RED:
+        case GL_DEPTH_COMPONENT:
+            *sid = SRC_R8;
+            *bpp = 1;
+            break;
+        case GL_GREEN:
+            *sid = SRC_G8;
+            *bpp = 1;
+            break;
+        case GL_BLUE:
+            *sid = SRC_B8;
+            *bpp = 1;
+            break;
+        default:
+            return GL_INVALID_ENUM;
+        }
+
+        return GL_NO_ERROR;
+    }
+
+    if (type == MGL_UBYTE_ARGB || type == MGL_UBYTE_BGRA)
+    {
+        if (format != GL_RGBA)
+            return GL_INVALID_OPERATION;
+
+        *sid = type == MGL_UBYTE_ARGB ? SRC_ARGB8 : SRC_BGRA8;
+        *bpp = 4;
+
+        return GL_NO_ERROR;
+    }
+
+    if (type == MGL_UNSIGNED_SHORT_5_6_5)
+    {
+        if (format != GL_RGB)
+            return GL_INVALID_OPERATION;
+
+        *sid = SRC_RGB565;
+        *bpp = 2;
+
+        return GL_NO_ERROR;
+    }
+
+    if (type == MGL_UNSIGNED_SHORT_4_4_4_4)
+    {
+        if (format != GL_RGBA)
+            return GL_INVALID_OPERATION;
+
+        *sid = SRC_ARGB4;
+        *bpp = 2;
+
+        return GL_NO_ERROR;
+    }
+
+    return GL_INVALID_ENUM;
 }
 
-#if 0 // not used
-void tex_Statistic(void)
+static int tex_fastfmt(ULONG info)
 {
-	// printf("Peak Allocation Size: %ld\n", Peak_Size);
-	printf("Peak Allocation Size: %lu\n", Peak_Size); //OF
-
-}
-#endif
-
-void MGLTexMemStat(GLcontext context, GLint *Current, GLint *Peak)
-{
-	if (Current) *Current = (GLint)Allocated_Size;
-	if (Peak)    *Peak    = (GLint)Peak_Size;
+    return (info & W3D_TEXFMT_SUPPORTED) && (info & (W3D_TEXFMT_FAST | W3D_TEXFMT_CLUTFAST | W3D_TEXFMT_ARGBFAST));
 }
 
-void GLDeleteTextures(GLcontext context, GLsizei n, const GLuint *textures)
+void tex_negotiate(GLcontext context)
 {
-	int i;
+    W3D_Context *w3d = context->w3dContext;
+    W3D_Driver *drv = context->TexFmtDrv;
+    ULONG f;
+    int i;
 
-	for (i=0; i<n; i++)
-	{
-		int j = *textures++;
+    for (f = W3D_CHUNKY; f <= W3D_R8G8B8A8; f++)
+    {
+        ULONG pick = 0;
+        ULONG ci = W3D_GetTexFmtInfo(w3d, f, w3d->format);
+        ULONG di = drv ? W3D_GetDriverTexFmtInfo(drv, f, w3d->format) : ci;
 
-		if (context->w3dTexBuffer[j])
-		{
-			W3D_FreeTexObj(context->w3dContext, context->w3dTexBuffer[j]);
-			context->w3dTexBuffer[j] = NULL;
-		}
+        if (tex_fastfmt(ci) && tex_fastfmt(di))
+        {
+            context->TexFmtNeg[f] = f;
+            continue;
+        }
 
-		if (context->w3dTexMemory[j])
-		{
-			void *x = context->w3dTexMemory[j];
-			tex_Free(x);
-			context->w3dTexMemory[j] = NULL;
-		}
+        if (!(ci & W3D_TEXFMT_UNSUPPORTED) && (f < W3D_R8G8B8A8 || tex_fastfmt(ci) || tex_fastfmt(di)))
+            pick = f;
 
-		context->GeneratedTextures[j] = 0;
-	}
+        for (i = 0; i < 4 && tex_fmtneg[f][i]; i++)
+        {
+            const ULONG alt = tex_fmtneg[f][i];
+            ULONG ai = W3D_GetTexFmtInfo(w3d, alt, w3d->format);
+            ULONG aj = drv ? W3D_GetDriverTexFmtInfo(drv, alt, w3d->format) : ai;
+
+            if (tex_fastfmt(ai) && tex_fastfmt(aj))
+            {
+                pick = alt;
+                break;
+            }
+
+            if (!pick && !(ai & W3D_TEXFMT_UNSUPPORTED))
+                pick = alt;
+        }
+
+        context->TexFmtNeg[f] = pick ? pick : f;
+    }
+}
+
+static GLenum tex_dstfmt(GLcontext context, GLint internal, ULONG *dfmt, int *dbpp)
+{
+    switch (internal)
+    {
+    case GL_ALPHA:
+    case GL_ALPHA4:
+    case GL_ALPHA8:
+        *dfmt = W3D_A8;
+        break;
+    case 1:
+    case GL_LUMINANCE:
+    case GL_LUMINANCE4:
+    case GL_LUMINANCE8:
+        *dfmt = W3D_L8;
+        break;
+    case 2:
+    case GL_LUMINANCE_ALPHA:
+    case GL_LUMINANCE4_ALPHA4:
+    case GL_LUMINANCE8_ALPHA8:
+        *dfmt = W3D_L8A8;
+        break;
+    case GL_INTENSITY:
+    case GL_INTENSITY8:
+        *dfmt = W3D_I8;
+        break;
+    case 3:
+    case GL_RGB:
+    case GL_RGB8:
+        *dfmt = W3D_R8G8B8;
+        break;
+    case GL_RGB4:
+    case GL_RGB5:
+        *dfmt = W3D_R5G6B5;
+        break;
+    case 4:
+    case GL_RGBA:
+    case GL_RGBA8:
+        *dfmt = W3D_R8G8B8A8;
+        break;
+    case GL_RGBA4:
+        *dfmt = W3D_A4R4G4B4;
+        break;
+    case GL_RGB5_A1:
+        *dfmt = W3D_A1R5G5B5;
+        break;
+    case GL_COLOR_INDEX:
+        *dfmt = W3D_CHUNKY;
+        break;
+    default:
+        return GL_INVALID_ENUM;
+    }
+
+    if (!context->TexFmtNeg[1] && context->w3dContext)
+        tex_negotiate(context);
+
+    if (context->TexFmtNeg[*dfmt])
+        *dfmt = context->TexFmtNeg[*dfmt];
+
+    *dbpp = tex_fmtbpp(*dfmt);
+
+    return GL_NO_ERROR;
+}
+
+static int tex_verbatim(int sid, ULONG fmt, int swap)
+{
+    if (swap && (sid == SRC_RGB565 || sid == SRC_ARGB4))
+        return 0;
+
+    switch (fmt)
+    {
+    case W3D_R8G8B8A8:
+        return sid == SRC_RGBA8;
+    case W3D_A8R8G8B8:
+        return sid == SRC_ARGB8;
+    case W3D_R8G8B8:
+        return sid == SRC_RGB8;
+    case W3D_R5G6B5:
+        return sid == SRC_RGB565;
+    case W3D_A4R4G4B4:
+        return sid == SRC_ARGB4;
+    case W3D_A8:
+        return sid == SRC_A8;
+    case W3D_L8:
+        return sid == SRC_L8;
+    case W3D_L8A8:
+        return sid == SRC_LA8;
+    case W3D_I8:
+        return sid == SRC_I8;
+    case W3D_CHUNKY:
+        return sid == SRC_IDX8;
+    }
+
+    return 0;
+}
+
+void tex_decode(const UBYTE *p, int sid, int swap, UBYTE *rgba)
+{
+    GLuint v;
+
+    switch (sid)
+    {
+    case SRC_RGBA8:
+        rgba[0] = p[0];
+        rgba[1] = p[1];
+        rgba[2] = p[2];
+        rgba[3] = p[3];
+        break;
+    case SRC_ARGB8:
+        rgba[0] = p[1];
+        rgba[1] = p[2];
+        rgba[2] = p[3];
+        rgba[3] = p[0];
+        break;
+    case SRC_BGRA8:
+        rgba[0] = p[2];
+        rgba[1] = p[1];
+        rgba[2] = p[0];
+        rgba[3] = p[3];
+        break;
+    case SRC_RGB8:
+        rgba[0] = p[0];
+        rgba[1] = p[1];
+        rgba[2] = p[2];
+        rgba[3] = 0xFF;
+        break;
+    case SRC_R8:
+        rgba[0] = p[0];
+        rgba[1] = 0;
+        rgba[2] = 0;
+        rgba[3] = 0xFF;
+        break;
+    case SRC_G8:
+        rgba[0] = 0;
+        rgba[1] = p[0];
+        rgba[2] = 0;
+        rgba[3] = 0xFF;
+        break;
+    case SRC_B8:
+        rgba[0] = 0;
+        rgba[1] = 0;
+        rgba[2] = p[0];
+        rgba[3] = 0xFF;
+        break;
+    case SRC_A8:
+        rgba[0] = 0;
+        rgba[1] = 0;
+        rgba[2] = 0;
+        rgba[3] = p[0];
+        break;
+    case SRC_L8:
+        rgba[0] = p[0];
+        rgba[1] = p[0];
+        rgba[2] = p[0];
+        rgba[3] = 0xFF;
+        break;
+    case SRC_LA8:
+        rgba[0] = p[0];
+        rgba[1] = p[0];
+        rgba[2] = p[0];
+        rgba[3] = p[1];
+        break;
+    case SRC_I8:
+        rgba[0] = p[0];
+        rgba[1] = p[0];
+        rgba[2] = p[0];
+        rgba[3] = p[0];
+        break;
+    case SRC_RGB565:
+        v = swap ? (GLuint)p[0] | ((GLuint)p[1] << 8) : ((GLuint)p[0] << 8) | p[1];
+        rgba[0] = (UBYTE)(((v >> 11) << 3) | (v >> 13));
+        rgba[1] = (UBYTE)((((v >> 5) & 0x3F) << 2) | (((v >> 5) & 0x3F) >> 4));
+        rgba[2] = (UBYTE)(((v & 0x1F) << 3) | ((v & 0x1F) >> 2));
+        rgba[3] = 0xFF;
+        break;
+    case SRC_ARGB4:
+        v = swap ? (GLuint)p[0] | ((GLuint)p[1] << 8) : ((GLuint)p[0] << 8) | p[1];
+        rgba[0] = (UBYTE)(((v >> 8) & 0x0F) * 17);
+        rgba[1] = (UBYTE)(((v >> 4) & 0x0F) * 17);
+        rgba[2] = (UBYTE)((v & 0x0F) * 17);
+        rgba[3] = (UBYTE)((v >> 12) * 17);
+        break;
+    default:
+        rgba[0] = rgba[1] = rgba[2] = 0;
+        rgba[3] = 0xFF;
+        break;
+    }
+}
+
+static void tex_encode(UBYTE *d, ULONG fmt, const UBYTE *rgba)
+{
+    GLuint v;
+
+    switch (fmt)
+    {
+    case W3D_R8G8B8A8:
+        d[0] = rgba[0];
+        d[1] = rgba[1];
+        d[2] = rgba[2];
+        d[3] = rgba[3];
+        break;
+    case W3D_A8R8G8B8:
+        d[0] = rgba[3];
+        d[1] = rgba[0];
+        d[2] = rgba[1];
+        d[3] = rgba[2];
+        break;
+    case W3D_R8G8B8:
+        d[0] = rgba[0];
+        d[1] = rgba[1];
+        d[2] = rgba[2];
+        break;
+    case W3D_R5G6B5:
+        v = ((GLuint)(rgba[0] >> 3) << 11) | ((GLuint)(rgba[1] >> 2) << 5) | (rgba[2] >> 3);
+        d[0] = (UBYTE)(v >> 8);
+        d[1] = (UBYTE)v;
+        break;
+    case W3D_A1R5G5B5:
+        v = ((GLuint)(rgba[3] >> 7) << 15) | ((GLuint)(rgba[0] >> 3) << 10) | ((GLuint)(rgba[1] >> 3) << 5) | (rgba[2] >> 3);
+        d[0] = (UBYTE)(v >> 8);
+        d[1] = (UBYTE)v;
+        break;
+    case W3D_A4R4G4B4:
+        v = ((GLuint)(rgba[3] >> 4) << 12) | ((GLuint)(rgba[0] >> 4) << 8) | ((GLuint)(rgba[1] >> 4) << 4) | (rgba[2] >> 4);
+        d[0] = (UBYTE)(v >> 8);
+        d[1] = (UBYTE)v;
+        break;
+    case W3D_A8:
+        d[0] = rgba[3];
+        break;
+    case W3D_L8:
+        d[0] = rgba[0];
+        break;
+    case W3D_L8A8:
+        d[0] = rgba[0];
+        d[1] = rgba[3];
+        break;
+    case W3D_I8:
+        d[0] = (UBYTE)((rgba[0] + rgba[1] + rgba[2] + rgba[3]) >> 2);
+        break;
+    }
+}
+
+static void tex_rows(GLcontext context, const UBYTE *src, int sid, int sbpp, UBYTE *dst, ULONG dfmt, int dbpp, GLint w, GLint h, GLint dpitch)
+{
+    const GLint rowlen = context->CurUnpackRowLength ? context->CurUnpackRowLength : w;
+    const GLint spitch = (rowlen * sbpp + context->UnpackAlign - 1) & ~(context->UnpackAlign - 1);
+    const int swap = context->CurUnpackSwapBytes != 0;
+    const int verbatim = tex_verbatim(sid, dfmt, swap);
+    const GLint copy = w * sbpp;
+    GLint x;
+    GLint y;
+
+    src += context->CurUnpackSkipRows * spitch + context->CurUnpackSkipPixels * sbpp;
+
+    if (sid == SRC_IDX8 && dfmt != W3D_CHUNKY)
+    {
+        const ULONG *pal = (const ULONG *)context->PaletteData;
+
+        for (y = 0; y < h; y++, src += spitch, dst += dpitch)
+        {
+            const UBYTE *s = src;
+            UBYTE *d = dst;
+
+            for (x = 0; x < w; x++, s++, d += dbpp)
+            {
+                const ULONG c = pal[*s];
+                UBYTE rgba[4];
+
+                rgba[0] = (UBYTE)(c >> 16);
+                rgba[1] = (UBYTE)(c >> 8);
+                rgba[2] = (UBYTE)c;
+                rgba[3] = (UBYTE)(c >> 24);
+
+                tex_encode(d, dfmt, rgba);
+            }
+        }
+
+        return;
+    }
+
+    for (y = 0; y < h; y++, src += spitch, dst += dpitch)
+    {
+        const UBYTE *s = src;
+        UBYTE *d = dst;
+
+        if (verbatim)
+        {
+            memcpy(dst, src, copy);
+            continue;
+        }
+
+        for (x = 0; x < w; x++, s += sbpp, d += dbpp)
+        {
+            UBYTE rgba[4];
+
+            tex_decode(s, sid, swap, rgba);
+            tex_encode(d, dfmt, rgba);
+        }
+    }
+}
+
+static GLint tex_leveldim(GLint d, GLint level)
+{
+    while (level-- && d > 1)
+        d >>= 1;
+
+    return d;
+}
+
+static ULONG tex_levoff(GLint w, GLint h, GLint bpp, GLint level)
+{
+    ULONG off = 0;
+
+    while (level--)
+    {
+        off += (ULONG)(w * h * bpp);
+
+        if (w > 1)
+            w >>= 1;
+
+        if (h > 1)
+            h >>= 1;
+    }
+
+    return off;
+}
+
+static ULONG tex_total(GLint w, GLint h, GLint bpp, GLint mip)
+{
+    ULONG total = (ULONG)(w * h * bpp);
+
+    if (mip)
+    {
+        while (w > 1 || h > 1)
+        {
+            if (w > 1)
+                w >>= 1;
+
+            if (h > 1)
+                h >>= 1;
+
+            total += (ULONG)(w * h * bpp);
+        }
+    }
+
+    return total;
+}
+
+static GLint tex_bytes(const W3D_Texture *t)
+{
+    return (GLint)tex_total(t->texwidth, t->texheight, tex_fmtbpp((ULONG)t->texfmtsrc), t->mipmap != 0);
+}
+
+static ULONG tex_minw(GLenum f)
+{
+    switch (f)
+    {
+    case GL_NEAREST:
+        return W3D_NEAREST;
+    case GL_LINEAR:
+        return W3D_LINEAR;
+    case GL_NEAREST_MIPMAP_NEAREST:
+        return W3D_NEAREST_MIP_NEAREST;
+    case GL_LINEAR_MIPMAP_NEAREST:
+        return W3D_LINEAR_MIP_NEAREST;
+    case GL_NEAREST_MIPMAP_LINEAR:
+        return W3D_NEAREST_MIP_LINEAR;
+    case GL_LINEAR_MIPMAP_LINEAR:
+        return W3D_LINEAR_MIP_LINEAR;
+    }
+
+    return 0;
+}
+
+static ULONG tex_wrapw(GLenum f)
+{
+    switch (f)
+    {
+    case GL_REPEAT:
+        return W3D_REPEAT;
+    case GL_CLAMP:
+        return W3D_CLAMP;
+    }
+
+    return 0;
+}
+
+static void tex_pushenv(GLcontext context, W3D_Texture *t)
+{
+    const GLenum mode = context->TexEnv[0];
+    W3D_Color *c = &context->TexEnvColor[0];
+    const ULONG env = mgl_envw(mode);
+
+    if (!env)
+        return;
+
+    if (mode == context->CurTexEnv && (env != W3D_BLEND || (context->CurTexEnvColor.r == c->r && context->CurTexEnvColor.g == c->g && context->CurTexEnvColor.b == c->b && context->CurTexEnvColor.a == c->a)))
+        return;
+
+    W3D_SetTexEnv(context->w3dContext, t, env, env == W3D_BLEND ? c : NULL);
+
+    context->CurTexEnv = mode;
+    context->CurTexEnvColor = *c;
+}
+
+static void tex_pushparams(GLcontext context, W3D_Texture *t)
+{
+    W3D_SetFilter(context->w3dContext, t, tex_minw(context->MinFilter), tex_minw(context->MagFilter));
+    W3D_SetWrapMode(context->w3dContext, t, tex_wrapw(context->WrapS), tex_wrapw(context->WrapT), NULL);
+}
+
+static GLuint tex_binding(const GLcontext context)
+{
+    return context->ActiveTexture ? (GLuint)context->VirtualBinding[context->ActiveTexture] : (GLuint)context->CurrentBinding;
+}
+
+static W3D_Texture *tex_object(const GLcontext context, GLuint name)
+{
+    if (name >= (GLuint)context->TexBufferSize)
+        return NULL;
+
+    return context->w3dTexBuffer[name];
+}
+
+static ULONG *tex_palette(GLcontext context)
+{
+    return context->PaletteSize > 0 ? (ULONG *)context->PaletteData : NULL;
+}
+
+GLint mglTexLimit(GLint drvlim)
+{
+    GLint lim = drvlim > 0 ? drvlim : 256;
+    UBYTE buf[16] = {0};
+
+    if (DOSBase && GetVar((STRPTR) "MINIGL_MAX_TEXTURE_SIZE", (STRPTR)buf, sizeof buf, 0) > 0)
+    {
+        const UBYTE *e;
+        GLint env = 0;
+
+        for (e = buf; *e >= '0' && *e <= '9'; e++)
+            env = env * 10 + (*e - '0');
+
+        if (env <= 0 || env > 0xFFFF)
+            env = 0xFFFF;
+
+        if (drvlim <= 0 || env < lim)
+            lim = env;
+    }
+
+    // above this, w*h*4 would wrap a 32-bit total in tex_total
+    if (lim > 0x4000)
+        lim = 0x4000;
+
+    return lim;
 }
 
 void GLGenTextures(GLcontext context, GLsizei n, GLuint *textures)
 {
-	int i, j;
+    const GLuint size = (GLuint)context->TexBufferSize;
+    GLuint pos;
+    GLsizei i;
 
-	j = 1;
+    if (n < 0)
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
 
-	for (i=0; i<n; i++)
-	{
-		// Find a free texture
-		while (j < context->TexBufferSize)
-		{
-			if (context->GeneratedTextures[j] == 0)
-				break;
+    if (!textures || size < 2)
+        return;
 
-			j++;
-		}
+    pos = context->NextTexture;
 
-		// If we get here, we found one, or there's noting available. Flag an error in that case..
-		if (j == context->TexBufferSize)
-		{
-			GLFlagError(context, j == context->TexBufferSize, GL_INVALID_OPERATION);
-			return;
-		}
+    if (!pos || pos >= size)
+        pos = 1;
 
-		// Insert the texture in the output array, and flag it as used internally
-		*textures = j;
-		context->GeneratedTextures[j] = 1;
-		textures++;
-		j++;
-	}
+    for (i = 0; i < n; i++)
+    {
+        const GLuint start = pos;
+        GLuint name = 0;
+
+        for (;;)
+        {
+            if (!context->GeneratedTextures[pos])
+            {
+                name = pos;
+                pos++;
+
+                if (pos >= size)
+                    pos = 1;
+
+                break;
+            }
+
+            if (++pos >= size)
+                pos = 1;
+
+            if (pos == start)
+                break;
+        }
+
+        if (name)
+            context->GeneratedTextures[name] = 1;
+
+        textures[i] = name;
+    }
+
+    context->NextTexture = pos;
 }
 
-void tex_FreeTextures(GLcontext context)
+void GLDeleteTextures(GLcontext context, GLsizei n, const GLuint *textures)
 {
-	int i;
+    const GLuint size = (GLuint)context->TexBufferSize;
+    W3D_Context *w3d = context->w3dContext;
+    GLsizei i;
 
-	for (i=0; i<context->TexBufferSize; i++)
-	{
-		if (context->w3dTexBuffer[i])
-		{
-			W3D_FreeTexObj(context->w3dContext, context->w3dTexBuffer[i]);
-			context->w3dTexBuffer[i] = 0;
-		}
+    if (n < 0)
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
 
-		if (context->w3dTexMemory[i])
-		{
-			tex_Free(context->w3dTexMemory[i]);
-			context->w3dTexMemory[i] = 0;
-		}
-	}
+    if (!textures)
+        return;
 
-	W3D_FreeAllTexObj(context->w3dContext);
-}
+    for (i = 0; i < n; i++)
+    {
+        const GLuint name = textures[i];
+        W3D_Texture *obj;
 
-void tex_SetEnv(GLcontext context, GLenum env)
-{
-	W3D_Texture *tex;
+        if (!name || name >= size)
+            continue;
 
-	if(context->ActiveTexture == 1)
-		return;
+        if (name == (GLuint)context->CurrentBinding)
+        {
+            if (w3d)
+            {
+                W3D_BindTexture(w3d, 0, NULL);
+                W3D_SetState(w3d, W3D_TEXMAPPING, W3D_DISABLE);
+            }
 
-	tex = context->w3dTexBuffer[context->CurrentBinding];
+            context->CurrentBinding = 0;
+        }
 
-	if (!tex)
-		return;
+        GLuint u;
 
-	/* W3D_SetTexEnv applies to the bound texture object. CurTexEnv is only
-	 * context-wide, so it cannot safely suppress this call after a bind. */
-	context->CurTexEnv = env;
+        for (u = 1; u < context->TexUnits; u++)
+        {
+            if (name == (GLuint)context->VirtualBinding[u])
+                context->VirtualBinding[u] = 0;
+        }
 
-	switch(env)
-	{
-		case GL_MODULATE:
-			W3D_SetTexEnv(context->w3dContext, tex, W3D_MODULATE, &safe_zero_color);
-			break;
+        obj = context->w3dTexBuffer[name];
 
-		case GL_DECAL:
-			W3D_SetTexEnv(context->w3dContext, tex, W3D_DECAL, &safe_zero_color);
-			break;
+        if (obj)
+        {
+            context->TexMemCur -= tex_bytes(obj);
 
-		case GL_REPLACE:
-			W3D_SetTexEnv(context->w3dContext, tex, W3D_REPLACE, &safe_zero_color);
-			break;
+            if (w3d)
+                W3D_FreeTexObj(w3d, obj);
 
-		default:
-			break;
-	}
-}
+            context->w3dTexBuffer[name] = NULL;
+        }
 
-ULONG tex_GLFilter2W3D(GLenum filter)
-{
-	switch(filter)
-	{
-		case GL_NEAREST:		return W3D_NEAREST;
-		case GL_LINEAR:			return W3D_LINEAR;
-		case GL_NEAREST_MIPMAP_NEAREST: return W3D_NEAREST; //W3D_NEAREST_MIP_NEAREST;
-		case GL_LINEAR_MIPMAP_NEAREST:	return W3D_LINEAR; //W3D_LINEAR_MIP_NEAREST;
-		case GL_NEAREST_MIPMAP_LINEAR:	return W3D_NEAREST; //W3D_NEAREST_MIP_LINEAR;
-		case GL_LINEAR_MIPMAP_LINEAR:	return W3D_LINEAR; //W3D_LINEAR_MIP_LINEAR;
-	}
+        if (context->w3dTexMemory[name])
+        {
+            free(context->w3dTexMemory[name]);
+            context->w3dTexMemory[name] = NULL;
+        }
 
-	return 0;
-}
-
-void tex_SetFilter(GLcontext context, GLenum min, GLenum mag)
-{
-	ULONG minf, magf;
-	W3D_Texture *tex;
-
-	if(context->ActiveTexture)
-		tex = context->w3dTexBuffer[context->VirtualBinding];
-
-	else
-		tex = context->w3dTexBuffer[context->CurrentBinding];
-
-	if (!tex)
-		return;
-
-	minf = tex_GLFilter2W3D(min);
-	magf = tex_GLFilter2W3D(mag);
-
-	W3D_SetFilter(context->w3dContext, tex, minf, magf);
-}
-
-void tex_SetWrap(GLcontext context, GLenum wrap_s, GLenum wrap_t)
-{
-	ULONG		Ws,Wt;
-	W3D_Texture	*tex;
-
-	if(context->ActiveTexture)
-		tex = context->w3dTexBuffer[context->VirtualBinding];
-
-	else
-		tex = context->w3dTexBuffer[context->CurrentBinding];
-
-	if (!tex)
-		return;
-
-	if (wrap_s == GL_REPEAT)
-		Ws = W3D_REPEAT;
-						
-	else
-		Ws = W3D_CLAMP;
-
-	if (wrap_t == GL_REPEAT)
-		Wt = W3D_REPEAT;
-
-	else
-		Wt = W3D_CLAMP;
-
-	W3D_SetWrapMode(context->w3dContext, tex, Ws, Wt, &safe_zero_color);
-}
-
-void GLTexEnvi(GLcontext context, GLenum target, GLenum pname, GLint param)
-{
-	//LOG(2, glTexEnvi, "%d %d", pname, param);
-
-	//ignore unit 1 env until mglDrawMultitexBuffer
-	if(context->ActiveTexture == 1)
-		return;
-
-	context->TexEnv[0] = (GLenum)param;
-
-	tex_SetEnv(context, param);
-}
-
-void GLTexParameteri(GLcontext context, GLenum target, GLenum pname, GLint param)
-{
-	GLenum min, mag;
-	GLenum wraps, wrapt;
-	//LOG(2, glTexParameteri, "%d %d %d", target, pname, param);
-
-	switch(pname)
-	{
-		case GL_TEXTURE_MIN_FILTER:
-			mag = context->MagFilter;
-			//tex_SetFilter(context, mag, (GLenum)param);
-			tex_SetFilter(context, (GLenum)param, mag); // fix - Cowcat
-			context->MinFilter = (GLenum)param;
-			break;
-
-		case GL_TEXTURE_MAG_FILTER:
-			min = context->MinFilter;
-			//tex_SetFilter(context, (GLenum)param, min);
-			tex_SetFilter(context, min, (GLenum)param ); // fix - Cowcat
-			context->MagFilter = (GLenum)param;
-			break;
-
-		case GL_TEXTURE_WRAP_S:
-			wrapt = context->WrapT;
-			tex_SetWrap(context, (GLenum)param, wrapt);
-			context->WrapS = (GLenum)param;
-			break;
-
-		case GL_TEXTURE_WRAP_T:
-			wraps = context->WrapS;
-			tex_SetWrap(context, wraps, (GLenum)param);
-			context->WrapT = (GLenum)param;
-			break;
-
-		default:
-			GLFlagError(context, 1, GL_INVALID_ENUM);
-	}
-}
-
-void GLPixelStorei(GLcontext context, GLenum pname, GLint param)
-{
-	switch(pname)
-	{
-		case GL_PACK_ALIGNMENT:
-			context->PackAlign = param;
-			break;
-
-		case GL_UNPACK_ALIGNMENT:
-			context->UnpackAlign = param;
-			break;
-
-		case GL_UNPACK_ROW_LENGTH:
-			context->CurUnpackRowLength = param ;
-			break ;
-
-		case GL_UNPACK_SKIP_PIXELS:
-			context->CurUnpackSkipPixels = param ;
-			break ;
-
-		case GL_UNPACK_SKIP_ROWS:
-			context->CurUnpackSkipRows = param ;
-			break ;
-
-		default:
-			// Others here
-			break;
-	}
+        context->GeneratedTextures[name] = 0;
+    }
 }
 
 void GLBindTexture(GLcontext context, GLenum target, GLuint texture)
 {
-	int active;
+    W3D_Context *w3d = context->w3dContext;
+    W3D_Texture *obj;
 
-	//LOG(2, glBindTexture, "%d %d", target, texture);
-	GLFlagError(context, target != GL_TEXTURE_2D, GL_INVALID_ENUM);
+    if (target != GL_TEXTURE_2D)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
 
-	active = context->ActiveTexture;
+    if (texture >= (GLuint)context->TexBufferSize)
+    {
+        mgl_error(context, GL_INVALID_OPERATION);
+        return;
+    }
 
-	if(active)
-	{
-		context->VirtualBinding = texture;
+    if (texture)
+        context->GeneratedTextures[texture] = 1;
 
-		if (context->w3dTexBuffer[context->VirtualBinding] == NULL)
-		{
-			// Set to default for unbound objects
-			context->MinFilter = GL_NEAREST;
-			context->MagFilter = GL_NEAREST;
-			context->WrapS	   = GL_REPEAT;
-			context->WrapT	   = GL_REPEAT;
-		}
-	}
+    if (context->ActiveTexture)
+    {
+        context->VirtualBinding[context->ActiveTexture] = (GLint)texture;
+        return;
+    }
 
-	else
-	{
-		context->CurrentBinding = texture;
+    if (texture == (GLuint)context->CurrentBinding)
+        return;
 
-		if (context->w3dTexBuffer[context->CurrentBinding] == NULL)
-		{
-			// Set to default for unbound objects
-			context->TexEnv[0] = GL_MODULATE;
-			context->MinFilter = GL_NEAREST;
-			context->MagFilter = GL_NEAREST;
-			context->WrapS	   = GL_REPEAT;
-			context->WrapT	   = GL_REPEAT;
-		}
-	}
+    context->CurrentBinding = (GLint)texture;
+
+    if (!w3d)
+        return;
+
+    obj = context->w3dTexBuffer[texture];
+
+    W3D_BindTexture(w3d, 0, obj);
+    W3D_SetState(w3d, W3D_TEXMAPPING, context->Texture2D_State[0] && obj ? W3D_ENABLE : W3D_DISABLE);
+
+    if (obj)
+    {
+        tex_pushparams(context, obj);
+        tex_pushenv(context, obj);
+    }
 }
 
-
-/*
-** There are two possible output formats:
-** - RGB
-** - RGBA
-**
-** There are two possible input formats:
-** - RGB
-** - RGBA
-**
-** Thus there must be four conversion routines, since the
-** routine must be able to add or remove the alpha component
-**
-** The following set of routines assumes that input is always given as
-** a stream of GL_UNSIGNED_BYTE with either three or four components.
-**
-** ROOM FOR IMPROVMENT
-** These routines assume way too much to be considered anything else but
-** special cases. The whole texture stuff should be reworked to include
-** possible convertion routines for all kinds of textures. This could, of
-** course, be left to Warp3D, but this would mean there has to be two sets
-** of textures in memory, which is clearly too much. Perhaps we should
-** change the behaviour of Warp3D in this point - room for discussion.
-*/
-
-#define CORRECT_ALIGN \
-		if ((int)input % context->PackAlign) \
-		{ \
-			input += context->PackAlign - ((int)input % context->PackAlign);\
-		} \
-
-
-#define SETUP_LOOP(x) \
-	GLubyte *oldInput;			    \
-	int realWidth = width*x;		    \
-	if (context->CurUnpackRowLength > 0)	    \
-	    realWidth = context->CurUnpackRowLength*x;
-
-// was #define SETUP_LOOP_SHORT(x)
-
-#define SETUP_LOOP_SHORT			    \
-	UWORD *oldInput;			    \
-	int realWidth = width;			    \
-	if (context->CurUnpackRowLength > 0)	    \
-	    realWidth = context->CurUnpackRowLength;
-
-#define SETUP_LOOP_LONG				\
-	ULONG *oldInput;			    \
-	int realWidth = width;			    \
-	if (context->CurUnpackRowLength > 0)	    \
-	    realWidth = context->CurUnpackRowLength;
-
-
-#define CORRECT_ALIGN_SHORT \
-		if ((int)input % context->PackAlign) \
-		{ \
-			input += ((context->PackAlign - ((int)input % context->PackAlign))>>1);\
-		} \
-
-#define CORRECT_ALIGN_LONG \
-		if ((int)input % context->PackAlign) \
-		{ \
-			input += ((context->PackAlign - ((int)input % context->PackAlign))>>2);\
-		} \
-
-
-#define START_LOOP \
-	oldInput = input;
-
-#define NEXT_LOOP	\
-	input = oldInput + realWidth;
-
-
-#define ARGBFORM(a,r,g,b) \
-	( (UWORD)(((( a & 0xf0 ) << 8)	\
-	|(( r & 0xf0 ) << 4)  \
-	|(( g & 0xf0 )	   )  \
-	|(( b & 0xf0 ) >> 4))) )
-
-/*
-#define RGBFORM(r,g,b) \
-	( (UWORD)(0x8000 | ((r & 0xF8) << 7) \
-			   | ((g & 0xF8) << 2) \
-			   | ((b & 0xF8) >> 3)) )
-
-
-#define REDBYTE(rgb)	(((UWORD)rgb & 0x7C00) >> 7)
-#define GREENBYTE(rgb)	(((UWORD)rgb & 0x03E0) >> 2)
-#define BLUEBYTE(rgb)	(((UWORD)rgb & 0x001F) << 3)
-#define RGB_GET(i) ((UBYTE *)(context->PaletteData)+3*i)
-#define ARGB_GET(i) ((UBYTE *)(context->PaletteData)+4*i)
-*/
-
-#define RGBFORM(r,g,b) \
-	( (UWORD)(((r & 0xF8) << 8) \
-	      | ((g & 0xFC) << 3) \
-	      | ((b & 0xF8) >> 3)) )
-
-
-#define REDBYTE(rgb)	    (((UWORD)rgb & 0xF800) >> 8)
-#define GREENBYTE(rgb)	    (((UWORD)rgb & 0x07E0) >> 3)
-#define BLUEBYTE(rgb)	    (((UWORD)rgb & 0x001F) << 3)
-#define REDBYTEA(rgba)	    (((UWORD)rgba & 0x0f00) >> 4)
-#define GREENBYTEA(rgba)    (((UWORD)rgba & 0x00f0))
-#define BLUEBYTEA(rgba)	    (((UWORD)rgba & 0x000f) << 4)
-#define ALPHABYTEA(rgba)    (((UWORD)rgba & 0xf000) >> 8)
-#define RGB_GET(i) ((UBYTE *)(context->PaletteData) + 3*i)
-#define ARGB_GET(i) ((UBYTE *)(context->PaletteData) + 4*i)
-
-
-/*
-** This function converts a non-alpha texture buffer into a
-** alpha'ed texture buffer. This is used in case additive blending
-** was selected but the texture does not have alpha, and additive blending
-** is not
-*/
-
-void tex_AddAlpha(UWORD *output, int width, int height)
+void GLTexImage1D(GLcontext context, GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
 {
-	int	size;
-	UBYTE	r, g, b, a;
-	UWORD	x;
-	ULONG	a_tmp;
-	size = width*height;
+    if (target != GL_TEXTURE_1D)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
 
-	while (size)
-	{
-		x=*output;
-	
-		r = REDBYTE(x);
-		g = GREENBYTE(x);
-		b = BLUEBYTE(x);
-
-		//a=(r+g+b)/3;
-
-		a=(r>g)?r:g;
-		a=(a>b)?a:b;
-
-		// These should emulate additive blending, so ensure it's in some appropriate range
-
-		/*
-		a *= 0.8f;
-		*/
-
-		a_tmp = a;
-		a_tmp <<= 3;
-		a_tmp /= 10;
-		a = a_tmp;
-
-		*output = ARGBFORM(a,r,g,b);
-		output++; size--;
-	}
+    GLTexImage2D(context, GL_TEXTURE_2D, level, internalformat, width, 1, border, format, type, pixels);
 }
 
-
-/*
-** Convert the currently bound texture to a format that has an alpha channel.
-** Also sets the texture parameters according to the current settings.
-*/
-
-void tex_ConvertTexture(GLcontext context)
+void GLTexImage2D(GLcontext context, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
 {
-	W3D_Texture	*newtex;
-	struct TagItem	AllocTags[20];
-	W3D_Texture	*oldtex = context->w3dTexBuffer[context->CurrentBinding];
-	UWORD		*output = (UWORD *)context->w3dTexMemory[context->CurrentBinding];
+    W3D_Context *w3d = context->w3dContext;
+    const GLuint name = tex_binding(context);
+    W3D_Texture *old;
+    W3D_Texture *obj;
+    struct TagItem tt[8];
+    GLubyte *mem;
+    ULONG dfmt = 0;
+    ULONG w3derr = W3D_SUCCESS;
+    GLenum e;
+    GLint lw;
+    GLint lh;
+    int dbpp = 0;
+    int sid = 0;
+    int sbpp = 0;
+    int n = 0;
+    const int mip = context->NoMipMapping == GL_FALSE;
 
-	if (!oldtex)
-		return;
+    if (target != GL_TEXTURE_2D)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
 
-	if (oldtex->texfmtsrc == context->w3dAlphaFormat)
-		return;
+    if (border != 0 || width < 1 || height < 1 || (width & (width - 1)) || (height & (height - 1)) || level < 0)
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
 
-	tex_AddAlpha(output, oldtex->texwidth, oldtex->texheight);
+    if (!w3d)
+    {
+        mgl_error(context, GL_INVALID_OPERATION);
+        return;
+    }
 
-	AllocTags[0].ti_Tag  = W3D_ATO_IMAGE;
-	AllocTags[0].ti_Data = (ULONG)context->w3dTexMemory[context->CurrentBinding];
+    if (width > mglTexLimit(w3d->maxtexwidthp) || height > mglTexLimit(w3d->maxtexheightp))
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
 
-	AllocTags[1].ti_Tag  = W3D_ATO_FORMAT;
-	AllocTags[1].ti_Data = context->w3dAlphaFormat;
+    e = tex_dstfmt(context, internalformat, &dfmt, &dbpp);
 
-	AllocTags[2].ti_Tag  = W3D_ATO_WIDTH;
-	AllocTags[2].ti_Data = oldtex->texwidth;
+    if (e != GL_NO_ERROR)
+    {
+        mgl_error(context, e);
+        return;
+    }
 
-	AllocTags[3].ti_Tag  = W3D_ATO_HEIGHT;
-	AllocTags[3].ti_Data = oldtex->texheight;
+    e = tex_srcfmt(format, type, &sid, &sbpp);
 
-	AllocTags[4].ti_Tag  = TAG_DONE;
-	AllocTags[4].ti_Data = 0;
+    if (e != GL_NO_ERROR)
+    {
+        mgl_error(context, e);
+        return;
+    }
 
-	newtex = W3D_AllocTexObj(context->w3dContext, NULL, AllocTags);
+    // color-index uploads need index data plus a palette for hw clut or expansion
+    if ((internalformat == GL_COLOR_INDEX) != (sid == SRC_IDX8) || (sid == SRC_IDX8 && context->PaletteSize <= 0))
+    {
+        mgl_error(context, GL_INVALID_OPERATION);
+        return;
+    }
 
-	if (!newtex)
-		return;
-	
-	W3D_FreeTexObj(context->w3dContext, oldtex);
-	context->w3dTexBuffer[context->CurrentBinding] = newtex;
+    old = tex_object(context, name);
 
-	tex_SetEnv(context, context->TexEnv[0]);
+    if (level)
+    {
+        ULONG off;
 
-	tex_SetFilter(context, context->MinFilter, context->MagFilter);
+        if (!old || !old->mipmap || level >= 16)
+        {
+            mgl_error(context, GL_INVALID_OPERATION);
+            return;
+        }
 
-	tex_SetWrap(context, context->WrapS, context->WrapT);
+        if (!(old->texwidth >> level) && !(old->texheight >> level))
+        {
+            mgl_error(context, GL_INVALID_VALUE);
+            return;
+        }
+
+        if ((ULONG)old->texfmtsrc != dfmt)
+        {
+            mgl_error(context, GL_INVALID_OPERATION);
+            return;
+        }
+
+        lw = tex_leveldim(old->texwidth, level);
+        lh = tex_leveldim(old->texheight, level);
+
+        if (width != lw || height != lh)
+        {
+            mgl_error(context, GL_INVALID_VALUE);
+            return;
+        }
+
+        off = tex_levoff(old->texwidth, old->texheight, dbpp, level);
+        mem = context->w3dTexMemory[name] + off;
+
+        if (pixels)
+            tex_rows(context, (const UBYTE *)pixels, sid, sbpp, mem, dfmt, dbpp, width, height, width * dbpp);
+        else
+            memset(mem, 0, (size_t)(width * height * dbpp));
+
+        W3D_UpdateTexImage(w3d, old, mem, level, tex_palette(context));
+
+        return;
+    }
+
+    // same shape without mipmaps refills the locked image, else recreate
+    if (old && !old->mipmap && !mip && old->texwidth == (int)width && old->texheight == (int)height && (ULONG)old->texfmtsrc == dfmt)
+    {
+        mem = context->w3dTexMemory[name];
+
+        if (pixels)
+            tex_rows(context, (const UBYTE *)pixels, sid, sbpp, mem, dfmt, dbpp, width, height, width * dbpp);
+        else
+            memset(mem, 0, (size_t)(width * height * dbpp));
+
+        W3D_UpdateTexImage(w3d, old, mem, 0, tex_palette(context));
+
+        return;
+    }
+
+    mem = (GLubyte *)malloc((size_t)tex_total(width, height, dbpp, mip));
+
+    if (!mem)
+    {
+        mgl_error(context, GL_OUT_OF_MEMORY);
+        return;
+    }
+
+    if (pixels)
+        tex_rows(context, (const UBYTE *)pixels, sid, sbpp, mem, dfmt, dbpp, width, height, width * dbpp);
+    else
+        memset(mem, 0, (size_t)tex_total(width, height, dbpp, mip));
+
+    tt[n].ti_Tag = W3D_ATO_IMAGE;
+    tt[n++].ti_Data = (ULONG)mem;
+    tt[n].ti_Tag = W3D_ATO_FORMAT;
+    tt[n++].ti_Data = dfmt;
+    tt[n].ti_Tag = W3D_ATO_WIDTH;
+    tt[n++].ti_Data = (ULONG)width;
+    tt[n].ti_Tag = W3D_ATO_HEIGHT;
+    tt[n++].ti_Data = (ULONG)height;
+
+    if (mip)
+    {
+        tt[n].ti_Tag = W3D_ATO_MIPMAP;
+        tt[n++].ti_Data = 0xFFFF;
+    }
+
+    if (dfmt == W3D_CHUNKY)
+    {
+        tt[n].ti_Tag = W3D_ATO_PALETTE;
+        tt[n++].ti_Data = (ULONG)context->PaletteData;
+    }
+
+    tt[n].ti_Tag = TAG_DONE;
+    tt[n].ti_Data = 0;
+
+    obj = W3D_AllocTexObj(w3d, &w3derr, tt);
+
+    if (!obj)
+    {
+        free(mem);
+
+        switch (w3derr)
+        {
+        case W3D_NOMEMORY:
+        case W3D_NOGFXMEM:
+            mgl_error(context, GL_OUT_OF_MEMORY);
+            break;
+        case W3D_UNSUPPORTEDTEXSIZE:
+            mgl_error(context, GL_INVALID_VALUE);
+            break;
+        default:
+            mgl_error(context, GL_INVALID_OPERATION);
+            break;
+        }
+
+        return;
+    }
+
+    if (old)
+    {
+        context->TexMemCur -= tex_bytes(old);
+
+        W3D_FreeTexObj(w3d, old);
+
+        free(context->w3dTexMemory[name]);
+    }
+
+    context->w3dTexBuffer[name] = obj;
+    context->w3dTexMemory[name] = mem;
+    context->TexMemCur += (GLint)tex_total(width, height, dbpp, mip);
+
+    if (context->TexMemCur > context->TexMemPeak)
+        context->TexMemPeak = context->TexMemCur;
+
+    W3D_UploadTexture(w3d, obj);
+
+    tex_pushparams(context, obj);
+    tex_pushenv(context, obj);
+
+    if (!context->ActiveTexture)
+    {
+        W3D_BindTexture(w3d, 0, obj);
+        W3D_SetState(w3d, W3D_TEXMAPPING, context->Texture2D_State[0] ? W3D_ENABLE : W3D_DISABLE);
+    }
 }
-
-
-//These formats need no conversion:
-
-#ifdef EIGHTBIT_TEXTURES // Cowcat
-
-void EIGHT_EIGHT (GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int i, j;
-	UBYTE *in = (UBYTE*)input;
-	UBYTE *out = (UBYTE*)output;
-
-	for (i=0; i < height; i++)
-	{
-		for (j=0; j < width; j++)
-		{
-			*out++ = *in++;
-		}
-
-		CORRECT_ALIGN
-	}
-}
-
-#endif
-
-static void L8A8_L8A8(GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int i, j;
-
-	//assume a width divisible by 2 for faster copy
-
-	UWORD *in = (UWORD*)input;
-	UWORD *out = (UWORD*)output;
-
-	for (i=0; i < height; i++)
-	{
-		for (j=0; j < width; j++)
-		{
-			*out++ = *in++;
-		}
-
-		CORRECT_ALIGN
-	}
-}
-
-static void SHORT565_565(GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int i, j;
-
-	//assume a width divisible by 2 for faster copy
-
-	UWORD *in = (UWORD*)input;
-	UWORD *out = (UWORD*)output;
-
-	for (i = 0; i < height; i++)
-	{
-		for (j = 0; j < width; j++)
-		{
-			*out++ = *in++;
-		}
-
-		CORRECT_ALIGN
-	}
-}
-
-static void SHORT4444_4444(GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int i, j;
-
-	//assume a width divisible by 2 for faster copy
-
-	UWORD *in = (UWORD*)input;
-	UWORD *out = (UWORD*)output;
-	
-	for (i = 0; i < height; i++)
-	{
-		for (j = 0; j < width; j++)
-		{
-			*out++ = *in++;
-		}
-
-		CORRECT_ALIGN
-	}
-}
-
-//These formats need conversion:
-
-#if 1
-
-static void A8_ARGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int	i, j;
-	GLubyte a;
-
-	for (i=0; i < height; i++)
-	{
-		for (j=0; j < width; j++)
-		{
-			a = *input++;
-			*output++ = ( ((UWORD)a & 0xF0) << 8) | 0x0FFF;
-		}
-
-		CORRECT_ALIGN
-	}
-}
-
-static void L8_ARGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int	i, j;
-	GLubyte la, lb, lc;
-
-	for (i=0; i < height; i++)
-	{
-		for (j=0; j < width; j++)
-		{
-			la = lb = lc = *input++;
-			*output++ = ARGBFORM(0xff, la, lb, lc);
-			input += 3; // Cowcat
-		}
-
-		CORRECT_ALIGN
-	}
-}
-
-#endif
-
-static void RGBA_RGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int	i, j;
-	UBYTE	r, g, b; //, a;
-
-	for (i=0; i < height; i++)
-	{
-		for (j=0; j < width; j++)
-		{
-			r = *input++;
-			g = *input++;
-			b = *input++;
-			//a = *input++;
-			input++;
-			*output++ = RGBFORM(r,g,b);
-		}
-
-		CORRECT_ALIGN
-	}
-}
-
-static void RGBA_ARGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int	i, j;
-	UBYTE	r, g, b, a;
-
-	for (i=0; i < height; i++)
-	{
-		for (j=0; j < width; j++)
-		{
-			r = *input++;
-			g = *input++;
-			b = *input++;
-			a = *input++;
-			*output++ = ARGBFORM(a,r,g,b);
-		}
-
-		CORRECT_ALIGN
-	}
-}
-
-static void RGB_RGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int	i, j;
-	UBYTE	r, g, b;
-
-	for (i=0; i < height; i++)
-	{
-		for (j=0; j < width; j++)
-		{
-			r = *input++;
-			g = *input++;
-			b = *input++;
-			*output++ = RGBFORM(r,g,b);
-		}
-
-		CORRECT_ALIGN
-	}
-}
-
-static void RGB_ARGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int	i, j;
-	UBYTE	r, g, b;
-
-	for (i=0; i < height; i++)
-	{
-		for (j=0; j < width; j++)
-		{
-			r = *input++;
-			g = *input++;
-			b = *input++;
-			*output++ = ARGBFORM(0xff,r,g,b);
-		}
-
-		CORRECT_ALIGN
-	}
-}
-
-static void SHORT4444_565(GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int	i, j;
-	UBYTE	r, g, b;
-	UWORD	*in = (UWORD *)input;
-
-	for (i = 0; i < height; i++)
-	{
-		for (j = 0; j < width; j++)
-		{
-			r = REDBYTEA(*in);
-			g = GREENBYTEA(*in);
-			b = BLUEBYTEA(*in);
-			*output++ = RGBFORM(r, g, b);
-			in++;
-		}
-
-		CORRECT_ALIGN
-	}
-}
-
-static void SHORT565_4444(GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int	i, j;
-	UBYTE	r, g, b;
-
-	UWORD *in = (UWORD *)input;
-
-	for (i = 0; i < height; i++)
-	{
-		for (j = 0; j < width; j++)
-		{
-			r = REDBYTE(*in);
-			g = GREENBYTE(*in);
-			b = BLUEBYTE(*in);
-			*output++ = ARGBFORM(0xff, r, g, b);
-			in++;
-		}
-
-		CORRECT_ALIGN
-	}
-}
-
-#if 0 // Cowcat
-void RGBA4_ARGB (GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int	i, j;
-	UBYTE	r, g, b, a;
-
-	UWORD *in = (UWORD *)input;
-
-	for (i = 0; i < height; i++)
-	{
-		for (j = 0; j < width; j++)
-		{
-			r = ((*in)&0xf000) >> 8;
-			g = ((*in)&0x0f00) >> 4;
-			b = ((*in)&0x00f0);
-			a = ((*in)&0x000f) << 4;
-			*output++ = ARGBFORM(a, r, g, b);
-			in++;
-		}
-
-		CORRECT_ALIGN
-	}
-}
-#endif
-
-void INDEX_RGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int	i, j;
-	UBYTE	ind;
-	UBYTE	r, g, b;
-
-	if (context->PaletteFormat == GL_RGB)
-	{
-		for (i=0; i < height; i++)
-		{
-			for (j=0; j < width; j++)
-			{
-				ind = *input++;
-				r = *RGB_GET(ind);
-				g = *(RGB_GET(ind)+1);
-				b = *(RGB_GET(ind)+2);
-				*output++ = RGBFORM(r,g,b);
-			}
-
-			CORRECT_ALIGN
-		}
-	}
-
-	else
-	{
-		for (i=0; i < height; i++)
-		{
-			for (j=0; j<width; j++)
-			{
-				ind = *input++;
-				r = *RGB_GET(ind);
-				g = *(ARGB_GET(ind)+1);
-				b = *(ARGB_GET(ind)+2);
-				*output++ = RGBFORM(r,g,b);
-			}
-
-			CORRECT_ALIGN
-		}
-
-	}
-}
-
-void INDEX_ARGB(GLcontext context, GLubyte *input, UWORD *output, int width, int height)
-{
-	int	i, j;
-	UBYTE	ind;
-	UBYTE	r, g, b, a;
-
-	if (context->PaletteFormat == GL_RGB)
-	{
-		for (i=0; i < height; i++)
-		{
-			for (j=0; j < width; j++)
-			{
-				ind = *input++;
-				r = *RGB_GET(ind);
-				g = *(RGB_GET(ind)+1);
-				b = *(RGB_GET(ind)+2);
-				*output++ = ARGBFORM(0xff,r,g,b);
-			}
-
-			CORRECT_ALIGN
-		}
-	}
-
-	else
-	{
-		for (i=0; i < height; i++)
-		{
-			for (j=0; j < width; j++)
-			{
-				ind = *input++;
-				r = *RGB_GET(ind);
-				g = *(ARGB_GET(ind)+1);
-				b = *(ARGB_GET(ind)+2);
-				a = *(ARGB_GET(ind)+3);
-				*output++ = ARGBFORM(a,r,g,b);
-			}
-
-			CORRECT_ALIGN
-		}
-
-	}
-}
-
-ULONG MGLConvert(GLcontext context, const GLvoid *inputp, UWORD *output, int width, int height, GLenum internalformat, GLenum format)
-{
-	GLvoid *input = (GLvoid *)inputp;
-	
-	/*
-	if(internalformat == GL_RGB5_A1) // Cowcat - already done
-	{
-		internalformat = GL_RGBA;
-	}
-	*/
-
-	switch(internalformat) // The format the texture should have
-	{
-		case GL_ALPHA: //eq 1
-
-			switch(format)
-			{
-				case GL_ALPHA:
-
-				#ifdef EIGHTBIT_TEXTURES
-					EIGHT_EIGHT(context, (GLubyte *)input, output, width, height);
-					return W3D_A8;
-				#else
-					A8_ARGB(context, (GLubyte *)input, output, width, height);
-					return context->w3dAlphaFormat;
-				#endif
-			}
-
-			break;
-
-		case GL_LUMINANCE:
-
-			switch(format) // the format of the pixel (input) data
-			{
-				case GL_LUMINANCE:
-				case GL_RGBA: // Cowcat
-
-				#ifdef EIGHTBIT_TEXTURES
-					EIGHT_EIGHT(context, (GLubyte *)input, output, width, height);
-					return W3D_L8;
-				#else
-					L8_ARGB(context, (GLubyte *)input, output, width, height);
-					return context->w3dAlphaFormat;
-				#endif
-			}
-
-			break;
-
-		case GL_LUMINANCE_ALPHA:
-
-			switch(format)
-			{
-				case GL_LUMINANCE_ALPHA:
-					L8A8_L8A8(context, (GLubyte *)input, output, width, height);
-					return W3D_L8A8;
-
-				case GL_RGBA: // Cowcat
-					RGBA_ARGB(context, (GLubyte *)input, output, width, height);
-					return context->w3dAlphaFormat;
-			}
-
-			break;
-
-		case 3:
-		case GL_RGB:
-
-			switch(format)
-			{
-				case GL_RGB:
-					RGB_RGB(context, (GLubyte *)input, output, width, height);
-					return context->w3dFormat;
-
-				case GL_RGBA:
-					RGBA_RGB(context, (GLubyte *)input, output, width, height);
-					return context->w3dFormat;
-
-				case GL_COLOR_INDEX:
-					INDEX_RGB(context, (GLubyte *)input, output, width, height);
-					return context->w3dFormat;
-
-				case MGL_UNSIGNED_SHORT_5_6_5:
-					SHORT565_565(context, (GLubyte *)input, output, width, height);
-					return context->w3dFormat;
-
-				case MGL_UNSIGNED_SHORT_4_4_4_4:
-					SHORT4444_565(context, (GLubyte *)input, output, width, height);
-					return context->w3dFormat;
-			}
-
-			break;
-
-		case 4:
-		case GL_RGBA:
-
-			switch(format)
-			{
-				case GL_RGB:
-					RGB_ARGB(context, (GLubyte *)input, output, width, height);
-					return context->w3dAlphaFormat;
-
-				case GL_RGBA:
-					RGBA_ARGB(context, (GLubyte *)input, output, width, height);
-					return context->w3dAlphaFormat;
-
-				case GL_COLOR_INDEX:
-					INDEX_ARGB(context, (GLubyte *)input, output, width, height);
-					return context->w3dAlphaFormat;
-
-				case MGL_UNSIGNED_SHORT_5_6_5:
-					SHORT565_4444(context, (GLubyte *)input, output, width, height);
-					return context->w3dAlphaFormat;
-
-				case MGL_UNSIGNED_SHORT_4_4_4_4:
-					SHORT4444_4444(context, (GLubyte *)input, output, width, height);
-					return context->w3dAlphaFormat;
-			}
-
-			break;
-
-		case MGL_UNSIGNED_SHORT_5_6_5:
-
-			switch(format)
-			{
-				case MGL_UNSIGNED_SHORT_5_6_5:
-					SHORT565_565(context, (GLubyte *)input, output, width, height);
-					return context->w3dFormat;
-			}
-
-			break;
-
-		case MGL_UNSIGNED_SHORT_4_4_4_4:
-
-			switch(format)
-			{
-				case MGL_UNSIGNED_SHORT_4_4_4_4:
-					SHORT4444_4444(context, (GLubyte *)input, output, width, height);
-					return context->w3dAlphaFormat;
-			}
-
-			break;
-	}
-	
-	return 0; /* ERROR */ // glhexen2 fixes - Cowcat
-}
-
-void GLTexImage2DNoMIP(GLcontext context, GLenum gltarget, GLint level,
-	GLint internalformat, GLsizei width, GLsizei height, GLint border,
-	GLenum format, GLenum type, const GLvoid *pixels);
-
-
-#ifndef __PPC__
-
-void UpdateTexImage(W3D_Context *context, W3D_Texture *texture, void *image, int level, ULONG *pal)
-{
-	W3D_UpdateTexImage(context, texture, image, level, pal);
-}
-
-#endif
-
-
-void GLTexImage2D(GLcontext context, GLenum gltarget, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
-{
-	GLTexImage2DNoMIP(context, gltarget, level, internalformat, width, height, border, format, type, pixels);
-	return;
-
-	#if 0 ///////////// NoMipMapping always true by default and code below is not ok - Cowcat
-
-	int	current;
-	ULONG	w, h;
-	ULONG	targetsize;
-	ULONG	error;
-	UBYTE	*target;
-	int	i, iw, ih;
-	void	*miparray[16];
-	ULONG	useFormat;
-	ULONG	BytesPerTexel;
-	struct TagItem AllocTags[20];
-
-	if(context->ActiveTexture)
-		current = context->VirtualBinding;
-
-	else
-		current = context->CurrentBinding;
-
-#ifdef EIGHTBIT_TEXTURES
-
-	if(format == GL_ALPHA || format == GL_LUMINANCE)
-		BytesPerTexel = 1;
-
-	else
-#endif
-		BytesPerTexel = context->w3dBytesPerTexel;
-
-	if(internalformat == GL_RGB5_A1)
-	{
-		internalformat = GL_RGBA;
-	}
-
-	if (context->NoMipMapping == GL_TRUE)
-	{
-		GLTexImage2DNoMIP(context, gltarget, level, internalformat, width, height, border, format, type, pixels);
-		return;
-	}
-
-	GLFlagError(context, type != GL_UNSIGNED_BYTE && type != MGL_UNSIGNED_SHORT_5_6_5 && type != MGL_UNSIGNED_SHORT_4_4_4_4, GL_INVALID_OPERATION);
-	GLFlagError(context, gltarget != GL_TEXTURE_2D, GL_INVALID_ENUM);
-
-	if (type == MGL_UNSIGNED_SHORT_5_6_5 || type == MGL_UNSIGNED_SHORT_4_4_4_4)
-		format = type;
-
-	/*
-	** We will use width and height only when the mipmap level
-	** is really 0. Otherwise, we need to upscale the values
-	** according to the level.
-	**
-	** Note this will most likely be difficult with non-square
-	** textures, as the first side to reach one will remain
-	** there. For example, consider the sequence
-	** 8x4, 4x2, 2x1, 1x1
-	**  0	  1   2	   3
-	** If the 1x1 mipmap is given, upscaling will yield 8x8, not 8x4
-	*/
-
-	w = (ULONG)width;
-	h = (ULONG)height;
-
-	if (level)
-	{
-		int i = level;
-
-		while (i)
-		{
-			w *= 2;
-			h *= 2;
-			i--;
-		}
-	}
-
-	if (context->w3dTexBuffer[current] == NULL)
-	{
-		int i;
-
-		/*
-		** Create a new texture object
-		** Get the memory
-		*/
-
-		targetsize = (w * h * BytesPerTexel * 4) / 3;
-
-		if (context->w3dTexMemory[current])
-			tex_Free(context->w3dTexMemory[current]);
-
-		context->w3dTexMemory[current] = (GLubyte *)tex_Alloc(targetsize);
-
-		if (!context->w3dTexMemory[current])
-			return;
-	}
-
-	/*
-	** Find the starting address for the given mipmap level in the
-	** texture memory area
-	*/
-
-	target = context->w3dTexMemory[current];
-	i = level;
-	iw = w;
-	ih = h;
-
-	while (i)
-	{
-		target += iw * ih * BytesPerTexel;
-		i      -- ;
-
-		if (iw>1) iw /= 2;
-		if (ih>1) ih /= 2;
-	}
-
-	/*
-	** Convert the data to the target address
-	*/
-
-	useFormat = MGLConvert(context, pixels, (UWORD *)target, width, height, internalformat, format);
-
-	/*
-	** Create a new W3D_Texture if none was present, using the converted
-	** data.
-	** Otherwise, call W3D_UpdateTexImage
-	*/
-
-	if (context->w3dTexBuffer[current] == NULL)
-	{
-		i = 0;
-		iw = w;
-		ih = h;
-		target = context->w3dTexMemory[current];
-
-		while (1)
-		{
-			//miparray[i++] = target;
-
-			if (iw == 1 && ih == 1)
-				break;
-
-			target += iw * ih * BytesPerTexel;
-
-			if (iw > 1) iw /= 2;
-			if (ih > 1) ih /= 2;
-
-			miparray[i++] = target; // here Cowcat
-		}
-
-		miparray[i] = NULL; // Cowcat
-
-		AllocTags[0].ti_Tag  = W3D_ATO_IMAGE;
-		AllocTags[0].ti_Data = (ULONG)context->w3dTexMemory[current];
-
-		AllocTags[1].ti_Tag  = W3D_ATO_FORMAT;
-		AllocTags[1].ti_Data = useFormat;
-
-		AllocTags[2].ti_Tag  = W3D_ATO_WIDTH;
-		AllocTags[2].ti_Data = w;
-
-		AllocTags[3].ti_Tag  = W3D_ATO_HEIGHT;
-		AllocTags[3].ti_Data = h;
-
-		AllocTags[4].ti_Tag  = W3D_ATO_MIPMAP;
-		AllocTags[4].ti_Data = 0;
-
-		AllocTags[5].ti_Tag  = W3D_ATO_MIPMAPPTRS;
-		AllocTags[5].ti_Data = (ULONG)miparray;
-
-		AllocTags[6].ti_Tag  = TAG_DONE;
-		AllocTags[6].ti_Data = 0;
-
-		context->w3dTexBuffer[current] = W3D_AllocTexObj(context->w3dContext, &error, AllocTags);
-
-		if (context->w3dTexBuffer[current] == NULL || error != W3D_SUCCESS)
-			return;
-
-		/*
-		** Set the appropriate wrap modes, texture env, and filters
-		*/
-
-		tex_SetWrap(context, context->WrapS, context->WrapT);
-		tex_SetFilter(context, context->MinFilter, context->MagFilter);
-		tex_SetEnv(context, context->TexEnv[0]);
-	}
-
-	else
-	{
-	#ifndef __PPC__
-
-	UpdateTexImage(context->w3dContext, context->w3dTexBuffer[current], target, level, NULL);
-
-	#else
-
-	W3D_UpdateTexImage(context->w3dContext, context->w3dTexBuffer[current], target, level, NULL);
-
-	#endif
-	}
-
-	#endif ///////////// Cowcat
-}
-
-void GLTexImage2DNoMIP(GLcontext context, GLenum gltarget, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
-{
-	int	current;
-	ULONG	w, h;
-	ULONG	targetsize;
-	ULONG	error;
-	UBYTE	*target;
-	ULONG	useFormat;
-	ULONG	BytesPerTexel;
-	struct TagItem AllocTags[20];
-
-	if(context->ActiveTexture)
-		current = context->VirtualBinding;
-
-	else
-		current = context->CurrentBinding;
-
-#ifdef EIGHTBIT_TEXTURES
-
-	if(format == GL_ALPHA || format == GL_LUMINANCE)
-		BytesPerTexel = 1;
-
-	else
-#endif
-		BytesPerTexel = context->w3dBytesPerTexel;
-
-	if(internalformat == GL_RGB5_A1)
-	{
-		internalformat = GL_RGBA;
-	}
-
-	//LOG(3, glTexImage2DNoMIP, "target = %d level=%d, size=%d×%d", gltarget, level, width, height);
-	GLFlagError(context, type != GL_UNSIGNED_BYTE && type != MGL_UNSIGNED_SHORT_5_6_5 && type != MGL_UNSIGNED_SHORT_4_4_4_4, GL_INVALID_OPERATION);
-	GLFlagError(context, gltarget != GL_TEXTURE_2D, GL_INVALID_ENUM);
-
-	if (type == MGL_UNSIGNED_SHORT_5_6_5 || type == MGL_UNSIGNED_SHORT_4_4_4_4)
-	{
-		format = type;
-
-		// kprintf("Texture of MGL_UNSIGNED_SHORT_5_6_5, target = %d, level = %d, size %d×%d\n", gltarget, level, width, height);
-	}
-
-	if (level != 0)
-		return;
-
-	w = (ULONG)width;
-	h = (ULONG)height;
-	
-	// Cowcat
-	if (context->w3dTexBuffer[current] && ( w != context->w3dTexBuffer[current]->texwidth || h != context->w3dTexBuffer[current]->texheight ) )
-	{
-		W3D_FreeTexObj(context->w3dContext, context->w3dTexBuffer[current]);
-		context->w3dTexBuffer[current] = NULL;
-	}
-
-	if (context->w3dTexBuffer[current] == NULL)
-	{
-		/*
-		** Create a new texture object
-		** Get the memory
-		*/
-
-		targetsize = (w * h * BytesPerTexel);
-
-		if (context->w3dTexMemory[current])
-			tex_Free(context->w3dTexMemory[current]);
-
-		context->w3dTexMemory[current] = (GLubyte *)tex_Alloc(targetsize);
-
-		if (!context->w3dTexMemory[current])
-			return;
-	}
-
-	target = context->w3dTexMemory[current];
-
-	/*
-	** Convert the data to the target address
-	*/
-
-	useFormat = MGLConvert(context, pixels, (UWORD *)target, width, height, internalformat, format);
-	
-	/*
-	** Create a new W3D_Texture if none was present, using the converted
-	** data.
-	** Otherwise, call W3D_UpdateTexImage
-	*/
-
-	if (context->w3dTexBuffer[current] == NULL)
-	{
-		W3D_Texture *tex;
-
-		AllocTags[0].ti_Tag  = W3D_ATO_IMAGE;
-		AllocTags[0].ti_Data = (ULONG)context->w3dTexMemory[current];
-
-		AllocTags[1].ti_Tag  = W3D_ATO_FORMAT;
-		AllocTags[1].ti_Data = useFormat;
-
-		AllocTags[2].ti_Tag  = W3D_ATO_WIDTH;
-		AllocTags[2].ti_Data = w;
-
-		AllocTags[3].ti_Tag  = W3D_ATO_HEIGHT;
-		AllocTags[3].ti_Data = h;
-
-		AllocTags[4].ti_Tag  = TAG_DONE;
-		AllocTags[4].ti_Data = 0;
-
-		tex = W3D_AllocTexObj(context->w3dContext, &error, AllocTags);
-
-		if (tex == NULL || error != W3D_SUCCESS)
-			return;
-
-		context->w3dTexBuffer[current] = tex;
-
-		/*
-		** Set the appropriate wrap modes, texture env, and filters
-		*/
-
-		tex_SetWrap(context, context->WrapS, context->WrapT);
-		tex_SetFilter(context, context->MinFilter, context->MagFilter);
-		tex_SetEnv(context, context->TexEnv[0]);
-	}
-
-	else
-	{
-		#ifndef __PPC__
-
-		UpdateTexImage(context->w3dContext, context->w3dTexBuffer[current], context->w3dTexMemory[current], 0, NULL);
-
-		#else
-
-		W3D_UpdateTexImage(context->w3dContext, context->w3dTexBuffer[current], context->w3dTexMemory[current], 0, NULL);
-
-		#endif
-	}
-}
-
-
-//used for fast update when srcfmt = dstfmt :
-
-#ifdef EIGHTBIT_TEXTURES
-
-inline void tex_UpdateScanlineByte(UBYTE *start, UBYTE *pixels, int numpixels)
-{
-	int	i;
-
-	//update the 8-bit Alpha/Luminance Channel
-	//fast copy
-
-	UBYTE	*in = (UBYTE*)pixels;
-	UBYTE	*out = (UBYTE*)start;
-
-	for (i=0; i<numpixels; i++)
-	{
-		*out++ = *in++;
-	}
-}
-
-#endif
-
-inline void tex_UpdateScanlineShort(UWORD *start, UBYTE *pixels, int numpixels)
-{
-	int	i;
-
-	UWORD *in = (UWORD*)pixels;
-	UWORD *out = (UWORD*)start;
-
-	for (i=0; i<numpixels; i++)
-	{
-		*out++ = *in++;
-	}
-}
-
-//Conversion:
-
-inline void tex_UpdateScanlineA8_ARGB(UWORD *start, UBYTE *pixels, int numpixels)
-{	
-	int	i;
-	UBYTE	a;
-
-	for (i=0; i<numpixels; i++)
-	{
-		a = *pixels++;
-		*start++ = ( ((UWORD)a & 0xF0) << 8) | 0x0FFF;
-	}
-}
-
-inline void tex_UpdateScanlineL8_ARGB(UWORD *start, UBYTE *pixels, int numpixels)
-{	
-	int	i;
-	UBYTE	la, lb, lc;
-
-	for (i=0; i<numpixels; i++)
-	{
-		la = lb = lc = *pixels++;
-		*start++ = ARGBFORM(0xff, la, lb, lc);
-	}
-}
-
-inline void tex_UpdateScanlineAlpha(UWORD *start, UBYTE *pixels, int numpixels)
-{	
-	int	i;
-	UBYTE	r, g, b, a;
-
-	for (i=0; i<numpixels; i++)
-	{
-		r = *pixels++;
-		g = *pixels++;
-		b = *pixels++;
-		a = *pixels++;
-		*start++ = ARGBFORM(a,r,g,b);
-	}
-}
-
-inline void tex_UpdateScanlineNoAlpha(UWORD *start, UBYTE *pixels, int numpixels)
-{	
-	int	i;
-	UBYTE	r, g, b;
-
-	for (i=0; i<numpixels; i++)
-	{
-		r = *pixels++;
-		g = *pixels++;
-		b = *pixels++;
-		*start++ = RGBFORM(r,g,b);
-	}
-}
-
-inline void tex_UpdateScanlineVerbatim(UBYTE *start, UBYTE *pixels, int numpixels)
-{
-	memcpy(pixels, start, numpixels);
-}
-
-void GLTexSubImage2DNoMIP(GLcontext context, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
 
 void GLTexSubImage2D(GLcontext context, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels)
 {
-	//int current; // Cowcat
+    W3D_Context *w3d = context->w3dContext;
+    const GLuint name = tex_binding(context);
+    W3D_Texture *obj;
+    UBYTE *mem;
+    GLenum e;
+    GLint lw;
+    GLint lh;
+    int sid = 0;
+    int sbpp = 0;
+    int dbpp;
 
-	//if (context->NoMipMapping == GL_TRUE) // always true
-	{
-		GLTexSubImage2DNoMIP(context, target, level, xoffset, yoffset, width, height, format, type, (void *)pixels);
-		return;
-	}
+    if (target != GL_TEXTURE_2D)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
 
-	/*
-	if(context->ActiveTexture)
-		current = context->VirtualBinding;
+    if (level < 0 || level >= 16)
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
 
-	else
-		current = context->CurrentBinding;
-	*/
+    if (!w3d)
+    {
+        mgl_error(context, GL_INVALID_OPERATION);
+        return;
+    }
 
-	GLFlagError(context, target!=GL_TEXTURE_2D, GL_INVALID_ENUM);
-	GLFlagError(context, context->w3dTexBuffer[current] == NULL, GL_INVALID_OPERATION);
+    e = tex_srcfmt(format, type, &sid, &sbpp);
 
-	// GLFlagError(context, 1, GL_INVALID_OPERATION);
+    if (e != GL_NO_ERROR)
+    {
+        mgl_error(context, e);
+        return;
+    }
+
+    obj = tex_object(context, name);
+
+    if (!obj || (level && !obj->mipmap))
+    {
+        mgl_error(context, GL_INVALID_OPERATION);
+        return;
+    }
+
+    if (level && !(obj->texwidth >> level) && !(obj->texheight >> level))
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
+
+    dbpp = tex_fmtbpp((ULONG)obj->texfmtsrc);
+
+    if ((sid == SRC_IDX8) != (obj->texfmtsrc == W3D_CHUNKY))
+    {
+        mgl_error(context, GL_INVALID_OPERATION);
+        return;
+    }
+
+    lw = tex_leveldim(obj->texwidth, level);
+    lh = tex_leveldim(obj->texheight, level);
+
+    if (xoffset < 0 || yoffset < 0 || width < 0 || height < 0 || width > lw - xoffset || height > lh - yoffset)
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
+
+    if (!pixels || !width || !height)
+        return;
+
+    mem = context->w3dTexMemory[name] + tex_levoff(obj->texwidth, obj->texheight, dbpp, level) + (yoffset * lw + xoffset) * dbpp;
+
+    tex_rows(context, (const UBYTE *)pixels, sid, sbpp, mem, (ULONG)obj->texfmtsrc, dbpp, width, height, lw * dbpp);
+
+    W3D_UpdateTexImage(w3d, obj, context->w3dTexMemory[name] + tex_levoff(obj->texwidth, obj->texheight, dbpp, level), level, tex_palette(context));
 }
 
-void GLTexSubImage2DNoMIP (GLcontext context, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels)
+static UBYTE *tex_fbread(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei height)
 {
-	UBYTE	*where;
-	UBYTE	*from = pixels;
-	int	current;
-	int	linelength;
-	int	sourcelength, sourceunit = 0;
-	int	i; 
-	ULONG	BytesPerTexel;
+    const GLint save[5] = {context->CurPackRowLength, context->CurPackSkipPixels, context->CurPackSkipRows, context->CurPackSwapBytes, context->PackAlign};
+    UBYTE *buf;
 
-	/*
-	W3D_Scissor sc;
-	sc.left = xoffset;
-	sc.top = yoffset;
-	sc.width = width;
-	sc.height = height;
-	*/
+    if ((ULONG)width * (ULONG)height > (1UL << 28))
+    {
+        mgl_error(context, GL_OUT_OF_MEMORY);
+        return NULL;
+    }
 
-	if(context->ActiveTexture)
-		current = context->VirtualBinding;
+    buf = (UBYTE *)malloc((size_t)width * (size_t)height * 4);
 
-	else
-		current = context->CurrentBinding;
+    if (!buf)
+    {
+        mgl_error(context, GL_OUT_OF_MEMORY);
+        return NULL;
+    }
 
-	GLFlagError(context, target!=GL_TEXTURE_2D, GL_INVALID_ENUM);
-	GLFlagError(context, context->w3dTexBuffer[context->CurrentBinding] == NULL, GL_INVALID_OPERATION);
-	GLFlagError(context, type != GL_UNSIGNED_BYTE, GL_INVALID_ENUM);
+    context->CurPackRowLength = 0;
+    context->CurPackSkipPixels = 0;
+    context->CurPackSkipRows = 0;
+    context->CurPackSwapBytes = 0;
+    context->PackAlign = 1;
 
+    GLReadPixels(context, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buf);
 
-#ifdef EIGHTBIT_TEXTURES
+    context->CurPackRowLength = save[0];
+    context->CurPackSkipPixels = save[1];
+    context->CurPackSkipRows = save[2];
+    context->CurPackSwapBytes = save[3];
+    context->PackAlign = save[4];
 
-	if(format == GL_ALPHA || format == GL_LUMINANCE)
-		BytesPerTexel = 1;
+    return buf;
+}
 
-	else
-#endif
-		BytesPerTexel = context->w3dBytesPerTexel;
+void tex_decode_pixels(GLcontext context, const UBYTE *pixels, int sid, int sbpp, GLint w, GLint h, UBYTE *rgba)
+{
+    const GLint rowlen = context->CurUnpackRowLength ? context->CurUnpackRowLength : w;
+    const GLint spitch = (rowlen * sbpp + context->UnpackAlign - 1) & ~(context->UnpackAlign - 1);
+    const int swap = context->CurUnpackSwapBytes != 0;
+    const UBYTE *src = pixels + context->CurUnpackSkipRows * spitch + context->CurUnpackSkipPixels * sbpp;
+    GLint x;
+    GLint y;
 
-	switch(format)
-	{
-		case GL_ALPHA:
-		case GL_LUMINANCE:
-			sourceunit = 1;
-			break;
+    for (y = 0; y < h; y++, src += spitch)
+    {
+        const UBYTE *s = src;
 
-		case GL_LUMINANCE_ALPHA:
-		case MGL_UNSIGNED_SHORT_4_4_4_4:
-		case MGL_UNSIGNED_SHORT_5_6_5:
-			sourceunit = 2;
-			break;
+        for (x = 0; x < w; x++, s += sbpp, rgba += 4)
+            tex_decode(s, sid, swap, rgba);
+    }
+}
 
-		case GL_RGBA:
-		case 4:
-			sourceunit = 4;
-			break;
+void tex_unpk0(GLcontext context, GLint save[5])
+{
+    save[0] = context->CurUnpackRowLength;
+    save[1] = context->CurUnpackSkipPixels;
+    save[2] = context->CurUnpackSkipRows;
+    save[3] = context->CurUnpackSwapBytes;
+    save[4] = context->UnpackAlign;
+    context->CurUnpackRowLength = 0;
+    context->CurUnpackSkipPixels = 0;
+    context->CurUnpackSkipRows = 0;
+    context->CurUnpackSwapBytes = 0;
+    context->UnpackAlign = 1;
+}
 
-		case GL_RGB:
-		case 3:
-			sourceunit = 3;
-			break;
-	}
+void tex_unpk1(GLcontext context, const GLint save[5])
+{
+    context->CurUnpackRowLength = save[0];
+    context->CurUnpackSkipPixels = save[1];
+    context->CurUnpackSkipRows = save[2];
+    context->CurUnpackSwapBytes = save[3];
+    context->UnpackAlign = save[4];
+}
 
-	linelength = context->w3dTexBuffer[current]->texwidth * BytesPerTexel;
+void GLCopyTexImage2D(GLcontext context, GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border)
+{
+    GLint save[5];
+    UBYTE *buf;
 
-	sourcelength = width * sourceunit;
+    if (width < 0 || height < 0)
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
 
-	where = (UBYTE *)context->w3dTexMemory[current] + linelength * yoffset + BytesPerTexel * xoffset;
+    buf = width && height ? tex_fbread(context, x, y, width, height) : NULL;
 
-#ifdef EIGHTBIT_TEXTURES
+    if (width && height && !buf)
+        return;
 
-	if(format == GL_ALPHA || format == GL_LUMINANCE)
-	{
-		for (i=0; i<height; i++)
-		{
-			tex_UpdateScanlineByte(where, from, width);
-			where += linelength;
-			from  += sourcelength;
-		}
-	}
+    tex_unpk0(context, save);
+    GLTexImage2D(context, target, level, internalformat, width, height, border, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+    tex_unpk1(context, save);
 
-	else
-#endif
+    free(buf);
+}
 
-	if(context->w3dTexBuffer[current]->texfmtsrc == W3D_L8A8)
-	{
-		for (i=0; i<height; i++)
-		{
-			tex_UpdateScanlineShort((UWORD *)where, from, width);
-			where += linelength;
-			from  += sourcelength;
-		}
-	}
+void GLCopyTexSubImage2D(GLcontext context, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
+{
+    GLint save[5];
+    UBYTE *buf;
 
-	else if (context->w3dTexBuffer[current]->texfmtsrc == context->w3dFormat)
-	{
-		if(sourceunit == 2)
-		{
-			for (i=0; i<height; i++)
-			{
-				tex_UpdateScanlineShort((UWORD *)where, from, width);
-				where += linelength;
-				from  += sourcelength;
-			}
-		}
+    if (width < 0 || height < 0)
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
 
-		else
-		{
-			for (i=0; i<height; i++)
-			{
-				tex_UpdateScanlineNoAlpha((UWORD *)where, from, width);
-				where += linelength;
-				from  += sourcelength;
-			}
-		}
-	}
+    buf = width && height ? tex_fbread(context, x, y, width, height) : NULL;
 
-#ifndef EIGHTBIT_TEXTURES
+    if (width && height && !buf)
+        return;
 
-	else if (format == GL_ALPHA)
-	{
-		for (i=0; i<height; i++)
-		{
-			tex_UpdateScanlineA8_ARGB((UWORD *)where, from, width);
-			where += linelength;
-			from  += sourcelength;
-		}
-	}
+    tex_unpk0(context, save);
+    GLTexSubImage2D(context, target, level, xoffset, yoffset, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+    tex_unpk1(context, save);
 
-	else if (format == GL_LUMINANCE)
-	{
-		for (i=0; i<height; i++)
-		{
-			tex_UpdateScanlineL8_ARGB((UWORD *)where, from, width);
-			where += linelength;
-			from  += sourcelength;
-		}
-	}
-#endif
+    free(buf);
+}
 
-	else if (context->w3dTexBuffer[current]->texfmtsrc == context->w3dAlphaFormat)
-	{
-		if(sourceunit == 2)
-		{
-			for (i=0; i<height; i++)
-			{
-				tex_UpdateScanlineShort((UWORD *)where, from, width);
-				where += linelength;
-				from  += sourcelength;
-			}
-		}
+void GLTexParameteri(GLcontext context, GLenum target, GLenum pname, GLint param)
+{
+    W3D_Context *w3d = context->w3dContext;
+    W3D_Texture *t = tex_object(context, tex_binding(context));
+    ULONG w;
 
-		else
-		{
-			for (i=0; i<height; i++)
-			{
-				tex_UpdateScanlineAlpha((UWORD *)where, from, width);
-				where += linelength;
-				from  += sourcelength;
-			}	
-		}
-	}
+    if (target != GL_TEXTURE_2D)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
 
-	else
-	{
-		for (i=0; i<height; i++)
-		{
-			tex_UpdateScanlineVerbatim((UBYTE *)where, from, width);
-			where += linelength;
-			from  += sourcelength;
-		}
-	}
+    switch (pname)
+    {
+    case GL_TEXTURE_MIN_FILTER:
+        w = tex_minw(param);
 
-//experimental shortcut
-/*
-	if(context->w3dContext->CurrentChip == W3D_CHIP_AVENGER_BE)
-	{
-		context->w3dTexBuffer[current]->dirty = W3D_TRUE;
-	}
+        if (!w)
+        {
+            mgl_error(context, GL_INVALID_ENUM);
+            return;
+        }
 
-	else
-	{
-*/
-	#ifndef __PPC__
+        context->MinFilter = param;
 
-	UpdateTexImage(context->w3dContext, context->w3dTexBuffer[current], context->w3dTexMemory[current], 0, NULL);
+        if (t && w3d)
+            W3D_SetFilter(w3d, t, w, tex_minw(context->MagFilter));
 
-	#else
+        break;
 
-	W3D_UpdateTexImage(context->w3dContext, context->w3dTexBuffer[current], context->w3dTexMemory[current], 0, NULL);
+    case GL_TEXTURE_MAG_FILTER:
+        if (param != GL_NEAREST && param != GL_LINEAR)
+        {
+            mgl_error(context, GL_INVALID_ENUM);
+            return;
+        }
 
-	#endif
-/*
-	}
-*/
+        context->MagFilter = param;
 
+        if (t && w3d)
+            W3D_SetFilter(w3d, t, tex_minw(context->MinFilter), param == GL_NEAREST ? W3D_NEAREST : W3D_LINEAR);
+
+        break;
+
+    case GL_TEXTURE_WRAP_S:
+    case GL_TEXTURE_WRAP_T:
+        w = tex_wrapw(param);
+
+        if (!w)
+        {
+            mgl_error(context, GL_INVALID_ENUM);
+            return;
+        }
+
+        if (pname == GL_TEXTURE_WRAP_S)
+            context->WrapS = param;
+        else
+            context->WrapT = param;
+
+        if (t && w3d)
+            W3D_SetWrapMode(w3d, t, tex_wrapw(context->WrapS), tex_wrapw(context->WrapT), NULL);
+
+        break;
+
+    case GL_TEXTURE_PRIORITY:
+        // autotexmanagement runs an lru, the hint has no w3d target
+        break;
+
+    default:
+        mgl_error(context, GL_INVALID_ENUM);
+        break;
+    }
+}
+
+void GLTexEnvi(GLcontext context, GLenum target, GLenum pname, GLint param)
+{
+    ULONG env;
+
+    if (target != GL_TEXTURE_ENV)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    switch (pname)
+    {
+    case GL_TEXTURE_ENV_MODE:
+        env = mgl_envw(param);
+
+        if (!env)
+        {
+            mgl_error(context, GL_INVALID_ENUM);
+            return;
+        }
+
+        context->TexEnv[context->ActiveTexture] = param;
+
+        if (!context->ActiveTexture)
+        {
+            W3D_Texture *t = tex_object(context, (GLuint)context->CurrentBinding);
+
+            if (t && context->w3dContext)
+            {
+                W3D_SetTexEnv(context->w3dContext, t, env, env == W3D_BLEND ? &context->TexEnvColor[0] : NULL);
+
+                context->CurTexEnv = param;
+                context->CurTexEnvColor = context->TexEnvColor[0];
+            }
+        }
+
+        break;
+
+    case GL_TEXTURE_ENV_COLOR:
+        // the int entry point cannot carry the four components
+        break;
+
+    default:
+        mgl_error(context, GL_INVALID_ENUM);
+        break;
+    }
+}
+
+void GLTexEnvfv(GLcontext context, GLenum target, GLenum pname, const GLfloat *params)
+{
+    if (!params)
+        return;
+
+    if (pname == GL_TEXTURE_ENV_MODE)
+    {
+        GLTexEnvi(context, target, pname, (GLint)params[0]);
+
+        return;
+    }
+
+    if (target != GL_TEXTURE_ENV || pname != GL_TEXTURE_ENV_COLOR)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    context->TexEnvColor[context->ActiveTexture].r = params[0];
+    context->TexEnvColor[context->ActiveTexture].g = params[1];
+    context->TexEnvColor[context->ActiveTexture].b = params[2];
+    context->TexEnvColor[context->ActiveTexture].a = params[3];
+
+    // a live blend env picks the new color up on the bound texture now
+    if (!context->ActiveTexture && context->TexEnv[0] == GL_BLEND)
+    {
+        W3D_Texture *t = tex_object(context, (GLuint)context->CurrentBinding);
+
+        if (t && context->w3dContext)
+        {
+            W3D_SetTexEnv(context->w3dContext, t, W3D_BLEND, &context->TexEnvColor[0]);
+
+            context->CurTexEnv = GL_BLEND;
+            context->CurTexEnvColor = context->TexEnvColor[0];
+        }
+    }
 }
 
 void GLTexGeni(GLcontext context, GLenum coord, GLenum mode, GLenum map)
 {
-	// GLFlagError(context, 1, GL_INVALID_OPERATION);
+    GLenum *slot;
+
+    if (mode != GL_TEXTURE_GEN_MODE)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    switch (map)
+    {
+    case GL_SPHERE_MAP:
+    case GL_OBJECT_LINEAR:
+    case GL_EYE_LINEAR:
+        break;
+    default:
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    if (coord == GL_S)
+        slot = &context->TexGenModeS;
+    else if (coord == GL_T)
+        slot = &context->TexGenModeT;
+    else
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    *slot = map;
+}
+
+void GLTexGenfv(GLcontext context, GLenum coord, GLenum pname, const GLfloat *params)
+{
+    GLfloat *plane;
+    const GLfloat *m;
+    const GLfloat *r;
+    GLfloat tx;
+    GLfloat ty;
+    GLfloat tz;
+
+    if (!params)
+        return;
+
+    if (pname == GL_TEXTURE_GEN_MODE)
+    {
+        GLTexGeni(context, coord, pname, (GLenum)params[0]);
+
+        return;
+    }
+
+    if (pname != GL_OBJECT_PLANE && pname != GL_EYE_PLANE)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    if (coord == GL_S)
+        plane = pname == GL_OBJECT_PLANE ? context->ObjectPlaneS : context->EyePlaneS;
+    else if (coord == GL_T)
+        plane = pname == GL_OBJECT_PLANE ? context->ObjectPlaneT : context->EyePlaneT;
+    else
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    if (pname == GL_OBJECT_PLANE)
+    {
+        memcpy(plane, params, 4 * sizeof(GLfloat));
+        return;
+    }
+
+    // eye planes store p * modelview^-1 once, evaluation stays a plain dot
+    mglUpdateInvRot(context);
+
+    r = context->InvRot;
+    m = context->ModelView[context->ModelViewNr].v;
+    tx = r[0] * m[12] + r[1] * m[13] + r[2] * m[14];
+    ty = r[3] * m[12] + r[4] * m[13] + r[5] * m[14];
+    tz = r[6] * m[12] + r[7] * m[13] + r[8] * m[14];
+
+    plane[0] = r[0] * params[0] + r[3] * params[1] + r[6] * params[2];
+    plane[1] = r[1] * params[0] + r[4] * params[1] + r[7] * params[2];
+    plane[2] = r[2] * params[0] + r[5] * params[1] + r[8] * params[2];
+    plane[3] = params[3] - tx * params[0] - ty * params[1] - tz * params[2];
+}
+
+static GLenum tex_dstinternal(ULONG fmt)
+{
+    switch (fmt)
+    {
+    case W3D_A8:
+        return GL_ALPHA8;
+    case W3D_L8:
+        return GL_LUMINANCE8;
+    case W3D_L8A8:
+        return GL_LUMINANCE8_ALPHA8;
+    case W3D_I8:
+        return GL_INTENSITY8;
+    case W3D_R5G6B5:
+        return GL_RGB5;
+    case W3D_A1R5G5B5:
+        return GL_RGB5_A1;
+    case W3D_A4R4G4B4:
+        return GL_RGBA4;
+    case W3D_R8G8B8:
+        return GL_RGB8;
+    case W3D_A8R8G8B8:
+    case W3D_R8G8B8A8:
+        return GL_RGBA8;
+    case W3D_CHUNKY:
+        return GL_COLOR_INDEX;
+    }
+
+    return 0;
+}
+
+static GLint tex_fmtsize(ULONG fmt, GLenum pname)
+{
+    switch (fmt)
+    {
+    case W3D_A8:
+        return pname == GL_TEXTURE_ALPHA_SIZE ? 8 : 0;
+    case W3D_L8:
+        return pname == GL_TEXTURE_LUMINANCE_SIZE ? 8 : 0;
+    case W3D_L8A8:
+        return pname == GL_TEXTURE_LUMINANCE_SIZE || pname == GL_TEXTURE_ALPHA_SIZE ? 8 : 0;
+    case W3D_I8:
+        return pname == GL_TEXTURE_INTENSITY_SIZE ? 8 : 0;
+    case W3D_R5G6B5:
+        return pname == GL_TEXTURE_RED_SIZE ? 5 : pname == GL_TEXTURE_GREEN_SIZE ? 6
+                                              : pname == GL_TEXTURE_BLUE_SIZE    ? 5
+                                                                                 : 0;
+    case W3D_A1R5G5B5:
+        return pname == GL_TEXTURE_ALPHA_SIZE ? 1 : pname == GL_TEXTURE_RED_SIZE || pname == GL_TEXTURE_GREEN_SIZE || pname == GL_TEXTURE_BLUE_SIZE ? 5
+                                                                                                                                                    : 0;
+    case W3D_A4R4G4B4:
+        return pname == GL_TEXTURE_RED_SIZE || pname == GL_TEXTURE_GREEN_SIZE || pname == GL_TEXTURE_BLUE_SIZE || pname == GL_TEXTURE_ALPHA_SIZE ? 4 : 0;
+    case W3D_R8G8B8:
+        return pname == GL_TEXTURE_RED_SIZE || pname == GL_TEXTURE_GREEN_SIZE || pname == GL_TEXTURE_BLUE_SIZE ? 8 : 0;
+    case W3D_A8R8G8B8:
+    case W3D_R8G8B8A8:
+        return pname == GL_TEXTURE_RED_SIZE || pname == GL_TEXTURE_GREEN_SIZE || pname == GL_TEXTURE_BLUE_SIZE || pname == GL_TEXTURE_ALPHA_SIZE ? 8 : 0;
+    }
+
+    return 0;
+}
+
+void GLGetTexParameteriv(GLcontext context, GLenum target, GLenum pname, GLint *params)
+{
+    if (target != GL_TEXTURE_2D)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    if (!params)
+        return;
+
+    switch (pname)
+    {
+    case GL_TEXTURE_MIN_FILTER:
+        *params = (GLint)context->MinFilter;
+        break;
+    case GL_TEXTURE_MAG_FILTER:
+        *params = (GLint)context->MagFilter;
+        break;
+    case GL_TEXTURE_WRAP_S:
+        *params = (GLint)context->WrapS;
+        break;
+    case GL_TEXTURE_WRAP_T:
+        *params = (GLint)context->WrapT;
+        break;
+    case GL_TEXTURE_PRIORITY:
+        *params = 1;
+        break;
+    default:
+        mgl_error(context, GL_INVALID_ENUM);
+        break;
+    }
+}
+
+void GLGetTexEnviv(GLcontext context, GLenum target, GLenum pname, GLint *params)
+{
+    if (target != GL_TEXTURE_ENV)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    if (!params)
+        return;
+
+    switch (pname)
+    {
+    case GL_TEXTURE_ENV_MODE:
+        params[0] = (GLint)context->TexEnv[context->ActiveTexture];
+        break;
+    case GL_TEXTURE_ENV_COLOR:
+        params[0] = (GLint)(context->TexEnvColor[context->ActiveTexture].r >= 0.0f ? context->TexEnvColor[context->ActiveTexture].r + 0.5f : context->TexEnvColor[context->ActiveTexture].r - 0.5f);
+        params[1] = (GLint)(context->TexEnvColor[context->ActiveTexture].g >= 0.0f ? context->TexEnvColor[context->ActiveTexture].g + 0.5f : context->TexEnvColor[context->ActiveTexture].g - 0.5f);
+        params[2] = (GLint)(context->TexEnvColor[context->ActiveTexture].b >= 0.0f ? context->TexEnvColor[context->ActiveTexture].b + 0.5f : context->TexEnvColor[context->ActiveTexture].b - 0.5f);
+        params[3] = (GLint)(context->TexEnvColor[context->ActiveTexture].a >= 0.0f ? context->TexEnvColor[context->ActiveTexture].a + 0.5f : context->TexEnvColor[context->ActiveTexture].a - 0.5f);
+        break;
+    default:
+        mgl_error(context, GL_INVALID_ENUM);
+        break;
+    }
+}
+
+void GLGetTexEnvfv(GLcontext context, GLenum target, GLenum pname, GLfloat *params)
+{
+    if (target != GL_TEXTURE_ENV)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    if (!params)
+        return;
+
+    switch (pname)
+    {
+    case GL_TEXTURE_ENV_MODE:
+        params[0] = (GLfloat)context->TexEnv[context->ActiveTexture];
+        break;
+    case GL_TEXTURE_ENV_COLOR:
+        params[0] = context->TexEnvColor[context->ActiveTexture].r;
+        params[1] = context->TexEnvColor[context->ActiveTexture].g;
+        params[2] = context->TexEnvColor[context->ActiveTexture].b;
+        params[3] = context->TexEnvColor[context->ActiveTexture].a;
+        break;
+    default:
+        mgl_error(context, GL_INVALID_ENUM);
+        break;
+    }
+}
+
+static int tex_genget(GLcontext context, GLenum coord, GLenum pname, GLfloat *out)
+{
+    const GLfloat *plane;
+
+    if (pname == GL_TEXTURE_GEN_MODE)
+    {
+        out[0] = (GLfloat)(coord == GL_S ? context->TexGenModeS : context->TexGenModeT);
+        return 1;
+    }
+
+    plane = pname == GL_OBJECT_PLANE ? (coord == GL_S ? context->ObjectPlaneS : context->ObjectPlaneT) : (coord == GL_S ? context->EyePlaneS : context->EyePlaneT);
+
+    memcpy(out, plane, 4 * sizeof(GLfloat));
+
+    return 4;
+}
+
+void GLGetTexGeniv(GLcontext context, GLenum coord, GLenum pname, GLint *params)
+{
+    GLfloat out[4];
+    int i;
+    int n;
+
+    if ((coord != GL_S && coord != GL_T) || (pname != GL_TEXTURE_GEN_MODE && pname != GL_OBJECT_PLANE && pname != GL_EYE_PLANE))
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    if (!params)
+        return;
+
+    n = tex_genget(context, coord, pname, out);
+
+    for (i = 0; i < n; i++)
+        params[i] = (GLint)(out[i] >= 0.0f ? out[i] + 0.5f : out[i] - 0.5f);
+}
+
+void GLGetTexGenfv(GLcontext context, GLenum coord, GLenum pname, GLfloat *params)
+{
+    if ((coord != GL_S && coord != GL_T) || (pname != GL_TEXTURE_GEN_MODE && pname != GL_OBJECT_PLANE && pname != GL_EYE_PLANE))
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    if (!params)
+        return;
+
+    tex_genget(context, coord, pname, params);
+}
+
+void GLGetTexLevelParameteriv(GLcontext context, GLenum target, GLint level, GLenum pname, GLint *params)
+{
+    W3D_Texture *t;
+
+    if (target != GL_TEXTURE_2D)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    if (!params)
+        return;
+
+    if (level < 0 || level >= 16)
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
+
+    t = tex_object(context, tex_binding(context));
+
+    if (!t)
+    {
+        mgl_error(context, GL_INVALID_OPERATION);
+        return;
+    }
+
+    if (level && (!t->mipmap || (!(t->texwidth >> level) && !(t->texheight >> level))))
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
+
+    switch (pname)
+    {
+    case GL_TEXTURE_WIDTH:
+        *params = (GLint)tex_leveldim(t->texwidth, level);
+        break;
+    case GL_TEXTURE_HEIGHT:
+        *params = (GLint)tex_leveldim(t->texheight, level);
+        break;
+    case GL_TEXTURE_INTERNAL_FORMAT:
+        *params = (GLint)tex_dstinternal((ULONG)t->texfmtsrc);
+        break;
+    case GL_TEXTURE_BORDER:
+        *params = 0;
+        break;
+    case GL_TEXTURE_RED_SIZE:
+    case GL_TEXTURE_GREEN_SIZE:
+    case GL_TEXTURE_BLUE_SIZE:
+    case GL_TEXTURE_ALPHA_SIZE:
+    case GL_TEXTURE_LUMINANCE_SIZE:
+    case GL_TEXTURE_INTENSITY_SIZE:
+    case GL_TEXTURE_DEPTH_SIZE:
+        *params = tex_fmtsize((ULONG)t->texfmtsrc, pname);
+        break;
+    default:
+        mgl_error(context, GL_INVALID_ENUM);
+        break;
+    }
+}
+
+static void tex_ddecode(const UBYTE *p, ULONG fmt, UBYTE *rgba)
+{
+    GLuint v;
+
+    switch (fmt)
+    {
+    case W3D_R8G8B8A8:
+        rgba[0] = p[0];
+        rgba[1] = p[1];
+        rgba[2] = p[2];
+        rgba[3] = p[3];
+        break;
+    case W3D_A8R8G8B8:
+        rgba[0] = p[1];
+        rgba[1] = p[2];
+        rgba[2] = p[3];
+        rgba[3] = p[0];
+        break;
+    case W3D_R8G8B8:
+        rgba[0] = p[0];
+        rgba[1] = p[1];
+        rgba[2] = p[2];
+        rgba[3] = 0xFF;
+        break;
+    case W3D_R5G6B5:
+        v = ((GLuint)p[0] << 8) | p[1];
+        rgba[0] = (UBYTE)(((v >> 11) << 3) | (v >> 13));
+        rgba[1] = (UBYTE)((((v >> 5) & 0x3F) << 2) | (((v >> 5) & 0x3F) >> 4));
+        rgba[2] = (UBYTE)(((v & 0x1F) << 3) | ((v & 0x1F) >> 2));
+        rgba[3] = 0xFF;
+        break;
+    case W3D_A1R5G5B5:
+        v = ((GLuint)p[0] << 8) | p[1];
+        rgba[0] = (UBYTE)((((v >> 10) & 0x1F) << 3) | (((v >> 10) & 0x1F) >> 2));
+        rgba[1] = (UBYTE)((((v >> 5) & 0x1F) << 3) | (((v >> 5) & 0x1F) >> 2));
+        rgba[2] = (UBYTE)(((v & 0x1F) << 3) | ((v & 0x1F) >> 2));
+        rgba[3] = (UBYTE)(v >> 15 ? 0xFF : 0);
+        break;
+    case W3D_A4R4G4B4:
+        v = ((GLuint)p[0] << 8) | p[1];
+        rgba[0] = (UBYTE)(((v >> 8) & 0x0F) * 17);
+        rgba[1] = (UBYTE)(((v >> 4) & 0x0F) * 17);
+        rgba[2] = (UBYTE)((v & 0x0F) * 17);
+        rgba[3] = (UBYTE)(((v >> 12) & 0x0F) * 17);
+        break;
+    case W3D_A8:
+        rgba[0] = rgba[1] = rgba[2] = 0;
+        rgba[3] = p[0];
+        break;
+    case W3D_L8:
+        rgba[0] = rgba[1] = rgba[2] = p[0];
+        rgba[3] = 0xFF;
+        break;
+    case W3D_L8A8:
+        rgba[0] = rgba[1] = rgba[2] = p[0];
+        rgba[3] = p[1];
+        break;
+    case W3D_I8:
+        rgba[0] = rgba[1] = rgba[2] = rgba[3] = p[0];
+        break;
+    default:
+        rgba[0] = rgba[1] = rgba[2] = 0;
+        rgba[3] = 0xFF;
+        break;
+    }
+}
+
+void tex_sencode(UBYTE *d, int sid, int swap, const UBYTE *rgba)
+{
+    GLuint v;
+
+    switch (sid)
+    {
+    case SRC_RGBA8:
+        d[0] = rgba[0];
+        d[1] = rgba[1];
+        d[2] = rgba[2];
+        d[3] = rgba[3];
+        break;
+    case SRC_ARGB8:
+        d[0] = rgba[3];
+        d[1] = rgba[0];
+        d[2] = rgba[1];
+        d[3] = rgba[2];
+        break;
+    case SRC_BGRA8:
+        d[0] = rgba[2];
+        d[1] = rgba[1];
+        d[2] = rgba[0];
+        d[3] = rgba[3];
+        break;
+    case SRC_RGB8:
+        d[0] = rgba[0];
+        d[1] = rgba[1];
+        d[2] = rgba[2];
+        break;
+    case SRC_R8:
+    case SRC_L8:
+    case SRC_I8:
+        d[0] = rgba[0];
+        break;
+    case SRC_G8:
+        d[0] = rgba[1];
+        break;
+    case SRC_B8:
+        d[0] = rgba[2];
+        break;
+    case SRC_A8:
+        d[0] = rgba[3];
+        break;
+    case SRC_LA8:
+        d[0] = rgba[0];
+        d[1] = rgba[3];
+        break;
+    case SRC_RGB565:
+        v = ((GLuint)(rgba[0] >> 3) << 11) | ((GLuint)(rgba[1] >> 2) << 5) | (rgba[2] >> 3);
+
+        if (swap)
+        {
+            d[0] = (UBYTE)v;
+            d[1] = (UBYTE)(v >> 8);
+        }
+        else
+        {
+            d[0] = (UBYTE)(v >> 8);
+            d[1] = (UBYTE)v;
+        }
+
+        break;
+    case SRC_ARGB4:
+        v = ((GLuint)(rgba[3] >> 4) << 12) | ((GLuint)(rgba[0] >> 4) << 8) | ((GLuint)(rgba[1] >> 4) << 4) | (rgba[2] >> 4);
+
+        if (swap)
+        {
+            d[0] = (UBYTE)v;
+            d[1] = (UBYTE)(v >> 8);
+        }
+        else
+        {
+            d[0] = (UBYTE)(v >> 8);
+            d[1] = (UBYTE)v;
+        }
+
+        break;
+    }
+}
+
+void GLGetTexImage(GLcontext context, GLenum target, GLint level, GLenum format, GLenum type, GLvoid *pixels)
+{
+    const W3D_Texture *t;
+    const UBYTE *src;
+    const GLuint name = tex_binding(context);
+    UBYTE *dst;
+    GLenum e;
+    GLint lw;
+    GLint lh;
+    GLint rowlen;
+    GLint dpitch;
+    GLint copy;
+    GLint x;
+    GLint y;
+    int sid = 0;
+    int sbpp = 0;
+    int dbpp;
+    int swap;
+
+    if (target != GL_TEXTURE_2D)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    if (level < 0 || level >= 16)
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
+
+    e = tex_srcfmt(format, type, &sid, &sbpp);
+
+    if (e != GL_NO_ERROR)
+    {
+        mgl_error(context, e);
+        return;
+    }
+
+    t = tex_object(context, name);
+
+    if (!t)
+    {
+        mgl_error(context, GL_INVALID_OPERATION);
+        return;
+    }
+
+    if (level && (!t->mipmap || (!(t->texwidth >> level) && !(t->texheight >> level))))
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
+
+    if ((sid == SRC_IDX8) != ((ULONG)t->texfmtsrc == W3D_CHUNKY))
+    {
+        mgl_error(context, GL_INVALID_OPERATION);
+        return;
+    }
+
+    if (!pixels)
+        return;
+
+    lw = tex_leveldim(t->texwidth, level);
+    lh = tex_leveldim(t->texheight, level);
+    dbpp = tex_fmtbpp((ULONG)t->texfmtsrc);
+    src = context->w3dTexMemory[name] + tex_levoff(t->texwidth, t->texheight, dbpp, level);
+
+    rowlen = context->CurPackRowLength ? context->CurPackRowLength : lw;
+    dpitch = (rowlen * sbpp + context->PackAlign - 1) & ~(context->PackAlign - 1);
+    dst = (UBYTE *)pixels + context->CurPackSkipRows * dpitch + context->CurPackSkipPixels * sbpp;
+
+    swap = context->CurPackSwapBytes != 0;
+    copy = lw * sbpp;
+
+    if (tex_verbatim(sid, (ULONG)t->texfmtsrc, swap))
+    {
+        for (y = 0; y < lh; y++, src += lw * dbpp, dst += dpitch)
+            memcpy(dst, src, (size_t)copy);
+    }
+    else
+    {
+        for (y = 0; y < lh; y++, src += lw * dbpp, dst += dpitch)
+        {
+            const UBYTE *s = src;
+            UBYTE *d = dst;
+
+            for (x = 0; x < lw; x++, s += dbpp, d += sbpp)
+            {
+                UBYTE rgba[4];
+
+                tex_ddecode(s, (ULONG)t->texfmtsrc, rgba);
+                tex_sencode(d, sid, swap, rgba);
+            }
+        }
+    }
+}
+
+void GLPixelStorei(GLcontext context, GLenum pname, GLint param)
+{
+    // alignment takes {1,2,4,8}, the rest of the layout fields take >= 0
+    if (pname == GL_PACK_ALIGNMENT || pname == GL_UNPACK_ALIGNMENT)
+    {
+        if (param != 1 && param != 2 && param != 4 && param != 8)
+        {
+            mgl_error(context, GL_INVALID_VALUE);
+            return;
+        }
+    }
+    else
+    {
+        switch (pname)
+        {
+        case GL_PACK_ROW_LENGTH:
+        case GL_UNPACK_ROW_LENGTH:
+        case GL_PACK_SKIP_PIXELS:
+        case GL_UNPACK_SKIP_PIXELS:
+        case GL_PACK_SKIP_ROWS:
+        case GL_UNPACK_SKIP_ROWS:
+            if (param < 0)
+            {
+                mgl_error(context, GL_INVALID_VALUE);
+                return;
+            }
+
+            break;
+        case GL_PACK_SWAP_BYTES:
+        case GL_UNPACK_SWAP_BYTES:
+        case GL_PACK_LSB_FIRST:
+        case GL_UNPACK_LSB_FIRST:
+            break;
+        default:
+            mgl_error(context, GL_INVALID_ENUM);
+            return;
+        }
+    }
+
+    switch (pname)
+    {
+    case GL_PACK_ALIGNMENT:
+        context->PackAlign = param;
+        break;
+    case GL_UNPACK_ALIGNMENT:
+        context->UnpackAlign = param;
+        break;
+    case GL_PACK_ROW_LENGTH:
+        context->CurPackRowLength = param;
+        break;
+    case GL_UNPACK_ROW_LENGTH:
+        context->CurUnpackRowLength = param;
+        break;
+    case GL_PACK_SKIP_PIXELS:
+        context->CurPackSkipPixels = param;
+        break;
+    case GL_UNPACK_SKIP_PIXELS:
+        context->CurUnpackSkipPixels = param;
+        break;
+    case GL_PACK_SKIP_ROWS:
+        context->CurPackSkipRows = param;
+        break;
+    case GL_UNPACK_SKIP_ROWS:
+        context->CurUnpackSkipRows = param;
+        break;
+    case GL_PACK_SWAP_BYTES:
+        context->CurPackSwapBytes = param != 0;
+        break;
+    case GL_UNPACK_SWAP_BYTES:
+        context->CurUnpackSwapBytes = param != 0;
+        break;
+    case GL_PACK_LSB_FIRST:
+        context->CurPackLsbFirst = param != 0;
+        break;
+    case GL_UNPACK_LSB_FIRST:
+        context->CurUnpackLsbFirst = param != 0;
+        break;
+    }
 }
 
 void GLColorTable(GLcontext context, GLenum target, GLenum internalformat, GLint width, GLenum format, GLenum type, GLvoid *data)
 {
-	int	i;
-	GLubyte *palette;
-	GLubyte *where;
-	GLubyte a, r, g, b;
+    ULONG *pal = (ULONG *)context->PaletteData;
+    const UBYTE *src = (const UBYTE *)data;
+    GLenum e;
+    ULONG dfmt;
+    int dbpp;
+    int sid = 0;
+    int sbpp = 0;
+    int i;
 
-	GLFlagError(context, width>256, GL_INVALID_VALUE);
-	GLFlagError(context, target!=GL_COLOR_TABLE, GL_INVALID_OPERATION);
+    if (target != GL_COLOR_TABLE && target != GL_SHARED_TEXTURE_PALETTE_EXT && target != GL_TEXTURE_2D)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
 
-	palette = (GLubyte *)data;
-	where	= (GLubyte *)context->PaletteData;
+    e = tex_dstfmt(context, internalformat, &dfmt, &dbpp);
 
-	GLFlagError(context, where == NULL, GL_INVALID_OPERATION);
+    if (e != GL_NO_ERROR)
+    {
+        mgl_error(context, e);
+        return;
+    }
 
-	switch(internalformat)
-	{
-		case 4:
-		case GL_RGBA: // convert to argb from...
+    if (width < 1 || width > 256)
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
 
-			switch(format)
-			{
-				case GL_RGB: // ...RGB, ignoring alpha
+    e = tex_srcfmt(format, type, &sid, &sbpp);
 
-					for (i=0; i<width; i++)
-					{
-						r = *palette++;
-						g = *palette++;
-						b = *palette++;
-						palette++;
-						*where++ = r;
-						*where++ = g;
-						*where++ = b;
-					}
+    if (e != GL_NO_ERROR || sid == SRC_IDX8)
+    {
+        mgl_error(context, e != GL_NO_ERROR ? e : GL_INVALID_OPERATION);
+        return;
+    }
 
-					break;
+    if (!pal)
+    {
+        mgl_error(context, GL_INVALID_OPERATION);
+        return;
+    }
 
-				case GL_RGBA: // ...ARGB with alpha
+    if (src)
+    {
+        const int swap = context->CurUnpackSwapBytes != 0;
 
-					for (i=0; i<width; i++)
-					{
-						a = *palette++;
-						r = *palette++;
-						g = *palette++;
-						b = *palette++;
-						*where++ = a;
-						*where++ = r;
-						*where++ = g;
-						*where++ = b;
-					}
+        src += context->CurUnpackSkipPixels * sbpp;
 
-					break;
-			}
+        for (i = 0; i < width; i++, src += sbpp)
+        {
+            UBYTE rgba[4];
 
-			break;
+            tex_decode(src, sid, swap, rgba);
 
-		case 3:
-		case GL_RGB: // convert to RGB from...
+            pal[i] = ((ULONG)rgba[3] << 24) | ((ULONG)rgba[0] << 16) | ((ULONG)rgba[1] << 8) | rgba[2];
+        }
+    }
+    else
+    {
+        for (i = 0; i < width; i++)
+            pal[i] = 0xFF000000;
+    }
 
-			switch(format)
-			{
-				case GL_RGB: // ...RGB without alpha
+    context->PaletteSize = width;
+    context->PaletteFormat = format;
 
-					for (i=0; i<width; i++)
-					{
-						r = *palette++;
-						g = *palette++;
-						b = *palette++;
-						*where++ = r;
-						*where++ = g;
-						*where++ = b;
-					}
+    // the table is shared, every chunky texture on the driver picks it up now
+    if (context->w3dContext)
+    {
+        int i;
 
-					break;
+        for (i = 0; i < context->TexBufferSize; i++)
+        {
+            W3D_Texture *t = context->w3dTexBuffer[i];
 
-				case GL_RGBA: // ...ARGB, assuming alpha == 1
-
-					for (i=0; i<width; i++)
-					{
-						r = *palette++;
-						g = *palette++;
-						b = *palette++;
-						*where++ = 0xff;
-						*where++ = r;
-						*where++ = g;
-						*where++ = b;
-					}
-
-					break;
-			}
-
-			break;
-	}
-
-	context->PaletteFormat = format;
-	context->PaletteSize   = width;
+            if (t && t->texfmtsrc == W3D_CHUNKY)
+                W3D_UpdateTexImage(context->w3dContext, t, t->texsource, 0, pal);
+        }
+    }
 }
 
 void GLActiveTextureARB(GLcontext context, GLenum unit)
 {
-	if (unit < GL_TEXTURE0_ARB || unit >= GL_TEXTURE0_ARB + MAX_TEXUNIT) {
-        if (context->CurrentError == GL_NO_ERROR) context->CurrentError = GL_INVALID_ENUM;
+    const int u = unit - GL_TEXTURE0_ARB;
+
+    if (u < 0 || u >= (int)context->TexUnits)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
         return;
     }
 
-	context->ActiveTexture = unit - GL_TEXTURE0_ARB;
+    context->ActiveTexture = (GLuint)u;
 }
 
+void MGLDrawMultitexBuffer(GLcontext context, GLenum BSrc, GLenum BDst, GLenum TexEnv)
+{
+    const ULONG src = mgl_blend_src(BSrc);
+    const ULONG dst = mgl_blend_dst(BDst);
+    const ULONG env = mgl_envw(TexEnv);
+
+    if (!src || !dst || !env)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return;
+    }
+
+    if (!context->VertexBufferPointer)
+    {
+        mgl_error(context, GL_INVALID_OPERATION);
+        return;
+    }
+
+    context->mtexSrc = src;
+    context->mtexDst = dst;
+    context->mtexEnv = env;
+    context->mtexArmed = GL_TRUE;
+
+    d_Submit(context, NULL, 0, GL_TRUE);
+
+    context->mtexArmed = GL_FALSE;
+}
+
+void MGLTexMemStat(GLcontext context, GLint *Current, GLint *Peak)
+{
+    if (Current)
+        *Current = context->TexMemCur;
+
+    if (Peak)
+        *Peak = context->TexMemPeak;
+}
+
+ULONG MGLSetTexChromaBounds(GLcontext context, GLuint texture, ULONG rgba_lower, ULONG rgba_upper, ULONG mode)
+{
+    W3D_Texture *t;
+
+    if (mode != W3D_CHROMATEST_NONE && mode != W3D_CHROMATEST_INCLUSIVE && mode != W3D_CHROMATEST_EXCLUSIVE)
+    {
+        mgl_error(context, GL_INVALID_ENUM);
+        return W3D_NOT_SUPPORTED;
+    }
+
+    if (!(t = tex_object(context, texture)))
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return W3D_NOT_SUPPORTED;
+    }
+
+    W3D_SetState(context->w3dContext, W3D_CHROMATEST, mode != W3D_CHROMATEST_NONE ? W3D_ENABLE : W3D_DISABLE);
+
+    return W3D_SetChromaTestBounds(context->w3dContext, t, rgba_lower, rgba_upper, mode);
+}

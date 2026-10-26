@@ -30,22 +30,35 @@
  */
 
 #include <proto/minigl.h>
+#include "mgllog.h"
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <proto/graphics.h>
 #include <proto/dos.h>
 #include <dos/dos.h>
 
 #ifndef D
 #ifdef DEBUG
-#define D(x) do { printf x; } while (0)
+#define D(x)      \
+    do            \
+    {             \
+        printf x; \
+    } while (0)
 #else
-#define D(x) do { } while (0)
+#define D(x) \
+    do       \
+    {        \
+    } while (0)
 #endif
 #endif
 
 #ifndef E
-#define E(x) do { printf x; } while (0)
+#define E(x)      \
+    do            \
+    {             \
+        printf x; \
+    } while (0)
 #endif
 
 #define MILESTONE_WIDTH 640
@@ -100,162 +113,173 @@ static int local_stricmp(const char *a, const char *b)
  * same 6-band structure, same color alternation. */
 static void drawBall(void)
 {
-	float a, b;
-	float da = 180.0f / NUMSLICE, db = 180.0f / NUMSLICE;
-	float radius = 1.0f;
-	int color = 0;
-	float x, y, z;
+    float a, b;
+    float da = 180.0f / NUMSLICE, db = 180.0f / NUMSLICE;
+    float radius = 1.0f;
+    int color = 0;
+    float x, y, z;
 
-	for (a = -90.0f; a + da <= 90.0f; a += da)
-	{
-		D(("milestone_ballonly: band a=%ld\n", (LONG)a));
-		glBegin(GL_QUAD_STRIP);
-		for (b = 0.0f; b <= 360.0f; b += db)
-		{
-			if (color)
-				glColor3f(1.0f, 0.0f, 0.0f); /* red */
-			else
-				glColor3f(1.0f, 1.0f, 1.0f); /* white */
+    for (a = -90.0f; a + da <= 90.0f; a += da)
+    {
+        D(("milestone_ballonly: band a=%ld\n", (LONG)a));
+        glBegin(GL_QUAD_STRIP);
+        for (b = 0.0f; b <= 360.0f; b += db)
+        {
+            if (color)
+                glColor3f(1.0f, 0.0f, 0.0f); /* red */
+            else
+                glColor3f(1.0f, 1.0f, 1.0f); /* white */
 
-			x = COS(b) * COS(a);
-			y = SIN(b) * COS(a);
-			z = SIN(a);
-			glVertex3f(x, y, z);
+            x = COS(b) * COS(a);
+            y = SIN(b) * COS(a);
+            z = SIN(a);
+            glVertex3f(x, y, z);
 
-			x = radius * COS(b) * COS(a + da);
-			y = radius * SIN(b) * COS(a + da);
-			z = radius * SIN(a + da);
-			glVertex3f(x, y, z);
+            x = radius * COS(b) * COS(a + da);
+            y = radius * SIN(b) * COS(a + da);
+            z = radius * SIN(a + da);
+            glVertex3f(x, y, z);
 
-			color = 1 - color;
-		}
-		glEnd();
-	}
+            color = 1 - color;
+        }
+        glEnd();
+    }
 }
 
 static void draw(void)
 {
-	/* Only pacing mechanism now -- paces the START of each frame to
-	 * right after vertical blank. Only the -DDEBUG build calls this
-	 * (see the render loop below); the nodebug performance build runs
-	 * flat-out, uncapped.
-	 *
-	 * MGLV3D_FORCE_WAITTOF: separate opt-in for a nodebug "showcase"
-	 * build (no D()/kprintf overhead, but still paced to vblank for a
-	 * smooth, presentable demo) without disturbing the existing nodebug-
-	 * means-flat-out-timing convention -- only this explicit flag
-	 * re-enables WaitTOF() in a nodebug build. */
+    /* Only pacing mechanism now -- paces the START of each frame to
+     * right after vertical blank. Only the -DDEBUG build calls this
+     * (see the render loop below); the nodebug performance build runs
+     * flat-out, uncapped.
+     *
+     * MGLV3D_FORCE_WAITTOF: separate opt-in for a nodebug "showcase"
+     * build (no D()/kprintf overhead, but still paced to vblank for a
+     * smooth, presentable demo) without disturbing the existing nodebug-
+     * means-flat-out-timing convention -- only this explicit flag
+     * re-enables WaitTOF() in a nodebug build. */
 #if defined(DEBUG) || defined(MGLV3D_FORCE_WAITTOF)
-	WaitTOF();
+    WaitTOF();
 #endif
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glPushMatrix();
-		glScalef(1.6f, 1.6f, 1.6f);
-		glRotatef(8.0f, 0.0f, 0.0f, 1.0f);
-		glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-		glRotatef(Zrot, 0.0f, 0.0f, 1.0f);
-		drawBall();
-	glPopMatrix();
+    glPushMatrix();
+    glScalef(1.6f, 1.6f, 1.6f);
+    glRotatef(8.0f, 0.0f, 0.0f, 1.0f);
+    glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+    glRotatef(Zrot, 0.0f, 0.0f, 1.0f);
+    drawBall();
+    glPopMatrix();
 
-	mglSwitchDisplay();
+    mglSwitchDisplay();
 }
 
 static void idle(void)
 {
-	Zrot += 3.0f;
-	draw();
+    Zrot += 3.0f;
+    draw();
 }
 
 int main(int argc, char *argv[])
 {
-	int frame;
-	float aspect;
-	int depth;
-	
-	depth = 24;
-	for (int i = 1; i < argc; i++)
-	{
-		if (0 == local_stricmp(argv[i], "-depth"))
-		{
-			i++;
-			depth = atoi(argv[i]);
-			if ((depth!=15)&&(depth!=16)&&(depth!=24)) depth = 24;
-		}
-	}	
+    int frame;
+    float aspect;
+    int depth;
 
-	if (MiniGLOpen() == GL_FALSE)
-	{
-		D(("milestone_ballonly: could not open minigl.library\n"));
-		return -1;
-	}
+    depth = 24;
+    for (int i = 1; i < argc; i++)
+    {
+        if (i + 1 < argc && 0 == local_stricmp(argv[i], "-depth"))
+        {
+            i++;
+            depth = atoi(argv[i]);
+            if ((depth != 15) && (depth != 16) && (depth != 24))
+                depth = 24;
+        }
+    }
 
-	mglChoosePixelDepth(depth);
-	mglChooseVertexBufferSize(1000);
-	if (!mglCreateContext(0, 0, MILESTONE_WIDTH, MILESTONE_HEIGHT))
-	{
-		D(("milestone_ballonly: mglCreateContext failed\n"));
-		MiniGLClose();
-		return -2;
-	}
+    mgllog_open("ballonly");
 
-	D(("milestone_ballonly: context created\n"));
+    MGLLOG("dbg: open");
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    if (MiniGLOpen() == GL_FALSE)
+    {
+        MGLLOG("milestone_ballonly: could not open minigl.library");
+        return -1;
+    }
 
-	glCullFace(GL_BACK);
-	glEnable(GL_CULL_FACE);
-	glFrontFace(GL_CW);
+    MGLLOG("dbg: chooses");
 
-	glDisable(GL_DEPTH_TEST);
-	glShadeModel(GL_FLAT);
+    mglChoosePixelDepth(depth);
+    mglChooseVertexBufferSize(1000);
 
-	aspect = (float)MILESTONE_WIDTH / (float)MILESTONE_HEIGHT;
-	glViewport(0, 0, MILESTONE_WIDTH, MILESTONE_HEIGHT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(-6.0 * aspect, 6.0 * aspect, -6.0, 6.0, -6.0, 6.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+    MGLLOG("dbg: createcontext");
 
-	D(("milestone_ballonly: setup done, running %ld frames\n", (LONG)BALL_FRAMES));
+    if (!mglCreateContext(0, 0, MILESTONE_WIDTH, MILESTONE_HEIGHT))
+    {
+        MGLLOG("milestone_ballonly: mglCreateContext failed");
 
-	/* Timing via DateStamp() (dos.library, 1/50s resolution) -- printed
-	 * with the unconditional E() macro (always calls kprintf, regardless
-	 * of -DDEBUG) so it shows up the same way in both the debug and
-	 * nodebug builds, letting the two be compared directly. Covers just
-	 * the render loop itself, not MGLInit/context setup/teardown. */
-	{
-		struct DateStamp start_ds, end_ds;
-		LONG elapsed_ticks;
+        MiniGLClose();
+        return -2;
+    }
 
-		DateStamp(&start_ds);
+    MGLLOG("milestone_ballonly: context created");
 
-		for (frame = 0; frame < BALL_FRAMES; frame++)
-		{
-			D(("milestone_ballonly: === frame %ld ===\n", (LONG)frame));
-			idle();
-		}
+    mglEnableSync(GL_TRUE);
 
-		DateStamp(&end_ds);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-		elapsed_ticks = (end_ds.ds_Days   - start_ds.ds_Days)   * 1440L * 3000L
-		              + (end_ds.ds_Minute - start_ds.ds_Minute) * 3000L
-		              + (end_ds.ds_Tick   - start_ds.ds_Tick);
+    glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CW);
 
-		/* ms/frame, not ticks/frame -- a tick is 20ms, and any frame
-		 * faster than that (very likely once actually uncapped) makes
-		 * ticks/frame truncate to 0 under integer division. */
-		E(("milestone_ballonly [%s]: %ld frames in %ld ticks (%ld.%02ld sec, %ld ms/frame)\n",
-		   CULL_TAG, (LONG)BALL_FRAMES, elapsed_ticks, elapsed_ticks / 50L, (elapsed_ticks % 50L) * 2L,
-		   (elapsed_ticks * 20L) / (LONG)BALL_FRAMES));
-	}
+    glDisable(GL_DEPTH_TEST);
+    glShadeModel(GL_FLAT);
 
-	D(("milestone_ballonly: tearing down\n"));
+    aspect = (float)MILESTONE_WIDTH / (float)MILESTONE_HEIGHT;
+    glViewport(0, 0, MILESTONE_WIDTH, MILESTONE_HEIGHT);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-6.0 * aspect, 6.0 * aspect, -6.0, 6.0, -6.0, 6.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
-	mglDeleteContext();
-	MiniGLClose();
+    D(("milestone_ballonly: setup done, running %ld frames\n", (LONG)BALL_FRAMES));
 
-	return 0;
+    /* Timing via DateStamp() (dos.library, 1/50s resolution) -- printed
+     * with the unconditional E() macro (always calls kprintf, regardless
+     * of -DDEBUG) so it shows up the same way in both the debug and
+     * nodebug builds, letting the two be compared directly. Covers just
+     * the render loop itself, not MGLInit/context setup/teardown. */
+    {
+        struct DateStamp start_ds, end_ds;
+        LONG elapsed_ticks;
+
+        DateStamp(&start_ds);
+
+        for (frame = 0; frame < BALL_FRAMES; frame++)
+        {
+            D(("milestone_ballonly: === frame %ld ===\n", (LONG)frame));
+            idle();
+        }
+
+        DateStamp(&end_ds);
+
+        elapsed_ticks = (end_ds.ds_Days - start_ds.ds_Days) * 1440L * 3000L + (end_ds.ds_Minute - start_ds.ds_Minute) * 3000L + (end_ds.ds_Tick - start_ds.ds_Tick);
+
+        /* ms/frame, not ticks/frame -- a tick is 20ms, and any frame
+         * faster than that (very likely once actually uncapped) makes
+         * ticks/frame truncate to 0 under integer division. */
+        E(("milestone_ballonly [%s]: %ld frames in %ld ticks (%ld.%02ld sec, %ld ms/frame)\n",
+           CULL_TAG, (LONG)BALL_FRAMES, elapsed_ticks, elapsed_ticks / 50L, (elapsed_ticks % 50L) * 2L,
+           (elapsed_ticks * 20L) / (LONG)BALL_FRAMES));
+    }
+
+    D(("milestone_ballonly: tearing down\n"));
+
+    mglDeleteContext();
+    MiniGLClose();
+
+    return 0;
 }

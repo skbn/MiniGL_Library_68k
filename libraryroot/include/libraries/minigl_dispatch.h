@@ -55,328 +55,399 @@ extern "C"
  * for that direction.
  */
 #define MINIGL_DISPATCH_ABI_VERSION 5UL
-#define MINIGL_BACKEND_FLAG_STUB      (1UL << 0)
-#define MINIGL_BACKEND_FLAG_CLASSIC   (1UL << 1)
+#define MINIGL_BACKEND_FLAG_STUB (1UL << 0)
+#define MINIGL_BACKEND_FLAG_CLASSIC (1UL << 1)
 #define MINIGL_BACKEND_FLAG_PISTORM3D (1UL << 2)
 
-typedef struct MGLDispatchTable {
-    ULONG abiVersion;
-    ULONG structSize;
-    ULONG backendFlags;
-    ULONG reserved;
-    GLcontext *currentContext;
-    void (*GLActiveTextureARB)(GLcontext context, GLenum unit);
-    void (*GLAlphaFunc)(GLcontext context, GLenum func, GLclampf ref);
-    void (*GLArrayElement)(GLcontext context, GLint i);
-    void (*GLBegin)(GLcontext context, GLenum mode);
-    void (*GLBindTexture)(GLcontext context, GLenum target, GLuint texture);
-    void (*GLBlendFunc)(GLcontext context, GLenum sfactor, GLenum dfactor);
-    void (*GLClear)(GLcontext context, GLbitfield mask);
-    void (*GLClearColor)(GLcontext context, GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
-    void (*GLClearDepth)(GLcontext context, GLclampd depth);
-    void (*GLColor3fv)(GLcontext context, GLfloat *v);
-    void (*GLColor3ubv)(GLcontext context, GLubyte *v);
-    void (*GLColor4f)(GLcontext context, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-    void (*GLColor4fv)(GLcontext context, GLfloat *v);
-    void (*GLColor4ub)(GLcontext context, GLubyte red, GLubyte green, GLubyte blue, GLubyte alhpa);
-    void (*GLColor4ubv)(GLcontext context, GLubyte *v);
-    void (*GLColorMask)(GLcontext context, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
-    void (*GLColorPointer)(GLcontext context, GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
-    void (*GLColorTable)(GLcontext context, GLenum target, GLenum internalformat, GLint width, GLenum format, GLenum type, GLvoid *data);
-    void (*GLCullFace)(GLcontext context, GLenum mode);
-    void (*GLDeleteTextures)(GLcontext context, GLsizei n, const GLuint *textures);
-    void (*GLDepthFunc)(GLcontext context, GLenum func);
-    void (*GLDepthMask)(GLcontext context, GLboolean flag);
-    void (*GLDepthRange)(GLcontext context, GLclampd n, GLclampd f);
-    void (*GLDisableClientState)(GLcontext context, GLenum cap);
-    void (*GLDrawArrays)(GLcontext context, GLenum mode, GLint first, GLsizei count);
-    void (*GLDrawBuffer)(GLcontext context, GLenum mode);
-    void (*GLDrawElements)(GLcontext context, GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
-    void (*GLEnableClientState)(GLcontext context, GLenum cap);
-    void (*GLEnd)(GLcontext context);
-    void (*GLFinish)(GLcontext context);
-    void (*GLFlush)(GLcontext context);
-    void (*GLFogf)(GLcontext context, GLenum pname, GLfloat param);
-    void (*GLFogfv)(GLcontext context, GLenum pname, GLfloat *param);
-    void (*GLFrontFace)(GLcontext context, GLenum mode);
-    void (*GLFrustum)(GLcontext context, GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar);
-    void (*GLGenTextures)(GLcontext context, GLsizei n, GLuint *textures);
-    void (*GLGetBooleanv)(GLcontext context, GLenum pname, GLboolean *params);
-    GLenum (*GLGetError)(GLcontext context);
-    void (*GLGetFloatv)(GLcontext context, GLenum pname, GLfloat *params);
-    void (*GLGetIntegerv)(GLcontext context, GLenum pname, GLint *params);
-    const GLubyte* (*GLGetString)(GLcontext context, GLenum name);
-    void (*GLHint)(GLcontext context, GLenum target, GLenum mode);
-    GLboolean (*GLIsEnabled)(GLcontext context, GLenum cap);
-    void (*GLLoadIdentity)(GLcontext context);
-    void (*GLLoadMatrixd)(GLcontext context, const GLdouble *m);
-    void (*GLLoadMatrixf)(GLcontext context, const GLfloat *m);
-    void (*GLLockArrays)(GLcontext context, GLuint first, GLsizei count);
-    void (*GLMatrixMode)(GLcontext context, GLenum mode);
-    void (*GLMultMatrixd)(GLcontext context, const GLdouble *m);
-    void (*GLMultMatrixf)(GLcontext context, const GLfloat *m);
-    void (*GLMultiTexCoord2fARB)(GLcontext context, GLenum unit, GLfloat s, GLfloat t);
-    void (*GLMultiTexCoord2fvARB)(GLcontext context, GLenum unit, GLfloat *v);
-    void (*GLNormal3f)(GLcontext context, GLfloat x, GLfloat y, GLfloat z);
-    void (*GLOrtho)(GLcontext context, GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar);
-    void (*GLPixelStorei)(GLcontext context, GLenum pname, GLint param);
-    void (*GLPointSize)(GLcontext context, GLfloat size);
-    void (*GLPolygonMode)(GLcontext context, GLenum face, GLenum mode);
-    void (*GLPopMatrix)(GLcontext context);
-    void (*GLPushMatrix)(GLcontext context);
-    void (*GLReadPixels)(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
-    void (*GLRotated)(GLcontext context, GLdouble angle, GLdouble x, GLdouble y, GLdouble z);
-    void (*GLRotatef)(GLcontext context, GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
-    void (*GLRotatefEXT)(GLcontext context, GLfloat angle, const GLint xyz);
-    void (*GLRotatefEXTs)(GLcontext context, GLfloat sin_an, GLfloat cos_an, const GLint xyz);
-    void (*GLScaled)(GLcontext context, GLdouble x, GLdouble y, GLdouble z);
-    void (*GLScalef)(GLcontext context, GLfloat x, GLfloat y, GLfloat z);
-    void (*GLScissor)(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei height);
-    void (*GLShadeModel)(GLcontext context, GLenum mode);
-    void (*GLTexCoord2f)(GLcontext context, GLfloat s, GLfloat t);
-    void (*GLTexCoord2fv)(GLcontext context, GLfloat *v);
-    void (*GLTexCoord4f)(GLcontext context, GLfloat s, GLfloat t, GLfloat r, GLfloat q);
-    void (*GLTexCoord4fv)(GLcontext context, GLfloat *v);
-    void (*GLTexCoordPointer)(GLcontext context, GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
-    void (*GLTexEnvi)(GLcontext context, GLenum target, GLenum pname, GLint param);
-    void (*GLTexGeni)(GLcontext context, GLenum coord, GLenum mode, GLenum map);
-    void (*GLTexImage2D)(GLcontext context, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
-    void (*GLTexParameteri)(GLcontext context, GLenum target, GLenum pname, GLint param);
-    void (*GLTexSubImage2D)(GLcontext context, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
-    void (*GLTranslated)(GLcontext context, GLdouble x, GLdouble y, GLdouble z);
-    void (*GLTranslatef)(GLcontext context, GLfloat x, GLfloat y, GLfloat z);
-    void (*GLULookAt)(GLfloat ex, GLfloat ey, GLfloat ez, GLfloat cx, GLfloat cy, GLfloat cz, GLfloat ux, GLfloat uy, GLfloat uz);
-    void (*GLUPerspective)(GLfloat fovy, GLfloat aspect, GLfloat znear, GLfloat zfar);
-    void (*GLUnlockArrays)(GLcontext context);
-    void (*GLVertex2fv)(GLcontext context, GLfloat *v);
-    void (*GLVertex3fv)(GLcontext context, GLfloat *v);
-    void (*GLVertex4f)(GLcontext context, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
-    void (*GLVertex4fv)(GLcontext context, GLfloat *v);
-    void (*GLVertexPointer)(GLcontext context, GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
-    void (*GLViewport)(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei height);
-    void (*MGLClearPointer)(GLcontext context);
-    void * (*MGLCreateContext)(int offx, int offy, int w, int h);
-    void * (*MGLCreateContextFromID)(GLint ID, GLint *w, GLint *h);
-    void (*MGLDeleteContext)(GLcontext context);
-    void (*MGLDrawMultitexBuffer)(GLcontext context, GLenum BSrc, GLenum BDst, GLenum TexEnv);
-    void (*MGLEnableSync)(GLcontext context, GLboolean enable);
-    void (*MGLExit)(GLcontext context);
-    void * (*MGLGetInputWindowHandle)(GLcontext context);
-    void * (*MGLGetWindowHandle)(GLcontext context);
-    void (*MGLIdleFunc)(GLcontext context, IdleFn i);
-    void (*MGLKeyFunc)(GLcontext context, KeyHandlerFn k);
-    GLboolean (*MGLLockBack)(GLcontext context, MGLLockInfo *info);
-    GLboolean (*MGLLockDisplay)(GLcontext context);
-    void (*MGLLockMode)(GLcontext context, GLenum lockMode);
-    void (*MGLMainLoop)(GLcontext context);
-    void (*MGLMinTriArea)(GLcontext context, GLfloat area);
-    void (*MGLMouseFunc)(GLcontext context, MouseHandlerFn m);
-    void (*MGLPrintMatrix)(GLcontext context, int mode);
-    void (*MGLPrintMatrixStack)(GLcontext context, int mode);
-    GLboolean (*MGLResizeContext)(GLcontext context, GLsizei width, GLsizei height);
-    void (*MGLSetPointer)(GLcontext context);
-    void (*MGLSetState)(GLcontext context, GLenum cap, GLboolean state);
-    void (*MGLSetZOffset)(GLcontext context, GLfloat offset);
-    void (*MGLSpecialFunc)(GLcontext context, SpecialHandlerFn s);
-    void (*MGLSwitchDisplay)(GLcontext context);
-    void (*MGLTexMemStat)(GLcontext context, GLint *Current, GLint *Peak);
-    void (*MGLUnlockDisplay)(GLcontext context);
-    void (*MGLWriteShotPPM)(GLcontext context, char *filename);
-    void (*mglChooseGuardBand)(GLboolean flag);
-    void (*mglChooseMtexBufferSize)(int size);
-    void (*mglChooseNumberOfBuffers)(int number);
-    void (*mglChoosePixelDepth)(int depth);
-    void (*mglChooseTextureBufferSize)(int size);
-    void (*mglChooseVertexBufferSize)(int size);
-    void (*mglChooseWindowMode)(GLboolean flag);
-    GLint (*mglGetSupportedScreenModes)(MGLScreenModeCallback CallbackFn);
-    void (*mglProhibitAlphaFallback)(GLboolean flag);
-    void (*mglProhibitMipMapping)(GLboolean flag);
-    void (*mglProposeCloseDesktop)(GLboolean closeme);
-    void (*GLPolygonOffset)(GLcontext context, GLfloat factor, GLfloat units);
+    typedef struct MGLDispatchTable
+    {
+        ULONG abiVersion;
+        ULONG structSize;
+        ULONG backendFlags;
+        ULONG reserved;
+        GLcontext *currentContext;
+        void (*GLActiveTextureARB)(GLcontext context, GLenum unit);
+        void (*GLAlphaFunc)(GLcontext context, GLenum func, GLclampf ref);
+        void (*GLArrayElement)(GLcontext context, GLint i);
+        void (*GLBegin)(GLcontext context, GLenum mode);
+        void (*GLBindTexture)(GLcontext context, GLenum target, GLuint texture);
+        void (*GLBlendFunc)(GLcontext context, GLenum sfactor, GLenum dfactor);
+        void (*GLClear)(GLcontext context, GLbitfield mask);
+        void (*GLClearColor)(GLcontext context, GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+        void (*GLClearDepth)(GLcontext context, GLclampd depth);
+        void (*GLColor3fv)(GLcontext context, GLfloat *v);
+        void (*GLColor3ubv)(GLcontext context, GLubyte *v);
+        void (*GLColor4f)(GLcontext context, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+        void (*GLColor4fv)(GLcontext context, GLfloat *v);
+        void (*GLColor4ub)(GLcontext context, GLubyte red, GLubyte green, GLubyte blue, GLubyte alhpa);
+        void (*GLColor4ubv)(GLcontext context, GLubyte *v);
+        void (*GLColorMask)(GLcontext context, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+        void (*GLColorPointer)(GLcontext context, GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+        void (*GLColorTable)(GLcontext context, GLenum target, GLenum internalformat, GLint width, GLenum format, GLenum type, GLvoid *data);
+        void (*GLCullFace)(GLcontext context, GLenum mode);
+        void (*GLDeleteTextures)(GLcontext context, GLsizei n, const GLuint *textures);
+        void (*GLDepthFunc)(GLcontext context, GLenum func);
+        void (*GLDepthMask)(GLcontext context, GLboolean flag);
+        void (*GLDepthRange)(GLcontext context, GLclampd n, GLclampd f);
+        void (*GLDisableClientState)(GLcontext context, GLenum cap);
+        void (*GLDrawArrays)(GLcontext context, GLenum mode, GLint first, GLsizei count);
+        void (*GLDrawBuffer)(GLcontext context, GLenum mode);
+        void (*GLDrawElements)(GLcontext context, GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
+        void (*GLEnableClientState)(GLcontext context, GLenum cap);
+        void (*GLEnd)(GLcontext context);
+        void (*GLFinish)(GLcontext context);
+        void (*GLFlush)(GLcontext context);
+        void (*GLFogf)(GLcontext context, GLenum pname, GLfloat param);
+        void (*GLFogfv)(GLcontext context, GLenum pname, GLfloat *param);
+        void (*GLFrontFace)(GLcontext context, GLenum mode);
+        void (*GLFrustum)(GLcontext context, GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar);
+        void (*GLGenTextures)(GLcontext context, GLsizei n, GLuint *textures);
+        void (*GLGetBooleanv)(GLcontext context, GLenum pname, GLboolean *params);
+        GLenum (*GLGetError)(GLcontext context);
+        void (*GLGetFloatv)(GLcontext context, GLenum pname, GLfloat *params);
+        void (*GLGetIntegerv)(GLcontext context, GLenum pname, GLint *params);
+        const GLubyte *(*GLGetString)(GLcontext context, GLenum name);
+        void (*GLHint)(GLcontext context, GLenum target, GLenum mode);
+        GLboolean (*GLIsEnabled)(GLcontext context, GLenum cap);
+        void (*GLLoadIdentity)(GLcontext context);
+        void (*GLLoadMatrixd)(GLcontext context, const GLdouble *m);
+        void (*GLLoadMatrixf)(GLcontext context, const GLfloat *m);
+        void (*GLLockArrays)(GLcontext context, GLuint first, GLsizei count);
+        void (*GLMatrixMode)(GLcontext context, GLenum mode);
+        void (*GLMultMatrixd)(GLcontext context, const GLdouble *m);
+        void (*GLMultMatrixf)(GLcontext context, const GLfloat *m);
+        void (*GLMultiTexCoord2fARB)(GLcontext context, GLenum unit, GLfloat s, GLfloat t);
+        void (*GLMultiTexCoord2fvARB)(GLcontext context, GLenum unit, GLfloat *v);
+        void (*GLNormal3f)(GLcontext context, GLfloat x, GLfloat y, GLfloat z);
+        void (*GLOrtho)(GLcontext context, GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar);
+        void (*GLPixelStorei)(GLcontext context, GLenum pname, GLint param);
+        void (*GLPointSize)(GLcontext context, GLfloat size);
+        void (*GLPolygonMode)(GLcontext context, GLenum face, GLenum mode);
+        void (*GLPopMatrix)(GLcontext context);
+        void (*GLPushMatrix)(GLcontext context);
+        void (*GLReadPixels)(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
+        void (*GLRotated)(GLcontext context, GLdouble angle, GLdouble x, GLdouble y, GLdouble z);
+        void (*GLRotatef)(GLcontext context, GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
+        void (*GLRotatefEXT)(GLcontext context, GLfloat angle, const GLint xyz);
+        void (*GLRotatefEXTs)(GLcontext context, GLfloat sin_an, GLfloat cos_an, const GLint xyz);
+        void (*GLScaled)(GLcontext context, GLdouble x, GLdouble y, GLdouble z);
+        void (*GLScalef)(GLcontext context, GLfloat x, GLfloat y, GLfloat z);
+        void (*GLScissor)(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei height);
+        void (*GLShadeModel)(GLcontext context, GLenum mode);
+        void (*GLTexCoord2f)(GLcontext context, GLfloat s, GLfloat t);
+        void (*GLTexCoord2fv)(GLcontext context, GLfloat *v);
+        void (*GLTexCoord4f)(GLcontext context, GLfloat s, GLfloat t, GLfloat r, GLfloat q);
+        void (*GLTexCoord4fv)(GLcontext context, GLfloat *v);
+        void (*GLTexCoordPointer)(GLcontext context, GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+        void (*GLTexEnvi)(GLcontext context, GLenum target, GLenum pname, GLint param);
+        void (*GLTexGeni)(GLcontext context, GLenum coord, GLenum mode, GLenum map);
+        void (*GLTexImage2D)(GLcontext context, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+        void (*GLTexParameteri)(GLcontext context, GLenum target, GLenum pname, GLint param);
+        void (*GLTexSubImage2D)(GLcontext context, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
+        void (*GLTranslated)(GLcontext context, GLdouble x, GLdouble y, GLdouble z);
+        void (*GLTranslatef)(GLcontext context, GLfloat x, GLfloat y, GLfloat z);
+        void (*GLULookAt)(GLfloat ex, GLfloat ey, GLfloat ez, GLfloat cx, GLfloat cy, GLfloat cz, GLfloat ux, GLfloat uy, GLfloat uz);
+        void (*GLUPerspective)(GLfloat fovy, GLfloat aspect, GLfloat znear, GLfloat zfar);
+        void (*GLUnlockArrays)(GLcontext context);
+        void (*GLVertex2fv)(GLcontext context, GLfloat *v);
+        void (*GLVertex3fv)(GLcontext context, GLfloat *v);
+        void (*GLVertex4f)(GLcontext context, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
+        void (*GLVertex4fv)(GLcontext context, GLfloat *v);
+        void (*GLVertexPointer)(GLcontext context, GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+        void (*GLViewport)(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei height);
+        void (*MGLClearPointer)(GLcontext context);
+        void *(*MGLCreateContext)(int offx, int offy, int w, int h);
+        void *(*MGLCreateContextFromID)(GLint ID, GLint *w, GLint *h);
+        void (*MGLDeleteContext)(GLcontext context);
+        void (*MGLDrawMultitexBuffer)(GLcontext context, GLenum BSrc, GLenum BDst, GLenum TexEnv);
+        void (*MGLEnableSync)(GLcontext context, GLboolean enable);
+        void (*MGLExit)(GLcontext context);
+        void *(*MGLGetInputWindowHandle)(GLcontext context);
+        void *(*MGLGetWindowHandle)(GLcontext context);
+        void (*MGLIdleFunc)(GLcontext context, IdleFn i);
+        void (*MGLKeyFunc)(GLcontext context, KeyHandlerFn k);
+        GLboolean (*MGLLockBack)(GLcontext context, MGLLockInfo *info);
+        GLboolean (*MGLLockDisplay)(GLcontext context);
+        void (*MGLLockMode)(GLcontext context, GLenum lockMode);
+        void (*MGLMainLoop)(GLcontext context);
+        void (*MGLMinTriArea)(GLcontext context, GLfloat area);
+        void (*MGLMouseFunc)(GLcontext context, MouseHandlerFn m);
+        void (*MGLPrintMatrix)(GLcontext context, int mode);
+        void (*MGLPrintMatrixStack)(GLcontext context, int mode);
+        GLboolean (*MGLResizeContext)(GLcontext context, GLsizei width, GLsizei height);
+        void (*MGLSetPointer)(GLcontext context);
+        void (*MGLSetState)(GLcontext context, GLenum cap, GLboolean state);
+        void (*MGLSetZOffset)(GLcontext context, GLfloat offset);
+        void (*MGLSpecialFunc)(GLcontext context, SpecialHandlerFn s);
+        void (*MGLSwitchDisplay)(GLcontext context);
+        void (*MGLTexMemStat)(GLcontext context, GLint *Current, GLint *Peak);
+        void (*MGLUnlockDisplay)(GLcontext context);
+        void (*MGLWriteShotPPM)(GLcontext context, char *filename);
+        void (*mglChooseGuardBand)(GLboolean flag);
+        void (*mglChooseMtexBufferSize)(int size);
+        void (*mglChooseNumberOfBuffers)(int number);
+        void (*mglChoosePixelDepth)(int depth);
+        void (*mglChooseTextureBufferSize)(int size);
+        void (*mglChooseVertexBufferSize)(int size);
+        void (*mglChooseWindowMode)(GLboolean flag);
+        GLint (*mglGetSupportedScreenModes)(MGLScreenModeCallback CallbackFn);
+        void (*mglProhibitAlphaFallback)(GLboolean flag);
+        void (*mglProhibitMipMapping)(GLboolean flag);
+        void (*mglProposeCloseDesktop)(GLboolean closeme);
+        void (*GLPolygonOffset)(GLcontext context, GLfloat factor, GLfloat units);
 
-    /* APPENDED 2026-09-08. New entries go at the END, never in the middle:
-     * MiniGLDispatchTable's initialiser is POSITIONAL, so inserting anywhere
-     * else silently shifts every later pointer. Appending keeps all existing
-     * offsets stable, and MiniGLOpen's guard is
-     *   dispatch->structSize < sizeof(MGLDispatchTable)
-     * i.e. the client compares the LIBRARY's size against its OWN -- so an
-     * existing client built on the shorter struct still accepts this longer
-     * library untouched, while a client rebuilt on this header correctly
-     * refuses an older library. ABI version stays 3; structSize is the real
-     * guard and already behaves correctly. */
-    /* ORDER FIXED 2026-09-11 to match the PUBLISHED V23 ABI (Steffen's
-     * minigl-shared-library branch, commit 0081bda): the seven entries after
-     * GLPolygonOffset are, in this order, ClientActiveTextureARB,
-     * InterleavedArrays, MultiDrawArrays, BlendEquation, BlendFuncSeparate,
-     * IsTexture, mglChooseZBufferDepth. The 2026-09-08 growth of this header
-     * had appended them in a different order and without MultiDrawArrays, so
-     * a client built on that header (glquakelib v185 and earlier) called the
-     * wrong slot from the third appended entry on against a V23 library built
-     * from the published tree. Any client compiled against the old order must
-     * be rebuilt. The prefix up to GLPolygonOffset is unchanged. */
-    void (*GLClientActiveTextureARB)(GLcontext context, GLenum unit);
-    void (*GLInterleavedArrays)(GLcontext context, GLenum format, GLsizei stride, const GLvoid *pointer);
-    void (*GLMultiDrawArrays)(GLcontext context, GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount);
-    void (*GLBlendEquation)(GLcontext context, GLenum mode);
-    void (*GLBlendFuncSeparate)(GLcontext context, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
-    GLboolean (*GLIsTexture)(GLcontext context, GLuint texture);
-    void (*mglChooseZBufferDepth)(int bits);
-    /* APPENDED 2026-09-12 (GL 1.1 audit fix 4). glLineWidth had no entry
-     * point at all until today, so shared-library clients had no way to ask
-     * for a line wider than one pixel. At the END for the reason spelled out
-     * above -- this table grows to 137 entries and every existing offset is
-     * untouched, so a customer binary built on the 136-entry struct keeps
-     * working against this library unchanged; only a client rebuilt on THIS
-     * header needs a library at least this new, which is what structSize
-     * already enforces. */
-    void (*GLLineWidth)(GLcontext context, GLfloat width);
-    /* APPENDED 2026-09-12 (audit fix 7). glTexGenfv is what makes
-     * GL_OBJECT_LINEAR and GL_EYE_LINEAR reachable at all -- they are
-     * defined by plane equations, and without this there is no way to
-     * supply one. 138th entry, at the END for the reason above: every
-     * existing offset is untouched. */
-    void (*GLTexGenfv)(GLcontext context, GLenum coord, GLenum pname, const GLfloat *params);
-    /* APPENDED 2026-09-12 (audit fix 9), entries 139 and 140. The two
-     * framebuffer-to-texture copies: without these a shared-library client
-     * cannot reach the one capability the audit says a game cannot work
-     * around. Order matches the audit row and the GL spec, defining form
-     * first. At the END, so every existing offset is untouched. */
-    void (*GLCopyTexImage2D)(GLcontext context, GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border);
-    void (*GLCopyTexSubImage2D)(GLcontext context, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
-    /* APPENDED 2026-09-12 (GL 1.1 audit item 10), entries 141 to 151. The
-     * eleven entry points whose gl* macros had no function behind them: the
-     * static archive has had real ones since that fix, and without these
-     * slots a shared-library client still cannot reach any of them. Order is
-     * gl.h's own prototype order. At the END, so every existing offset is
-     * untouched and a client built on the 140-entry struct keeps working. */
-    GLboolean (*GLAreTexturesResident)(GLcontext context, GLsizei n, const GLuint *textures, GLboolean *residences);
-    void (*GLEdgeFlag)(GLcontext context, GLboolean flag);
-    void (*GLEdgeFlagPointer)(GLcontext context, GLsizei stride, const GLvoid *pointer);
-    void (*GLEdgeFlagv)(GLcontext context, const GLboolean *flag);
-    void (*GLGetDoublev)(GLcontext context, GLenum pname, GLdouble *params);
-    void (*GLGetPointerv)(GLcontext context, GLenum pname, GLvoid **params);
-    void (*GLIndexi)(GLcontext context, GLint c);
-    void (*GLIndexiv)(GLcontext context, const GLint *c);
-    void (*GLIndexPointer)(GLcontext context, GLenum type, GLsizei stride, const GLvoid *pointer);
-    void (*GLPrioritizeTextures)(GLcontext context, GLsizei n, const GLuint *textures, const GLclampf *priorities);
-    void (*GLReadBuffer)(GLcontext context, GLenum mode);
+        /* APPENDED 2026-09-08. New entries go at the END, never in the middle:
+         * MiniGLDispatchTable's initialiser is POSITIONAL, so inserting anywhere
+         * else silently shifts every later pointer. Appending keeps all existing
+         * offsets stable, and MiniGLOpen's guard is
+         *   dispatch->structSize < sizeof(MGLDispatchTable)
+         * i.e. the client compares the LIBRARY's size against its OWN -- so an
+         * existing client built on the shorter struct still accepts this longer
+         * library untouched, while a client rebuilt on this header correctly
+         * refuses an older library. ABI version stays 3; structSize is the real
+         * guard and already behaves correctly. */
+        /* ORDER FIXED 2026-09-11 to match the PUBLISHED V23 ABI (Steffen's
+         * minigl-shared-library branch, commit 0081bda): the seven entries after
+         * GLPolygonOffset are, in this order, ClientActiveTextureARB,
+         * InterleavedArrays, MultiDrawArrays, BlendEquation, BlendFuncSeparate,
+         * IsTexture, mglChooseZBufferDepth. The 2026-09-08 growth of this header
+         * had appended them in a different order and without MultiDrawArrays, so
+         * a client built on that header (glquakelib v185 and earlier) called the
+         * wrong slot from the third appended entry on against a V23 library built
+         * from the published tree. Any client compiled against the old order must
+         * be rebuilt. The prefix up to GLPolygonOffset is unchanged. */
+        void (*GLClientActiveTextureARB)(GLcontext context, GLenum unit);
+        void (*GLInterleavedArrays)(GLcontext context, GLenum format, GLsizei stride, const GLvoid *pointer);
+        void (*GLMultiDrawArrays)(GLcontext context, GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount);
+        void (*GLBlendEquation)(GLcontext context, GLenum mode);
+        void (*GLBlendFuncSeparate)(GLcontext context, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
+        GLboolean (*GLIsTexture)(GLcontext context, GLuint texture);
+        void (*mglChooseZBufferDepth)(int bits);
+        /* APPENDED 2026-09-12 (GL 1.1 audit fix 4). glLineWidth had no entry
+         * point at all until today, so shared-library clients had no way to ask
+         * for a line wider than one pixel. At the END for the reason spelled out
+         * above -- this table grows to 137 entries and every existing offset is
+         * untouched, so a customer binary built on the 136-entry struct keeps
+         * working against this library unchanged; only a client rebuilt on THIS
+         * header needs a library at least this new, which is what structSize
+         * already enforces. */
+        void (*GLLineWidth)(GLcontext context, GLfloat width);
+        /* APPENDED 2026-09-12 (audit fix 7). glTexGenfv is what makes
+         * GL_OBJECT_LINEAR and GL_EYE_LINEAR reachable at all -- they are
+         * defined by plane equations, and without this there is no way to
+         * supply one. 138th entry, at the END for the reason above: every
+         * existing offset is untouched. */
+        void (*GLTexGenfv)(GLcontext context, GLenum coord, GLenum pname, const GLfloat *params);
+        /* APPENDED 2026-09-12 (audit fix 9), entries 139 and 140. The two
+         * framebuffer-to-texture copies: without these a shared-library client
+         * cannot reach the one capability the audit says a game cannot work
+         * around. Order matches the audit row and the GL spec, defining form
+         * first. At the END, so every existing offset is untouched. */
+        void (*GLCopyTexImage2D)(GLcontext context, GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border);
+        void (*GLCopyTexSubImage2D)(GLcontext context, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
+        /* APPENDED 2026-09-12 (GL 1.1 audit item 10), entries 141 to 151. The
+         * eleven entry points whose gl* macros had no function behind them: the
+         * static archive has had real ones since that fix, and without these
+         * slots a shared-library client still cannot reach any of them. Order is
+         * gl.h's own prototype order. At the END, so every existing offset is
+         * untouched and a client built on the 140-entry struct keeps working. */
+        GLboolean (*GLAreTexturesResident)(GLcontext context, GLsizei n, const GLuint *textures, GLboolean *residences);
+        void (*GLEdgeFlag)(GLcontext context, GLboolean flag);
+        void (*GLEdgeFlagPointer)(GLcontext context, GLsizei stride, const GLvoid *pointer);
+        void (*GLEdgeFlagv)(GLcontext context, const GLboolean *flag);
+        void (*GLGetDoublev)(GLcontext context, GLenum pname, GLdouble *params);
+        void (*GLGetPointerv)(GLcontext context, GLenum pname, GLvoid **params);
+        void (*GLIndexi)(GLcontext context, GLint c);
+        void (*GLIndexiv)(GLcontext context, const GLint *c);
+        void (*GLIndexPointer)(GLcontext context, GLenum type, GLsizei stride, const GLvoid *pointer);
+        void (*GLPrioritizeTextures)(GLcontext context, GLsizei n, const GLuint *textures, const GLclampf *priorities);
+        void (*GLReadBuffer)(GLcontext context, GLenum mode);
 
-    /* APPENDED 2026-09-20. Every existing offset stays put; a positional
-     * initialiser rebinds silently if anything is inserted above. ABI version
-     * deliberately NOT bumped -- structSize is the real guard, and its direction
-     * is already right (new library + old client passes untouched, old library +
-     * client built on this header is cleanly refused). */
-    void * (*MGLCreateContextFromWindow)(struct Window *window);
+        /* APPENDED 2026-09-20. Every existing offset stays put; a positional
+         * initialiser rebinds silently if anything is inserted above. ABI version
+         * deliberately NOT bumped -- structSize is the real guard, and its direction
+         * is already right (new library + old client passes untouched, old library +
+         * client built on this header is cleanly refused). */
+        void *(*MGLCreateContextFromWindow)(struct Window *window);
 
-    /* APPENDED 2026-09-20, after MGLCreateContextFromWindow. Same rule: end of
-     * the struct, all three tables together, ABI version untouched. */
-    void * (*MGLCreateContextFromBitMap)(struct BitMap *bitmap);
+        /* APPENDED 2026-09-20, after MGLCreateContextFromWindow. Same rule: end of
+         * the struct, all three tables together, ABI version untouched. */
+        void *(*MGLCreateContextFromBitMap)(struct BitMap *bitmap);
 
-    /* APPENDED 2026-09-27 for minigl.library 28.0 -- 47 entries, slots 153..199,
-     * taking the table from 153 to 200. Everything before this block is
-     * untouched, which is what keeps existing clients working: MiniGLOpen's
-     * guard is `dispatch->structSize < sizeof(MGLDispatchTable)`, so a client
-     * built on the shorter struct still accepts this longer library, while one
-     * rebuilt on this header correctly refuses an older one. ABI version stays
-     * 3; structSize is the real guard.
-     *
-     * ALL THREE TABLES GROW TOGETHER. A short positional initialiser zero-fills
-     * the trailing slots while sizeof still reports the full struct, so the ABI
-     * check passes and the call NULL-derefs.
-     *
-     * These 47 are what made GL, GLU and GLUT reachable through the library
-     * rather than only through the static archive: fixed-function lighting,
-     * display lists, the GLU quadrics and mipmap builder, and GLUT. Base MiniGL
-     * has none of them, so the classic table answers every one with a stub. */
+        /* APPENDED 2026-09-27 for minigl.library 28.0 -- 47 entries, slots 153..199,
+         * taking the table from 153 to 200. Everything before this block is
+         * untouched, which is what keeps existing clients working: MiniGLOpen's
+         * guard is `dispatch->structSize < sizeof(MGLDispatchTable)`, so a client
+         * built on the shorter struct still accepts this longer library, while one
+         * rebuilt on this header correctly refuses an older one. ABI version stays
+         * 3; structSize is the real guard.
+         *
+         * ALL THREE TABLES GROW TOGETHER. A short positional initialiser zero-fills
+         * the trailing slots while sizeof still reports the full struct, so the ABI
+         * check passes and the call NULL-derefs.
+         *
+         * These 47 are what made GL, GLU and GLUT reachable through the library
+         * rather than only through the static archive: fixed-function lighting,
+         * display lists, the GLU quadrics and mipmap builder, and GLUT. Base MiniGL
+         * has none of them, so the classic table answers every one with a stub. */
 
-    /* core GL -- fixed-function lighting */
-    void (*GLLightf)(GLcontext context, GLenum light, GLenum pname, GLfloat param);
-    void (*GLLightfv)(GLcontext context, GLenum light, GLenum pname, const GLfloat *params);
-    void (*GLMaterialf)(GLcontext context, GLenum face, GLenum pname, GLfloat param);
-    void (*GLMaterialfv)(GLcontext context, GLenum face, GLenum pname, const GLfloat *params);
-    void (*GLLightModelf)(GLcontext context, GLenum pname, GLfloat param);
-    void (*GLLightModelfv)(GLcontext context, GLenum pname, const GLfloat *params);
-    void (*GLGetLightfv)(GLcontext context, GLenum light, GLenum pname, GLfloat *params);
-    void (*GLGetMaterialfv)(GLcontext context, GLenum face, GLenum pname, GLfloat *params);
+        /* core GL -- fixed-function lighting */
+        void (*GLLightf)(GLcontext context, GLenum light, GLenum pname, GLfloat param);
+        void (*GLLightfv)(GLcontext context, GLenum light, GLenum pname, const GLfloat *params);
+        void (*GLMaterialf)(GLcontext context, GLenum face, GLenum pname, GLfloat param);
+        void (*GLMaterialfv)(GLcontext context, GLenum face, GLenum pname, const GLfloat *params);
+        void (*GLLightModelf)(GLcontext context, GLenum pname, GLfloat param);
+        void (*GLLightModelfv)(GLcontext context, GLenum pname, const GLfloat *params);
+        void (*GLGetLightfv)(GLcontext context, GLenum light, GLenum pname, GLfloat *params);
+        void (*GLGetMaterialfv)(GLcontext context, GLenum face, GLenum pname, GLfloat *params);
 
-    /* core GL -- display lists */
-    GLuint (*GLGenLists)(GLcontext context, GLsizei range);
-    void (*GLDeleteLists)(GLcontext context, GLuint list, GLsizei range);
-    GLboolean (*GLIsList)(GLcontext context, GLuint list);
-    void (*GLNewList)(GLcontext context, GLuint list, GLenum mode);
-    void (*GLEndList)(GLcontext context);
-    void (*GLCallList)(GLcontext context, GLuint list);
+        /* core GL -- display lists */
+        GLuint (*GLGenLists)(GLcontext context, GLsizei range);
+        void (*GLDeleteLists)(GLcontext context, GLuint list, GLsizei range);
+        GLboolean (*GLIsList)(GLcontext context, GLuint list);
+        void (*GLNewList)(GLcontext context, GLuint list, GLenum mode);
+        void (*GLEndList)(GLcontext context);
+        void (*GLCallList)(GLcontext context, GLuint list);
 
-    /* GLU */
-    GLint (*GLUBuild2DMipmaps)(GLcontext context, GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *data);
-    const GLubyte * (*GLUErrorString)(GLenum errCode);
-    GLUquadricObj * (*GLUNewQuadric)(void);
-    void (*GLUDeleteQuadric)(GLUquadricObj *q);
-    void (*GLUQuadricNormals)(GLUquadricObj *q, GLenum normals);
-    void (*GLUQuadricTexture)(GLUquadricObj *q, GLboolean textureCoords);
-    void (*GLUQuadricDrawStyle)(GLUquadricObj *q, GLenum drawStyle);
-    void (*GLUQuadricOrientation)(GLUquadricObj *q, GLenum orientation);
-    void (*GLUCylinder)(GLUquadricObj *q, GLdouble base, GLdouble top, GLdouble height, GLint slices, GLint stacks);
-    void (*GLUSphere)(GLUquadricObj *q, GLdouble radius, GLint slices, GLint stacks);
-    void (*GLUDisk)(GLUquadricObj *q, GLdouble inner, GLdouble outer, GLint slices, GLint loops);
+        /* GLU */
+        GLint (*GLUBuild2DMipmaps)(GLcontext context, GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *data);
+        const GLubyte *(*GLUErrorString)(GLenum errCode);
+        GLUquadricObj *(*GLUNewQuadric)(void);
+        void (*GLUDeleteQuadric)(GLUquadricObj *q);
+        void (*GLUQuadricNormals)(GLUquadricObj *q, GLenum normals);
+        void (*GLUQuadricTexture)(GLUquadricObj *q, GLboolean textureCoords);
+        void (*GLUQuadricDrawStyle)(GLUquadricObj *q, GLenum drawStyle);
+        void (*GLUQuadricOrientation)(GLUquadricObj *q, GLenum orientation);
+        void (*GLUCylinder)(GLUquadricObj *q, GLdouble base, GLdouble top, GLdouble height, GLint slices, GLint stacks);
+        void (*GLUSphere)(GLUquadricObj *q, GLdouble radius, GLint slices, GLint stacks);
+        void (*GLUDisk)(GLUquadricObj *q, GLdouble inner, GLdouble outer, GLint slices, GLint loops);
 
-    /* GLUT */
-    void (*GLUTInit)(int *argcp, char **argv);
-    void (*GLUTInitDisplayMode)(unsigned int mode);
-    void (*GLUTInitWindowSize)(int width, int height);
-    void (*GLUTInitWindowPosition)(int x, int y);
-    int (*GLUTCreateWindow)(const char *title);
-    void (*GLUTMainLoop)(void);
-    void (*GLUTDisplayFunc)(void (*func)(void));
-    void (*GLUTIdleFunc)(void (*func)(void));
-    void (*GLUTKeyboardFunc)(void (*func)(unsigned char key, int x, int y));
-    void (*GLUTReshapeFunc)(void (*func)(int width, int height));
-    void (*GLUTSwapBuffers)(void);
-    void (*GLUTPostRedisplay)(void);
-    int (*GLUTGet)(GLenum state);
-    void (*GLUTGameModeString)(const char *string);
-    int (*GLUTEnterGameMode)(void);
-    void (*GLUTLeaveGameMode)(void);
-    int (*GLUTGameModeGet)(GLenum query);
-    void (*GLUTSolidCube)(GLdouble size);
-    void (*GLUTSolidSphere)(GLdouble radius, GLint slices, GLint stacks);
-    void (*GLUTSolidCone)(GLdouble base, GLdouble height, GLint slices, GLint stacks);
-    void (*GLUTSolidTorus)(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings);
-    void (*GLUTSolidDodecahedron)(void);
-    /* APPENDED, and it must stay last: this table is a POSITIONAL initialiser,
-     * so a member inserted anywhere above shifts every pointer after it in all
-     * three tables at once. structSize is what lets an older library be
-     * refused; the ABI version does not move for an append. */
-    void (*GLNormalPointer)(GLcontext context, GLenum type, GLsizei stride, const GLvoid *pointer);
-    /* Slot 202, appended 2026-10-03. A quadric's GLU_ERROR callback, which is
-     * the only error channel GLU gives a quadric -- every argument rejection in
-     * gluCylinder, gluSphere, gluDisk and the three validating setters reports
-     * through it. Takes no GLcontext: a quadric is not context state. */
-    void (*GLUQuadricCallback)(GLUquadricObj *q, GLenum which, MGLUfuncptr fn);
-    /* Slot 203, appended 2026-10-04. GL_COLOR_MATERIAL's parameter: which
-     * material component tracks the per-vertex colour. The capability itself
-     * goes through glEnable and needs no slot. */
-    void (*GLColorMaterial)(GLcontext context, GLenum face, GLenum mode);
-    /* Slot 204, appended 2026-10-04. GL_TEXTURE_ENV_COLOR, the constant
-     * GL_BLEND's equation blends toward. The integer GLTexEnvi cannot carry
-     * four floats and refuses that pname. */
-    void (*GLTexEnvfv)(GLcontext context, GLenum target, GLenum pname, const GLfloat *params);
-    /* Slot 205, appended 2026-10-05. glNormal3fv reaches its own entry point
-     * rather than expanding to GLNormal3f in the header, so the NULL guard the
-     * driver carries is reachable from both linkages. */
-    void (*GLNormal3fv)(GLcontext context, GLfloat *n);
-} MGLDispatchTable;
+        /* GLUT */
+        void (*GLUTInit)(int *argcp, char **argv);
+        void (*GLUTInitDisplayMode)(unsigned int mode);
+        void (*GLUTInitWindowSize)(int width, int height);
+        void (*GLUTInitWindowPosition)(int x, int y);
+        int (*GLUTCreateWindow)(const char *title);
+        void (*GLUTMainLoop)(void);
+        void (*GLUTDisplayFunc)(void (*func)(void));
+        void (*GLUTIdleFunc)(void (*func)(void));
+        void (*GLUTKeyboardFunc)(void (*func)(unsigned char key, int x, int y));
+        void (*GLUTReshapeFunc)(void (*func)(int width, int height));
+        void (*GLUTSwapBuffers)(void);
+        void (*GLUTPostRedisplay)(void);
+        int (*GLUTGet)(GLenum state);
+        void (*GLUTGameModeString)(const char *string);
+        int (*GLUTEnterGameMode)(void);
+        void (*GLUTLeaveGameMode)(void);
+        int (*GLUTGameModeGet)(GLenum query);
+        void (*GLUTSolidCube)(GLdouble size);
+        void (*GLUTSolidSphere)(GLdouble radius, GLint slices, GLint stacks);
+        void (*GLUTSolidCone)(GLdouble base, GLdouble height, GLint slices, GLint stacks);
+        void (*GLUTSolidTorus)(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings);
+        void (*GLUTSolidDodecahedron)(void);
+        /* APPENDED, and it must stay last: this table is a POSITIONAL initialiser,
+         * so a member inserted anywhere above shifts every pointer after it in all
+         * three tables at once. structSize is what lets an older library be
+         * refused; the ABI version does not move for an append. */
+        void (*GLNormalPointer)(GLcontext context, GLenum type, GLsizei stride, const GLvoid *pointer);
+        /* Slot 202, appended 2026-10-03. A quadric's GLU_ERROR callback, which is
+         * the only error channel GLU gives a quadric -- every argument rejection in
+         * gluCylinder, gluSphere, gluDisk and the three validating setters reports
+         * through it. Takes no GLcontext: a quadric is not context state. */
+        void (*GLUQuadricCallback)(GLUquadricObj *q, GLenum which, MGLUfuncptr fn);
+        /* Slot 203, appended 2026-10-04. GL_COLOR_MATERIAL's parameter: which
+         * material component tracks the per-vertex colour. The capability itself
+         * goes through glEnable and needs no slot. */
+        void (*GLColorMaterial)(GLcontext context, GLenum face, GLenum mode);
+        /* Slot 204, appended 2026-10-04. GL_TEXTURE_ENV_COLOR, the constant
+         * GL_BLEND's equation blends toward. The integer GLTexEnvi cannot carry
+         * four floats and refuses that pname. */
+        void (*GLTexEnvfv)(GLcontext context, GLenum target, GLenum pname, const GLfloat *params);
+        /* Slot 205, appended 2026-10-05. glNormal3fv reaches its own entry point
+         * rather than expanding to GLNormal3f in the header, so the NULL guard the
+         * driver carries is reachable from both linkages. */
+        void (*GLNormal3fv)(GLcontext context, GLfloat *n);
 
-extern const MGLDispatchTable *MiniGLDispatch;
+        /* slots 206-208, W3D_Query passthrough + screenmode list, void* because Warp3D types do not belong in this header */
+        LONG (*mglQuery)(GLcontext context, ULONG query, ULONG destfmt);
+        void *(*mglGetScreenmodeList)(void);
+        void (*mglFreeScreenmodeList)(void *list);
+
+        /* slots 209-211, driver/chip detection without a context */
+        LONG (*mglGetModeDriverInfo)(ULONG modeID, MGLModeDriverInfo *info);
+        LONG (*mglQueryMode)(ULONG modeID, ULONG query, ULONG destfmt);
+        ULONG (*mglModeTexFmt)(ULONG modeID, ULONG texfmt, ULONG destfmt);
+
+        /* slots 212-217 */
+        void (*GLGetTexParameteriv)(GLcontext context, GLenum target, GLenum pname, GLint *params);
+        void (*GLGetTexEnviv)(GLcontext context, GLenum target, GLenum pname, GLint *params);
+        void (*GLGetTexEnvfv)(GLcontext context, GLenum target, GLenum pname, GLfloat *params);
+        void (*GLGetTexGeniv)(GLcontext context, GLenum coord, GLenum pname, GLint *params);
+        void (*GLGetTexGenfv)(GLcontext context, GLenum coord, GLenum pname, GLfloat *params);
+        void (*GLGetTexLevelParameteriv)(GLcontext context, GLenum target, GLint level, GLenum pname, GLint *params);
+        void (*GLGetTexImage)(GLcontext context, GLenum target, GLint level, GLenum format, GLenum type, GLvoid *pixels);
+
+        /* slot 218 */
+        void (*GLDrawElementsBaseVertex)(GLcontext context, GLenum mode, GLsizei count, GLenum type, const GLvoid *indices, GLint basevertex);
+
+        /* slots 219-221 */
+        void (*GLInsertEventMarkerEXT)(GLcontext context, GLsizei length, const GLchar *marker);
+        void (*GLPushGroupMarkerEXT)(GLcontext context, GLsizei length, const GLchar *marker);
+        void (*GLPopGroupMarkerEXT)(GLcontext context);
+
+        /* slots 222-225 */
+        void (*GLGenVertexArrays)(GLcontext context, GLsizei n, GLuint *ids);
+        GLboolean (*GLIsVertexArray)(GLcontext context, GLuint id);
+        void (*GLBindVertexArray)(GLcontext context, GLuint id);
+        void (*GLDeleteVertexArrays)(GLcontext context, GLsizei n, const GLuint *ids);
+
+        /* slot 226 */
+        void (*GLClipControlEXT)(GLcontext context, GLenum origin, GLenum depth);
+
+        /* slots 227-230 */
+        void (*GLStencilFunc)(GLcontext context, GLenum func, GLint ref, GLuint mask);
+        void (*GLStencilMask)(GLcontext context, GLuint mask);
+        void (*GLStencilOp)(GLcontext context, GLenum fail, GLenum zfail, GLenum zpass);
+        void (*GLClearStencil)(GLcontext context, GLint s);
+
+        /* slot 231 */
+        ULONG (*MGLSetTexChromaBounds)(GLcontext context, GLuint texture, ULONG rgba_lower, ULONG rgba_upper, ULONG mode);
+
+        /* slots 232-236 */
+        void (*GLLogicOp)(GLcontext context, GLenum opcode);
+        void (*GLRectf)(GLcontext context, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
+        void (*GLTexImage1D)(GLcontext context, GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+        void (*GLPushAttrib)(GLcontext context, GLbitfield mask);
+        void (*GLPopAttrib)(GLcontext context);
+
+        /* slots 237-241 */
+        void (*GLRasterPos4f)(GLcontext context, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
+        void (*GLPixelZoom)(GLcontext context, GLfloat xfactor, GLfloat yfactor);
+        void (*GLDrawPixels)(GLcontext context, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
+        void (*GLCopyPixels)(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei height, GLenum type);
+        void (*GLBitmap)(GLcontext context, GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap);
+
+        /* slot 242 */
+        GLint (*GLUScaleImage)(GLcontext context, GLenum format, GLint wIn, GLint hIn, GLenum typeIn, const GLvoid *dataIn, GLint wOut, GLint hOut, GLenum typeOut, GLvoid *dataOut);
+
+        /* slots 243-247 */
+        const GLubyte *(*GLUGetString)(GLenum name);
+        void (*GLUOrtho2D)(GLcontext context, GLdouble left, GLdouble right, GLdouble bottom, GLdouble top);
+        GLint (*GLUProject)(GLcontext context, GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint *viewport, GLdouble *winX, GLdouble *winY, GLdouble *winZ);
+        GLint (*GLUUnProject)(GLcontext context, GLdouble winX, GLdouble winY, GLdouble winZ, const GLdouble *model, const GLdouble *proj, const GLint *viewport, GLdouble *objX, GLdouble *objY, GLdouble *objZ);
+        void (*GLUPickMatrix)(GLcontext context, GLdouble x, GLdouble y, GLdouble width, GLdouble height, const GLint *viewport);
+    } MGLDispatchTable;
+
+    extern const MGLDispatchTable *MiniGLDispatch;
 
 #ifndef MINIGL_LIBRARY_BUILD
 #define MGLD_CTX (*MiniGLDispatch->currentContext)
 
-static __inline__ void MGLD_glActiveTextureARB(GLenum unit)
-{
-    MiniGLDispatch->GLActiveTextureARB(MGLD_CTX, unit);
-}
+    static __inline__ void MGLD_glActiveTextureARB(GLenum unit)
+    {
+        MiniGLDispatch->GLActiveTextureARB(MGLD_CTX, unit);
+    }
+
 /*
  * EVERY dispatch name is #undef'd before it is defined. <mgl/gl.h> has already
  * defined 173 of these as function-like macros calling the entry points
@@ -389,1407 +460,1655 @@ static __inline__ void MGLD_glActiveTextureARB(GLenum unit)
 #undef glActiveTextureARB
 #define glActiveTextureARB MGLD_glActiveTextureARB
 
-static __inline__ void MGLD_glAlphaFunc(GLenum func, GLclampf ref)
-{
-    MiniGLDispatch->GLAlphaFunc(MGLD_CTX, func, ref);
-}
+    static __inline__ void MGLD_glAlphaFunc(GLenum func, GLclampf ref)
+    {
+        MiniGLDispatch->GLAlphaFunc(MGLD_CTX, func, ref);
+    }
+
 #undef glAlphaFunc
 #define glAlphaFunc MGLD_glAlphaFunc
 
-static __inline__ void MGLD_glArrayElement(GLint i)
-{
-    MiniGLDispatch->GLArrayElement(MGLD_CTX, i);
-}
+    static __inline__ void MGLD_glArrayElement(GLint i)
+    {
+        MiniGLDispatch->GLArrayElement(MGLD_CTX, i);
+    }
+
 #undef glArrayElement
 #define glArrayElement MGLD_glArrayElement
 
-static __inline__ void MGLD_glBegin(GLenum mode)
-{
-    MiniGLDispatch->GLBegin(MGLD_CTX, mode);
-}
+    static __inline__ void MGLD_glBegin(GLenum mode)
+    {
+        MiniGLDispatch->GLBegin(MGLD_CTX, mode);
+    }
+
 #undef glBegin
 #define glBegin MGLD_glBegin
 
-static __inline__ void MGLD_glBindTexture(GLenum target, GLuint texture)
-{
-    MiniGLDispatch->GLBindTexture(MGLD_CTX, target, texture);
-}
+    static __inline__ void MGLD_glBindTexture(GLenum target, GLuint texture)
+    {
+        MiniGLDispatch->GLBindTexture(MGLD_CTX, target, texture);
+    }
+
 #undef glBindTexture
 #define glBindTexture MGLD_glBindTexture
 
-static __inline__ void MGLD_glBlendFunc(GLenum sfactor, GLenum dfactor)
-{
-    MiniGLDispatch->GLBlendFunc(MGLD_CTX, sfactor, dfactor);
-}
+    static __inline__ void MGLD_glBlendFunc(GLenum sfactor, GLenum dfactor)
+    {
+        MiniGLDispatch->GLBlendFunc(MGLD_CTX, sfactor, dfactor);
+    }
+
 #undef glBlendFunc
 #define glBlendFunc MGLD_glBlendFunc
 
-static __inline__ void MGLD_glClear(GLbitfield mask)
-{
-    MiniGLDispatch->GLClear(MGLD_CTX, mask);
-}
+    static __inline__ void MGLD_glClear(GLbitfield mask)
+    {
+        MiniGLDispatch->GLClear(MGLD_CTX, mask);
+    }
+
 #undef glClear
 #define glClear MGLD_glClear
 
-static __inline__ void MGLD_glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
-{
-    MiniGLDispatch->GLClearColor(MGLD_CTX, red, green, blue, alpha);
-}
+    static __inline__ void MGLD_glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
+    {
+        MiniGLDispatch->GLClearColor(MGLD_CTX, red, green, blue, alpha);
+    }
+
 #undef glClearColor
 #define glClearColor MGLD_glClearColor
 
-static __inline__ void MGLD_glClearDepth(GLclampd depth)
-{
-    MiniGLDispatch->GLClearDepth(MGLD_CTX, depth);
-}
+    static __inline__ void MGLD_glClearDepth(GLclampd depth)
+    {
+        MiniGLDispatch->GLClearDepth(MGLD_CTX, depth);
+    }
+
 #undef glClearDepth
 #define glClearDepth MGLD_glClearDepth
 
-static __inline__ void MGLD_glColor3f(GLfloat red, GLfloat green, GLfloat blue)
-{
-    MiniGLDispatch->GLColor4f(MGLD_CTX, red, green, blue, 1.0f);
-}
+    static __inline__ void MGLD_glColor3f(GLfloat red, GLfloat green, GLfloat blue)
+    {
+        MiniGLDispatch->GLColor4f(MGLD_CTX, red, green, blue, 1.0f);
+    }
+
 #undef glColor3f
 #define glColor3f MGLD_glColor3f
 
-static __inline__ void MGLD_glColor3fv(GLfloat *v)
-{
-    MiniGLDispatch->GLColor3fv(MGLD_CTX, v);
-}
+    static __inline__ void MGLD_glColor3fv(GLfloat *v)
+    {
+        MiniGLDispatch->GLColor3fv(MGLD_CTX, v);
+    }
+
 #undef glColor3fv
 #define glColor3fv MGLD_glColor3fv
 
-static __inline__ void MGLD_glColor3ub(GLubyte red, GLubyte green, GLubyte blue)
-{
-    MiniGLDispatch->GLColor4ub(MGLD_CTX, red, green, blue, 255);
-}
+    static __inline__ void MGLD_glColor3ub(GLubyte red, GLubyte green, GLubyte blue)
+    {
+        MiniGLDispatch->GLColor4ub(MGLD_CTX, red, green, blue, 255);
+    }
+
 #undef glColor3ub
 #define glColor3ub MGLD_glColor3ub
 
-static __inline__ void MGLD_glColor3ubv(GLubyte *v)
-{
-    MiniGLDispatch->GLColor3ubv(MGLD_CTX, v);
-}
+    static __inline__ void MGLD_glColor3ubv(GLubyte *v)
+    {
+        MiniGLDispatch->GLColor3ubv(MGLD_CTX, v);
+    }
+
 #undef glColor3ubv
 #define glColor3ubv MGLD_glColor3ubv
 
-static __inline__ void MGLD_glColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
-{
-    MiniGLDispatch->GLColor4f(MGLD_CTX, red, green, blue, alpha);
-}
+    static __inline__ void MGLD_glColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+    {
+        MiniGLDispatch->GLColor4f(MGLD_CTX, red, green, blue, alpha);
+    }
+
 #undef glColor4f
 #define glColor4f MGLD_glColor4f
 
-static __inline__ void MGLD_glColor4fv(GLfloat *v)
-{
-    MiniGLDispatch->GLColor4fv(MGLD_CTX, v);
-}
+    static __inline__ void MGLD_glColor4fv(GLfloat *v)
+    {
+        MiniGLDispatch->GLColor4fv(MGLD_CTX, v);
+    }
+
 #undef glColor4fv
 #define glColor4fv MGLD_glColor4fv
 
-static __inline__ void MGLD_glColor4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha)
-{
-    MiniGLDispatch->GLColor4ub(MGLD_CTX, red, green, blue, alpha);
-}
+    static __inline__ void MGLD_glColor4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha)
+    {
+        MiniGLDispatch->GLColor4ub(MGLD_CTX, red, green, blue, alpha);
+    }
+
 #undef glColor4ub
 #define glColor4ub MGLD_glColor4ub
 
-static __inline__ void MGLD_glColor4ubv(GLubyte *v)
-{
-    MiniGLDispatch->GLColor4ubv(MGLD_CTX, v);
-}
+    static __inline__ void MGLD_glColor4ubv(GLubyte *v)
+    {
+        MiniGLDispatch->GLColor4ubv(MGLD_CTX, v);
+    }
+
 #undef glColor4ubv
 #define glColor4ubv MGLD_glColor4ubv
 
-static __inline__ void MGLD_glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
-{
-    MiniGLDispatch->GLColorMask(MGLD_CTX, red, green, blue, alpha);
-}
+    static __inline__ void MGLD_glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+    {
+        MiniGLDispatch->GLColorMask(MGLD_CTX, red, green, blue, alpha);
+    }
+
 #undef glColorMask
 #define glColorMask MGLD_glColorMask
 
-static __inline__ void MGLD_glColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
-{
-    MiniGLDispatch->GLColorPointer(MGLD_CTX, size, type, stride, pointer);
-}
+    static __inline__ void MGLD_glColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
+    {
+        MiniGLDispatch->GLColorPointer(MGLD_CTX, size, type, stride, pointer);
+    }
+
 #undef glColorPointer
 #define glColorPointer MGLD_glColorPointer
 
-static __inline__ void MGLD_glColorTable(GLenum target, GLenum internalformat, GLint width, GLenum format, GLenum type, GLvoid *data)
-{
-    MiniGLDispatch->GLColorTable(MGLD_CTX, target, internalformat, width, format, type, data);
-}
+    static __inline__ void MGLD_glColorTable(GLenum target, GLenum internalformat, GLint width, GLenum format, GLenum type, GLvoid *data)
+    {
+        MiniGLDispatch->GLColorTable(MGLD_CTX, target, internalformat, width, format, type, data);
+    }
+
 #undef glColorTable
 #define glColorTable MGLD_glColorTable
 
-static __inline__ void MGLD_glColorTableEXT(GLenum target, GLenum internalformat, GLint width, GLenum format, GLenum type, GLvoid *data)
-{
-    MiniGLDispatch->GLColorTable(MGLD_CTX, target, internalformat, width, format, type, data);
-}
+    static __inline__ void MGLD_glColorTableEXT(GLenum target, GLenum internalformat, GLint width, GLenum format, GLenum type, GLvoid *data)
+    {
+        MiniGLDispatch->GLColorTable(MGLD_CTX, target, internalformat, width, format, type, data);
+    }
+
 #undef glColorTableEXT
 #define glColorTableEXT MGLD_glColorTableEXT
 
-static __inline__ void MGLD_glCullFace(GLenum mode)
-{
-    MiniGLDispatch->GLCullFace(MGLD_CTX, mode);
-}
+    static __inline__ void MGLD_glCullFace(GLenum mode)
+    {
+        MiniGLDispatch->GLCullFace(MGLD_CTX, mode);
+    }
+
 #undef glCullFace
 #define glCullFace MGLD_glCullFace
 
-static __inline__ void MGLD_glDeleteTextures(GLsizei n, const GLuint *textures)
-{
-    MiniGLDispatch->GLDeleteTextures(MGLD_CTX, n, textures);
-}
+    static __inline__ void MGLD_glDeleteTextures(GLsizei n, const GLuint *textures)
+    {
+        MiniGLDispatch->GLDeleteTextures(MGLD_CTX, n, textures);
+    }
+
 #undef glDeleteTextures
 #define glDeleteTextures MGLD_glDeleteTextures
 
-static __inline__ void MGLD_glDepthFunc(GLenum func)
-{
-    MiniGLDispatch->GLDepthFunc(MGLD_CTX, func);
-}
+    static __inline__ void MGLD_glDepthFunc(GLenum func)
+    {
+        MiniGLDispatch->GLDepthFunc(MGLD_CTX, func);
+    }
+
 #undef glDepthFunc
 #define glDepthFunc MGLD_glDepthFunc
 
-static __inline__ void MGLD_glDepthMask(GLboolean flag)
-{
-    MiniGLDispatch->GLDepthMask(MGLD_CTX, flag);
-}
+    static __inline__ void MGLD_glDepthMask(GLboolean flag)
+    {
+        MiniGLDispatch->GLDepthMask(MGLD_CTX, flag);
+    }
+
 #undef glDepthMask
 #define glDepthMask MGLD_glDepthMask
 
-static __inline__ void MGLD_glDepthRange(GLclampd n, GLclampd f)
-{
-    MiniGLDispatch->GLDepthRange(MGLD_CTX, n, f);
-}
+    static __inline__ void MGLD_glDepthRange(GLclampd n, GLclampd f)
+    {
+        MiniGLDispatch->GLDepthRange(MGLD_CTX, n, f);
+    }
+
 #undef glDepthRange
 #define glDepthRange MGLD_glDepthRange
 
-static __inline__ void MGLD_glDisable(GLenum cap)
-{
-    MiniGLDispatch->MGLSetState(MGLD_CTX, cap, GL_FALSE);
-}
+    static __inline__ void MGLD_glDisable(GLenum cap)
+    {
+        MiniGLDispatch->MGLSetState(MGLD_CTX, cap, GL_FALSE);
+    }
+
 #undef glDisable
 #define glDisable MGLD_glDisable
 
-static __inline__ void MGLD_glDisableClientState(GLenum cap)
-{
-    MiniGLDispatch->GLDisableClientState(MGLD_CTX, cap);
-}
+    static __inline__ void MGLD_glDisableClientState(GLenum cap)
+    {
+        MiniGLDispatch->GLDisableClientState(MGLD_CTX, cap);
+    }
+
 #undef glDisableClientState
 #define glDisableClientState MGLD_glDisableClientState
 
-static __inline__ void MGLD_glDrawArrays(GLenum mode, GLint first, GLsizei count)
-{
-    MiniGLDispatch->GLDrawArrays(MGLD_CTX, mode, first, count);
-}
+    static __inline__ void MGLD_glDrawArrays(GLenum mode, GLint first, GLsizei count)
+    {
+        MiniGLDispatch->GLDrawArrays(MGLD_CTX, mode, first, count);
+    }
+
 #undef glDrawArrays
 #define glDrawArrays MGLD_glDrawArrays
 
-static __inline__ void MGLD_glDrawBuffer(GLenum mode)
-{
-    MiniGLDispatch->GLDrawBuffer(MGLD_CTX, mode);
-}
+    static __inline__ void MGLD_glDrawBuffer(GLenum mode)
+    {
+        MiniGLDispatch->GLDrawBuffer(MGLD_CTX, mode);
+    }
+
 #undef glDrawBuffer
 #define glDrawBuffer MGLD_glDrawBuffer
 
-static __inline__ void MGLD_glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *pointer)
-{
-    MiniGLDispatch->GLDrawElements(MGLD_CTX, mode, count, type, pointer);
-}
+    static __inline__ void MGLD_glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *pointer)
+    {
+        MiniGLDispatch->GLDrawElements(MGLD_CTX, mode, count, type, pointer);
+    }
+
 #undef glDrawElements
 #define glDrawElements MGLD_glDrawElements
 
-static __inline__ void MGLD_glEnable(GLenum cap)
-{
-    MiniGLDispatch->MGLSetState(MGLD_CTX, cap, GL_TRUE);
-}
+    static __inline__ void MGLD_glEnable(GLenum cap)
+    {
+        MiniGLDispatch->MGLSetState(MGLD_CTX, cap, GL_TRUE);
+    }
+
 #undef glEnable
 #define glEnable MGLD_glEnable
 
-static __inline__ void MGLD_glEnableClientState(GLenum cap)
-{
-    MiniGLDispatch->GLEnableClientState(MGLD_CTX, cap);
-}
+    static __inline__ void MGLD_glEnableClientState(GLenum cap)
+    {
+        MiniGLDispatch->GLEnableClientState(MGLD_CTX, cap);
+    }
+
 #undef glEnableClientState
 #define glEnableClientState MGLD_glEnableClientState
 
-static __inline__ void MGLD_glEnd(void)
-{
-    MiniGLDispatch->GLEnd(MGLD_CTX);
-    
-}
+    static __inline__ void MGLD_glEnd(void)
+    {
+        MiniGLDispatch->GLEnd(MGLD_CTX);
+    }
+
 #undef glEnd
 #define glEnd MGLD_glEnd
 
-static __inline__ void MGLD_glFinish(void)
-{
-    MiniGLDispatch->GLFinish(MGLD_CTX);
-}
+    static __inline__ void MGLD_glFinish(void)
+    {
+        MiniGLDispatch->GLFinish(MGLD_CTX);
+    }
+
 #undef glFinish
 #define glFinish MGLD_glFinish
 
-static __inline__ void MGLD_glFlush(void)
-{
-    MiniGLDispatch->GLFlush(MGLD_CTX);
-}
+    static __inline__ void MGLD_glFlush(void)
+    {
+        MiniGLDispatch->GLFlush(MGLD_CTX);
+    }
+
 #undef glFlush
 #define glFlush MGLD_glFlush
 
-static __inline__ void MGLD_glFogf(GLenum pname, GLfloat param)
-{
-    MiniGLDispatch->GLFogf(MGLD_CTX, pname, param);
-}
+    static __inline__ void MGLD_glFogf(GLenum pname, GLfloat param)
+    {
+        MiniGLDispatch->GLFogf(MGLD_CTX, pname, param);
+    }
+
 #undef glFogf
 #define glFogf MGLD_glFogf
 
-static __inline__ void MGLD_glFogfv(GLenum pname, GLfloat *param)
-{
-    MiniGLDispatch->GLFogfv(MGLD_CTX, pname, param);
-}
+    static __inline__ void MGLD_glFogfv(GLenum pname, GLfloat *param)
+    {
+        MiniGLDispatch->GLFogfv(MGLD_CTX, pname, param);
+    }
+
 #undef glFogfv
 #define glFogfv MGLD_glFogfv
 
-static __inline__ void MGLD_glFogi(GLenum pname, GLint param)
-{
-    MiniGLDispatch->GLFogf(MGLD_CTX, pname, (GLfloat)param);
-}
+    static __inline__ void MGLD_glFogi(GLenum pname, GLint param)
+    {
+        MiniGLDispatch->GLFogf(MGLD_CTX, pname, (GLfloat)param);
+    }
+
 #undef glFogi
 #define glFogi MGLD_glFogi
 
-static __inline__ void MGLD_glFrontFace(GLenum mode)
-{
-    MiniGLDispatch->GLFrontFace(MGLD_CTX, mode);
-}
+    static __inline__ void MGLD_glFrontFace(GLenum mode)
+    {
+        MiniGLDispatch->GLFrontFace(MGLD_CTX, mode);
+    }
+
 #undef glFrontFace
 #define glFrontFace MGLD_glFrontFace
 
-static __inline__ void MGLD_glFrustum(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar)
-{
-    MiniGLDispatch->GLFrustum(MGLD_CTX, left, right, bottom, top, zNear, zFar);
-}
+    static __inline__ void MGLD_glFrustum(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar)
+    {
+        MiniGLDispatch->GLFrustum(MGLD_CTX, left, right, bottom, top, zNear, zFar);
+    }
+
 #undef glFrustum
 #define glFrustum MGLD_glFrustum
 
-static __inline__ void MGLD_glGenTextures(GLsizei n, GLuint *textures)
-{
-    MiniGLDispatch->GLGenTextures(MGLD_CTX, n, textures);
-}
+    static __inline__ void MGLD_glGenTextures(GLsizei n, GLuint *textures)
+    {
+        MiniGLDispatch->GLGenTextures(MGLD_CTX, n, textures);
+    }
+
 #undef glGenTextures
 #define glGenTextures MGLD_glGenTextures
 
-static __inline__ void MGLD_glGetBooleanv(GLenum pname, GLboolean *params)
-{
-    MiniGLDispatch->GLGetBooleanv(MGLD_CTX, pname, params);
-}
+    static __inline__ void MGLD_glGetBooleanv(GLenum pname, GLboolean *params)
+    {
+        MiniGLDispatch->GLGetBooleanv(MGLD_CTX, pname, params);
+    }
+
 #undef glGetBooleanv
 #define glGetBooleanv MGLD_glGetBooleanv
 
-static __inline__ GLenum MGLD_glGetError(void)
-{
-    return MiniGLDispatch->GLGetError(MGLD_CTX);
-}
+    static __inline__ GLenum MGLD_glGetError(void)
+    {
+        return MiniGLDispatch->GLGetError(MGLD_CTX);
+    }
+
 #undef glGetError
 #define glGetError MGLD_glGetError
 
-static __inline__ void MGLD_glGetFloatv(GLenum pname, GLfloat *params)
-{
-    MiniGLDispatch->GLGetFloatv(MGLD_CTX, pname, params);
-}
+    static __inline__ void MGLD_glGetFloatv(GLenum pname, GLfloat *params)
+    {
+        MiniGLDispatch->GLGetFloatv(MGLD_CTX, pname, params);
+    }
+
 #undef glGetFloatv
 #define glGetFloatv MGLD_glGetFloatv
 
-static __inline__ void MGLD_glGetIntegerv(GLenum pname, GLint *params)
-{
-    MiniGLDispatch->GLGetIntegerv(MGLD_CTX, pname, params);
-}
+    static __inline__ void MGLD_glGetIntegerv(GLenum pname, GLint *params)
+    {
+        MiniGLDispatch->GLGetIntegerv(MGLD_CTX, pname, params);
+    }
+
 #undef glGetIntegerv
 #define glGetIntegerv MGLD_glGetIntegerv
 
-static __inline__ const GLubyte * MGLD_glGetString(GLenum name)
-{
-    return MiniGLDispatch->GLGetString(MGLD_CTX, name);
-}
+    static __inline__ const GLubyte *MGLD_glGetString(GLenum name)
+    {
+        return MiniGLDispatch->GLGetString(MGLD_CTX, name);
+    }
+
 #undef glGetString
 #define glGetString MGLD_glGetString
 
-static __inline__ void MGLD_glHint(GLenum target, GLenum mode)
-{
-    MiniGLDispatch->GLHint(MGLD_CTX, target, mode);
-}
+    static __inline__ void MGLD_glHint(GLenum target, GLenum mode)
+    {
+        MiniGLDispatch->GLHint(MGLD_CTX, target, mode);
+    }
+
 #undef glHint
 #define glHint MGLD_glHint
 
-static __inline__ GLboolean MGLD_glIsEnabled(GLenum cap)
-{
-    return MiniGLDispatch->GLIsEnabled(MGLD_CTX, cap);
-}
+    static __inline__ GLboolean MGLD_glIsEnabled(GLenum cap)
+    {
+        return MiniGLDispatch->GLIsEnabled(MGLD_CTX, cap);
+    }
+
 #undef glIsEnabled
 #define glIsEnabled MGLD_glIsEnabled
 
-static __inline__ void MGLD_glLoadIdentity(void)
-{
-    MiniGLDispatch->GLLoadIdentity(MGLD_CTX);
-}
+    static __inline__ void MGLD_glLoadIdentity(void)
+    {
+        MiniGLDispatch->GLLoadIdentity(MGLD_CTX);
+    }
+
 #undef glLoadIdentity
 #define glLoadIdentity MGLD_glLoadIdentity
 
-static __inline__ void MGLD_glLoadMatrixd(const GLdouble *m)
-{
-    MiniGLDispatch->GLLoadMatrixd(MGLD_CTX, m);
-}
+    static __inline__ void MGLD_glLoadMatrixd(const GLdouble *m)
+    {
+        MiniGLDispatch->GLLoadMatrixd(MGLD_CTX, m);
+    }
+
 #undef glLoadMatrixd
 #define glLoadMatrixd MGLD_glLoadMatrixd
 
-static __inline__ void MGLD_glLoadMatrixf(const GLfloat *m)
-{
-    MiniGLDispatch->GLLoadMatrixf(MGLD_CTX, m);
-}
+    static __inline__ void MGLD_glLoadMatrixf(const GLfloat *m)
+    {
+        MiniGLDispatch->GLLoadMatrixf(MGLD_CTX, m);
+    }
+
 #undef glLoadMatrixf
 #define glLoadMatrixf MGLD_glLoadMatrixf
 
-static __inline__ void MGLD_glLockArrays(GLuint first, GLsizei count)
-{
-    MiniGLDispatch->GLLockArrays(MGLD_CTX, first, count);
-}
+    static __inline__ void MGLD_glLockArrays(GLuint first, GLsizei count)
+    {
+        MiniGLDispatch->GLLockArrays(MGLD_CTX, first, count);
+    }
+
 #undef glLockArrays
 #define glLockArrays MGLD_glLockArrays
 
-static __inline__ void MGLD_glMatrixMode(GLenum mode)
-{
-    MiniGLDispatch->GLMatrixMode(MGLD_CTX, mode);
-}
+    static __inline__ void MGLD_glMatrixMode(GLenum mode)
+    {
+        MiniGLDispatch->GLMatrixMode(MGLD_CTX, mode);
+    }
+
 #undef glMatrixMode
 #define glMatrixMode MGLD_glMatrixMode
 
-static __inline__ void MGLD_glMultiTexCoord2fARB(GLenum unit, GLfloat s, GLfloat t)
-{
-    MiniGLDispatch->GLMultiTexCoord2fARB(MGLD_CTX, unit, s, t);
-}
+    static __inline__ void MGLD_glMultiTexCoord2fARB(GLenum unit, GLfloat s, GLfloat t)
+    {
+        MiniGLDispatch->GLMultiTexCoord2fARB(MGLD_CTX, unit, s, t);
+    }
+
 #undef glMultiTexCoord2fARB
 #define glMultiTexCoord2fARB MGLD_glMultiTexCoord2fARB
 
-static __inline__ void MGLD_glMultiTexCoord2fvARB(GLenum unit, GLfloat *v)
-{
-    MiniGLDispatch->GLMultiTexCoord2fvARB(MGLD_CTX, unit, v);
-}
+    static __inline__ void MGLD_glMultiTexCoord2fvARB(GLenum unit, GLfloat *v)
+    {
+        MiniGLDispatch->GLMultiTexCoord2fvARB(MGLD_CTX, unit, v);
+    }
+
 #undef glMultiTexCoord2fvARB
 #define glMultiTexCoord2fvARB MGLD_glMultiTexCoord2fvARB
 
-static __inline__ void MGLD_glMultMatrixd(const GLdouble *m)
-{
-    MiniGLDispatch->GLMultMatrixd(MGLD_CTX, m);
-}
+    static __inline__ void MGLD_glMultMatrixd(const GLdouble *m)
+    {
+        MiniGLDispatch->GLMultMatrixd(MGLD_CTX, m);
+    }
+
 #undef glMultMatrixd
 #define glMultMatrixd MGLD_glMultMatrixd
 
-static __inline__ void MGLD_glMultMatrixf(const GLfloat *m)
-{
-    MiniGLDispatch->GLMultMatrixf(MGLD_CTX, m);
-}
+    static __inline__ void MGLD_glMultMatrixf(const GLfloat *m)
+    {
+        MiniGLDispatch->GLMultMatrixf(MGLD_CTX, m);
+    }
+
 #undef glMultMatrixf
 #define glMultMatrixf MGLD_glMultMatrixf
 
-static __inline__ void MGLD_glNormal3f(GLfloat x, GLfloat y, GLfloat z)
-{
-    MiniGLDispatch->GLNormal3f(MGLD_CTX, x, y, z);
-}
+    static __inline__ void MGLD_glNormal3f(GLfloat x, GLfloat y, GLfloat z)
+    {
+        MiniGLDispatch->GLNormal3f(MGLD_CTX, x, y, z);
+    }
+
 #undef glNormal3f
 #define glNormal3f MGLD_glNormal3f
 
-/* Its own slot rather than an expansion onto glNormal3f, so a library client
- * reaches the driver's NULL guard. A static inline, so `v` is evaluated once. */
-static __inline__ void MGLD_glNormal3fv(GLfloat *v)
-{
-    MiniGLDispatch->GLNormal3fv(MGLD_CTX, v);
-}
+    /* Its own slot rather than an expansion onto glNormal3f, so a library client
+     * reaches the driver's NULL guard. A static inline, so `v` is evaluated once. */
+    static __inline__ void MGLD_glNormal3fv(GLfloat *v)
+    {
+        MiniGLDispatch->GLNormal3fv(MGLD_CTX, v);
+    }
+
 #undef glNormal3fv
 #define glNormal3fv MGLD_glNormal3fv
 
-static __inline__ void MGLD_glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar)
-{
-    MiniGLDispatch->GLOrtho(MGLD_CTX, left, right, bottom, top, zNear, zFar);
-}
+    static __inline__ void MGLD_glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar)
+    {
+        MiniGLDispatch->GLOrtho(MGLD_CTX, left, right, bottom, top, zNear, zFar);
+    }
+
 #undef glOrtho
 #define glOrtho MGLD_glOrtho
 
-static __inline__ void MGLD_glPixelStorei(GLenum pname, GLint param)
-{
-    MiniGLDispatch->GLPixelStorei(MGLD_CTX, pname, param);
-}
+    static __inline__ void MGLD_glPixelStorei(GLenum pname, GLint param)
+    {
+        MiniGLDispatch->GLPixelStorei(MGLD_CTX, pname, param);
+    }
+
 #undef glPixelStorei
 #define glPixelStorei MGLD_glPixelStorei
 
-static __inline__ void MGLD_glPointSize(GLfloat s)
-{
-    MiniGLDispatch->GLPointSize(MGLD_CTX, s);
-}
+    static __inline__ void MGLD_glPointSize(GLfloat s)
+    {
+        MiniGLDispatch->GLPointSize(MGLD_CTX, s);
+    }
+
 #undef glPointSize
 #define glPointSize MGLD_glPointSize
 
-/* Beside its sibling for discoverability. Only the STRUCT above is
- * order-sensitive; these wrappers are ordinary inlines. */
-static __inline__ void MGLD_glLineWidth(GLfloat w)
-{
-    MiniGLDispatch->GLLineWidth(MGLD_CTX, w);
-}
+    /* Beside its sibling for discoverability. Only the STRUCT above is
+     * order-sensitive; these wrappers are ordinary inlines. */
+    static __inline__ void MGLD_glLineWidth(GLfloat w)
+    {
+        MiniGLDispatch->GLLineWidth(MGLD_CTX, w);
+    }
+
 #undef glLineWidth
 #define glLineWidth MGLD_glLineWidth
 
-static __inline__ void MGLD_glTexGenfv(GLenum coord, GLenum pname, const GLfloat *params)
-{
-    MiniGLDispatch->GLTexGenfv(MGLD_CTX, coord, pname, params);
-}
+    static __inline__ void MGLD_glTexGenfv(GLenum coord, GLenum pname, const GLfloat *params)
+    {
+        MiniGLDispatch->GLTexGenfv(MGLD_CTX, coord, pname, params);
+    }
+
 #undef glTexGenfv
 #define glTexGenfv MGLD_glTexGenfv
 
-static __inline__ void MGLD_glCopyTexImage2D(GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border)
-{
-    MiniGLDispatch->GLCopyTexImage2D(MGLD_CTX, target, level, internalformat, x, y, width, height, border);
-}
+    static __inline__ void MGLD_glCopyTexImage2D(GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border)
+    {
+        MiniGLDispatch->GLCopyTexImage2D(MGLD_CTX, target, level, internalformat, x, y, width, height, border);
+    }
+
 #undef glCopyTexImage2D
 #define glCopyTexImage2D MGLD_glCopyTexImage2D
 
-static __inline__ void MGLD_glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
-{
-    MiniGLDispatch->GLCopyTexSubImage2D(MGLD_CTX, target, level, xoffset, yoffset, x, y, width, height);
-}
+    static __inline__ void MGLD_glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height)
+    {
+        MiniGLDispatch->GLCopyTexSubImage2D(MGLD_CTX, target, level, xoffset, yoffset, x, y, width, height);
+    }
+
 #undef glCopyTexSubImage2D
 #define glCopyTexSubImage2D MGLD_glCopyTexSubImage2D
 
-static __inline__ void MGLD_glPolygonMode(GLenum face, GLenum mode)
-{
-    MiniGLDispatch->GLPolygonMode(MGLD_CTX, face, mode);
-}
+    static __inline__ void MGLD_glPolygonMode(GLenum face, GLenum mode)
+    {
+        MiniGLDispatch->GLPolygonMode(MGLD_CTX, face, mode);
+    }
+
 #undef glPolygonMode
 #define glPolygonMode MGLD_glPolygonMode
 
-static __inline__ void MGLD_glPolygonOffset(GLfloat factor, GLfloat units)
-{
-    MiniGLDispatch->GLPolygonOffset(MGLD_CTX, factor, units);
-}
+    static __inline__ void MGLD_glPolygonOffset(GLfloat factor, GLfloat units)
+    {
+        MiniGLDispatch->GLPolygonOffset(MGLD_CTX, factor, units);
+    }
+
 #undef glPolygonOffset
 #define glPolygonOffset MGLD_glPolygonOffset
 
-static __inline__ void MGLD_glPopMatrix(void)
-{
-    MiniGLDispatch->GLPopMatrix(MGLD_CTX);
-}
+    static __inline__ void MGLD_glPopMatrix(void)
+    {
+        MiniGLDispatch->GLPopMatrix(MGLD_CTX);
+    }
+
 #undef glPopMatrix
 #define glPopMatrix MGLD_glPopMatrix
 
-static __inline__ void MGLD_glPushMatrix(void)
-{
-    MiniGLDispatch->GLPushMatrix(MGLD_CTX);
-}
+    static __inline__ void MGLD_glPushMatrix(void)
+    {
+        MiniGLDispatch->GLPushMatrix(MGLD_CTX);
+    }
+
 #undef glPushMatrix
 #define glPushMatrix MGLD_glPushMatrix
 
-static __inline__ void MGLD_glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels)
-{
-    MiniGLDispatch->GLReadPixels(MGLD_CTX, x, y, width, height, format, type, pixels);
-}
+    static __inline__ void MGLD_glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels)
+    {
+        MiniGLDispatch->GLReadPixels(MGLD_CTX, x, y, width, height, format, type, pixels);
+    }
+
 #undef glReadPixels
 #define glReadPixels MGLD_glReadPixels
 
-static __inline__ void MGLD_glRotated(GLdouble angle, GLdouble x, GLdouble y, GLdouble z)
-{
-    MiniGLDispatch->GLRotated(MGLD_CTX, angle, x, y, z);
-}
+    static __inline__ void MGLD_glRotated(GLdouble angle, GLdouble x, GLdouble y, GLdouble z)
+    {
+        MiniGLDispatch->GLRotated(MGLD_CTX, angle, x, y, z);
+    }
+
 #undef glRotated
 #define glRotated MGLD_glRotated
 
-static __inline__ void MGLD_glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
-{
-    MiniGLDispatch->GLRotatef(MGLD_CTX, angle, x, y, z);
-}
+    static __inline__ void MGLD_glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
+    {
+        MiniGLDispatch->GLRotatef(MGLD_CTX, angle, x, y, z);
+    }
+
 #undef glRotatef
 #define glRotatef MGLD_glRotatef
 
-static __inline__ void MGLD_glRotatefEXT(GLfloat angle, const GLint xyz)
-{
-    MiniGLDispatch->GLRotatefEXT(MGLD_CTX, angle, xyz);
-}
+    static __inline__ void MGLD_glRotatefEXT(GLfloat angle, const GLint xyz)
+    {
+        MiniGLDispatch->GLRotatefEXT(MGLD_CTX, angle, xyz);
+    }
+
 #undef glRotatefEXT
 #define glRotatefEXT MGLD_glRotatefEXT
 
-static __inline__ void MGLD_glRotatefEXTs(GLfloat sin_an, GLfloat cos_an, const GLint xyz)
-{
-    MiniGLDispatch->GLRotatefEXTs(MGLD_CTX, sin_an, cos_an, xyz);
-}
+    static __inline__ void MGLD_glRotatefEXTs(GLfloat sin_an, GLfloat cos_an, const GLint xyz)
+    {
+        MiniGLDispatch->GLRotatefEXTs(MGLD_CTX, sin_an, cos_an, xyz);
+    }
+
 #undef glRotatefEXTs
 #define glRotatefEXTs MGLD_glRotatefEXTs
 
-static __inline__ void MGLD_glScaled(GLdouble x, GLdouble y, GLdouble z)
-{
-    MiniGLDispatch->GLScaled(MGLD_CTX, x, y, z);
-}
+    static __inline__ void MGLD_glScaled(GLdouble x, GLdouble y, GLdouble z)
+    {
+        MiniGLDispatch->GLScaled(MGLD_CTX, x, y, z);
+    }
+
 #undef glScaled
 #define glScaled MGLD_glScaled
 
-static __inline__ void MGLD_glScalef(GLfloat x, GLfloat y, GLfloat z)
-{
-    MiniGLDispatch->GLScalef(MGLD_CTX, x, y, z);
-}
+    static __inline__ void MGLD_glScalef(GLfloat x, GLfloat y, GLfloat z)
+    {
+        MiniGLDispatch->GLScalef(MGLD_CTX, x, y, z);
+    }
+
 #undef glScalef
 #define glScalef MGLD_glScalef
 
-static __inline__ void MGLD_glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
-{
-    MiniGLDispatch->GLScissor(MGLD_CTX, x, y, width, height);
-}
+    static __inline__ void MGLD_glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
+    {
+        MiniGLDispatch->GLScissor(MGLD_CTX, x, y, width, height);
+    }
+
 #undef glScissor
 #define glScissor MGLD_glScissor
 
-static __inline__ void MGLD_glShadeModel(GLenum mode)
-{
-    MiniGLDispatch->GLShadeModel(MGLD_CTX, mode);
-}
+    static __inline__ void MGLD_glShadeModel(GLenum mode)
+    {
+        MiniGLDispatch->GLShadeModel(MGLD_CTX, mode);
+    }
+
 #undef glShadeModel
 #define glShadeModel MGLD_glShadeModel
 
-static __inline__ void MGLD_glTexCoord2f(GLfloat s, GLfloat t)
-{
-    MiniGLDispatch->GLTexCoord2f(MGLD_CTX, s, t);
-}
+    static __inline__ void MGLD_glTexCoord2f(GLfloat s, GLfloat t)
+    {
+        MiniGLDispatch->GLTexCoord2f(MGLD_CTX, s, t);
+    }
+
 #undef glTexCoord2f
 #define glTexCoord2f MGLD_glTexCoord2f
 
-static __inline__ void MGLD_glTexCoord2fv(GLfloat *v)
-{
-    MiniGLDispatch->GLTexCoord2fv(MGLD_CTX, v);
-}
+    static __inline__ void MGLD_glTexCoord2fv(GLfloat *v)
+    {
+        MiniGLDispatch->GLTexCoord2fv(MGLD_CTX, v);
+    }
+
 #undef glTexCoord2fv
 #define glTexCoord2fv MGLD_glTexCoord2fv
 
-static __inline__ void MGLD_glTexCoord4f(GLfloat s, GLfloat t, GLfloat r, GLfloat q)
-{
-    MiniGLDispatch->GLTexCoord4f(MGLD_CTX, s, t, r, q);
-}
+    static __inline__ void MGLD_glTexCoord4f(GLfloat s, GLfloat t, GLfloat r, GLfloat q)
+    {
+        MiniGLDispatch->GLTexCoord4f(MGLD_CTX, s, t, r, q);
+    }
+
 #undef glTexCoord4f
 #define glTexCoord4f MGLD_glTexCoord4f
 
-static __inline__ void MGLD_glTexCoord4fv(GLfloat *v)
-{
-    MiniGLDispatch->GLTexCoord4fv(MGLD_CTX, v);
-}
+    static __inline__ void MGLD_glTexCoord4fv(GLfloat *v)
+    {
+        MiniGLDispatch->GLTexCoord4fv(MGLD_CTX, v);
+    }
+
 #undef glTexCoord4fv
 #define glTexCoord4fv MGLD_glTexCoord4fv
 
-static __inline__ void MGLD_glTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
-{
-    MiniGLDispatch->GLTexCoordPointer(MGLD_CTX, size, type, stride, pointer);
-}
+    static __inline__ void MGLD_glTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
+    {
+        MiniGLDispatch->GLTexCoordPointer(MGLD_CTX, size, type, stride, pointer);
+    }
+
 #undef glTexCoordPointer
 #define glTexCoordPointer MGLD_glTexCoordPointer
 
-static __inline__ void MGLD_glTexEnvf(GLenum target, GLenum pname, GLfloat param)
-{
-    MiniGLDispatch->GLTexEnvi(MGLD_CTX, target, pname, (GLint)param);
-}
+    static __inline__ void MGLD_glTexEnvf(GLenum target, GLenum pname, GLfloat param)
+    {
+        MiniGLDispatch->GLTexEnvi(MGLD_CTX, target, pname, (GLint)param);
+    }
+
 #undef glTexEnvf
 #define glTexEnvf MGLD_glTexEnvf
 
-/* glTexEnvfv is NOT here: it has a real dispatch slot further down, which
- * forwards all four floats. The version that used to sit here passed only
- * (GLint)*param to GLTexEnvi, so GL_TEXTURE_ENV_COLOR could not be expressed
- * at all -- and leaving both in place is two conflicting definitions of one
- * static inline, which is a hard error for every library client. */
+    /* glTexEnvfv is NOT here: it has a real dispatch slot further down, which
+     * forwards all four floats. The version that used to sit here passed only
+     * (GLint)*param to GLTexEnvi, so GL_TEXTURE_ENV_COLOR could not be expressed
+     * at all -- and leaving both in place is two conflicting definitions of one
+     * static inline, which is a hard error for every library client. */
 
-static __inline__ void MGLD_glTexEnvi(GLenum target, GLenum pname, GLint param)
-{
-    MiniGLDispatch->GLTexEnvi(MGLD_CTX, target, pname, param);
-}
+    static __inline__ void MGLD_glTexEnvi(GLenum target, GLenum pname, GLint param)
+    {
+        MiniGLDispatch->GLTexEnvi(MGLD_CTX, target, pname, param);
+    }
+
 #undef glTexEnvi
 #define glTexEnvi MGLD_glTexEnvi
 
-static __inline__ void MGLD_glTexEnviv(GLenum target, GLenum pname, GLint *param)
-{
-    MiniGLDispatch->GLTexEnvi(MGLD_CTX, target, pname, *param);
-}
+    static __inline__ void MGLD_glTexEnviv(GLenum target, GLenum pname, GLint *param)
+    {
+        MiniGLDispatch->GLTexEnvi(MGLD_CTX, target, pname, *param);
+    }
+
 #undef glTexEnviv
 #define glTexEnviv MGLD_glTexEnviv
 
-static __inline__ void MGLD_glTexGeni(GLenum coord, GLenum mode, GLenum map)
-{
-    MiniGLDispatch->GLTexGeni(MGLD_CTX, coord, mode, map);
-}
+    static __inline__ void MGLD_glTexGeni(GLenum coord, GLenum mode, GLenum map)
+    {
+        MiniGLDispatch->GLTexGeni(MGLD_CTX, coord, mode, map);
+    }
+
 #undef glTexGeni
 #define glTexGeni MGLD_glTexGeni
 
-static __inline__ void MGLD_glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
-{
-    MiniGLDispatch->GLTexImage2D(MGLD_CTX, target, level, internalformat, width, height, border, format, type, pixels);
-}
+    static __inline__ void MGLD_glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
+    {
+        MiniGLDispatch->GLTexImage2D(MGLD_CTX, target, level, internalformat, width, height, border, format, type, pixels);
+    }
+
 #undef glTexImage2D
 #define glTexImage2D MGLD_glTexImage2D
 
-static __inline__ void MGLD_glTexParameterf(GLenum target, GLenum pname, GLfloat param)
-{
-    MiniGLDispatch->GLTexParameteri(MGLD_CTX, target, pname, (GLint)param);
-}
+    static __inline__ void MGLD_glTexParameterf(GLenum target, GLenum pname, GLfloat param)
+    {
+        MiniGLDispatch->GLTexParameteri(MGLD_CTX, target, pname, (GLint)param);
+    }
+
 #undef glTexParameterf
 #define glTexParameterf MGLD_glTexParameterf
 
-static __inline__ void MGLD_glTexParameteri(GLenum target, GLenum pname, GLint param)
-{
-    MiniGLDispatch->GLTexParameteri(MGLD_CTX, target, pname, param);
-}
+    static __inline__ void MGLD_glTexParameteri(GLenum target, GLenum pname, GLint param)
+    {
+        MiniGLDispatch->GLTexParameteri(MGLD_CTX, target, pname, param);
+    }
+
 #undef glTexParameteri
 #define glTexParameteri MGLD_glTexParameteri
 
-static __inline__ void MGLD_glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels)
-{
-    MiniGLDispatch->GLTexSubImage2D(MGLD_CTX, target, level, xoffset, yoffset, width, height, format, type, pixels);
-}
+    static __inline__ void MGLD_glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels)
+    {
+        MiniGLDispatch->GLTexSubImage2D(MGLD_CTX, target, level, xoffset, yoffset, width, height, format, type, pixels);
+    }
+
 #undef glTexSubImage2D
 #define glTexSubImage2D MGLD_glTexSubImage2D
 
-static __inline__ void MGLD_glTranslated(GLdouble x, GLdouble y, GLdouble z)
-{
-    MiniGLDispatch->GLTranslated(MGLD_CTX, x, y, z);
-}
+    static __inline__ void MGLD_glTranslated(GLdouble x, GLdouble y, GLdouble z)
+    {
+        MiniGLDispatch->GLTranslated(MGLD_CTX, x, y, z);
+    }
+
 #undef glTranslated
 #define glTranslated MGLD_glTranslated
 
-static __inline__ void MGLD_glTranslatef(GLfloat x, GLfloat y, GLfloat z)
-{
-    MiniGLDispatch->GLTranslatef(MGLD_CTX, x, y, z);
-}
+    static __inline__ void MGLD_glTranslatef(GLfloat x, GLfloat y, GLfloat z)
+    {
+        MiniGLDispatch->GLTranslatef(MGLD_CTX, x, y, z);
+    }
+
 #undef glTranslatef
 #define glTranslatef MGLD_glTranslatef
 
-static __inline__ void MGLD_gluLookAt(GLfloat ex, GLfloat ey, GLfloat ez, GLfloat cx, GLfloat cy, GLfloat cz, GLfloat ux, GLfloat uy, GLfloat uz)
-{
-    if ((*MiniGLDispatch->currentContext)) MiniGLDispatch->GLULookAt(ex, ey, ez, cx, cy, cz, ux, uy, uz);
-}
+    static __inline__ void MGLD_gluLookAt(GLfloat ex, GLfloat ey, GLfloat ez, GLfloat cx, GLfloat cy, GLfloat cz, GLfloat ux, GLfloat uy, GLfloat uz)
+    {
+        if ((*MiniGLDispatch->currentContext))
+            MiniGLDispatch->GLULookAt(ex, ey, ez, cx, cy, cz, ux, uy, uz);
+    }
+
 #undef gluLookAt
 #define gluLookAt MGLD_gluLookAt
 
-static __inline__ void MGLD_glUnlockArrays(void)
-{
-    MiniGLDispatch->GLUnlockArrays(MGLD_CTX);
-}
+    static __inline__ void MGLD_glUnlockArrays(void)
+    {
+        MiniGLDispatch->GLUnlockArrays(MGLD_CTX);
+    }
+
 #undef glUnlockArrays
 #define glUnlockArrays MGLD_glUnlockArrays
 
-static __inline__ void MGLD_gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat znear, GLfloat zfar)
-{
-    if ((*MiniGLDispatch->currentContext)) MiniGLDispatch->GLUPerspective(fovy, aspect, znear, zfar);
-}
+    static __inline__ void MGLD_gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat znear, GLfloat zfar)
+    {
+        if ((*MiniGLDispatch->currentContext))
+            MiniGLDispatch->GLUPerspective(fovy, aspect, znear, zfar);
+    }
+
 #undef gluPerspective
 #define gluPerspective MGLD_gluPerspective
 
-static __inline__ void MGLD_glVertex2f(GLfloat x, GLfloat y)
-{
-    MiniGLDispatch->GLVertex4f(MGLD_CTX, x, y, 0.0f, 1.0f);
-}
+    static __inline__ void MGLD_glVertex2f(GLfloat x, GLfloat y)
+    {
+        MiniGLDispatch->GLVertex4f(MGLD_CTX, x, y, 0.0f, 1.0f);
+    }
+
 #undef glVertex2f
 #define glVertex2f MGLD_glVertex2f
 
-static __inline__ void MGLD_glVertex2fv(GLfloat *v)
-{
-    MiniGLDispatch->GLVertex2fv(MGLD_CTX, v);
-}
+    static __inline__ void MGLD_glVertex2fv(GLfloat *v)
+    {
+        MiniGLDispatch->GLVertex2fv(MGLD_CTX, v);
+    }
+
 #undef glVertex2fv
 #define glVertex2fv MGLD_glVertex2fv
 
-static __inline__ void MGLD_glVertex3f(GLfloat x, GLfloat y, GLfloat z)
-{
-    MiniGLDispatch->GLVertex4f(MGLD_CTX, x, y, z, 1.0f);
-}
+    static __inline__ void MGLD_glVertex3f(GLfloat x, GLfloat y, GLfloat z)
+    {
+        MiniGLDispatch->GLVertex4f(MGLD_CTX, x, y, z, 1.0f);
+    }
+
 #undef glVertex3f
 #define glVertex3f MGLD_glVertex3f
 
-static __inline__ void MGLD_glVertex3fv(GLfloat *v)
-{
-    MiniGLDispatch->GLVertex3fv(MGLD_CTX, v);
-}
+    static __inline__ void MGLD_glVertex3fv(GLfloat *v)
+    {
+        MiniGLDispatch->GLVertex3fv(MGLD_CTX, v);
+    }
+
 #undef glVertex3fv
 #define glVertex3fv MGLD_glVertex3fv
 
-static __inline__ void MGLD_glVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
-{
-    MiniGLDispatch->GLVertex4f(MGLD_CTX, x, y, z, w);
-}
+    static __inline__ void MGLD_glVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+    {
+        MiniGLDispatch->GLVertex4f(MGLD_CTX, x, y, z, w);
+    }
+
 #undef glVertex4f
 #define glVertex4f MGLD_glVertex4f
 
-static __inline__ void MGLD_glVertex4fv(GLfloat *v)
-{
-    MiniGLDispatch->GLVertex4fv(MGLD_CTX, v);
-}
+    static __inline__ void MGLD_glVertex4fv(GLfloat *v)
+    {
+        MiniGLDispatch->GLVertex4fv(MGLD_CTX, v);
+    }
+
 #undef glVertex4fv
 #define glVertex4fv MGLD_glVertex4fv
 
-static __inline__ void MGLD_glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
-{
-    MiniGLDispatch->GLVertexPointer(MGLD_CTX, size, type, stride, pointer);
-}
+    static __inline__ void MGLD_glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer)
+    {
+        MiniGLDispatch->GLVertexPointer(MGLD_CTX, size, type, stride, pointer);
+    }
+
 #undef glVertexPointer
 #define glVertexPointer MGLD_glVertexPointer
 
-/* GL_NORMAL_ARRAY. No size argument: GL fixes a normal at 3 components. */
-static __inline__ void MGLD_glNormalPointer(GLenum type, GLsizei stride, const GLvoid *pointer)
-{
-    MiniGLDispatch->GLNormalPointer(MGLD_CTX, type, stride, pointer);
-}
+    /* GL_NORMAL_ARRAY. No size argument: GL fixes a normal at 3 components. */
+    static __inline__ void MGLD_glNormalPointer(GLenum type, GLsizei stride, const GLvoid *pointer)
+    {
+        MiniGLDispatch->GLNormalPointer(MGLD_CTX, type, stride, pointer);
+    }
+
 #undef glNormalPointer
 #define glNormalPointer MGLD_glNormalPointer
 
-/* A quadric's GLU_ERROR callback. fn stays unprototyped all the way through, as
- * GLU's _GLUfuncptr is, so the application's own void f(GLenum) needs no cast
- * at the call site. */
-static __inline__ void MGLD_gluQuadricCallback(GLUquadricObj *q, GLenum which, MGLUfuncptr fn)
-{
-    MiniGLDispatch->GLUQuadricCallback(q, which, fn);
-}
+    /* A quadric's GLU_ERROR callback. fn stays unprototyped all the way through, as
+     * GLU's _GLUfuncptr is, so the application's own void f(GLenum) needs no cast
+     * at the call site. */
+    static __inline__ void MGLD_gluQuadricCallback(GLUquadricObj *q, GLenum which, MGLUfuncptr fn)
+    {
+        MiniGLDispatch->GLUQuadricCallback(q, which, fn);
+    }
+
 #undef gluQuadricCallback
 #define gluQuadricCallback MGLD_gluQuadricCallback
 
-/* GL_COLOR_MATERIAL's parameter. GL names five modes; the driver refuses
- * GL_SHININESS, a scalar having no vertex colour to track. */
-static __inline__ void MGLD_glColorMaterial(GLenum face, GLenum mode)
-{
-    MiniGLDispatch->GLColorMaterial(MGLD_CTX, face, mode);
-}
+    /* GL_COLOR_MATERIAL's parameter. GL names five modes; the driver refuses
+     * GL_SHININESS, a scalar having no vertex colour to track. */
+    static __inline__ void MGLD_glColorMaterial(GLenum face, GLenum mode)
+    {
+        MiniGLDispatch->GLColorMaterial(MGLD_CTX, face, mode);
+    }
+
 #undef glColorMaterial
 #define glColorMaterial MGLD_glColorMaterial
 
-/* The four-float texture-environment setter. GL_TEXTURE_ENV_MODE is accepted
- * here too and forwarded, so there is one implementation of the mode. */
-static __inline__ void MGLD_glTexEnvfv(GLenum target, GLenum pname, const GLfloat *params)
-{
-    MiniGLDispatch->GLTexEnvfv(MGLD_CTX, target, pname, params);
-}
+    /* The four-float texture-environment setter. GL_TEXTURE_ENV_MODE is accepted
+     * here too and forwarded, so there is one implementation of the mode. */
+    static __inline__ void MGLD_glTexEnvfv(GLenum target, GLenum pname, const GLfloat *params)
+    {
+        MiniGLDispatch->GLTexEnvfv(MGLD_CTX, target, pname, params);
+    }
+
 #undef glTexEnvfv
 #define glTexEnvfv MGLD_glTexEnvfv
 
 #ifndef GL_NORMAL_ARRAY
-#define GL_NORMAL_ARRAY          0x8075
-#define GL_NORMAL_ARRAY_TYPE     0x807E
-#define GL_NORMAL_ARRAY_STRIDE   0x807F
-#define GL_NORMAL_ARRAY_POINTER  0x808F
+#define GL_NORMAL_ARRAY 0x8075
+#define GL_NORMAL_ARRAY_TYPE 0x807E
+#define GL_NORMAL_ARRAY_STRIDE 0x807F
+#define GL_NORMAL_ARRAY_POINTER 0x808F
 #endif
 
-static __inline__ void MGLD_glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
-{
-    MiniGLDispatch->GLViewport(MGLD_CTX, x, y, width, height);
-}
+    static __inline__ void MGLD_glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
+    {
+        MiniGLDispatch->GLViewport(MGLD_CTX, x, y, width, height);
+    }
+
 #undef glViewport
 #define glViewport MGLD_glViewport
 
-static __inline__ void MGLD_mglChoosePixelDepth(int depth)
-{
-    if ((MiniGLDispatch->backendFlags & MINIGL_BACKEND_FLAG_PISTORM3D) && depth == 32)
-        depth = 24;
-    MiniGLDispatch->mglChoosePixelDepth(depth);
-}
+    static __inline__ void MGLD_mglChoosePixelDepth(int depth)
+    {
+        if ((MiniGLDispatch->backendFlags & MINIGL_BACKEND_FLAG_PISTORM3D) && depth == 32)
+            depth = 24;
+        MiniGLDispatch->mglChoosePixelDepth(depth);
+    }
+
 #undef mglChoosePixelDepth
 #define mglChoosePixelDepth MGLD_mglChoosePixelDepth
 
-static __inline__ void MGLD_mglClearPointer(void)
-{
-    MiniGLDispatch->MGLClearPointer(MGLD_CTX);
-}
+    static __inline__ void MGLD_mglClearPointer(void)
+    {
+        MiniGLDispatch->MGLClearPointer(MGLD_CTX);
+    }
+
 #undef mglClearPointer
 #define mglClearPointer MGLD_mglClearPointer
 
-static __inline__ void * MGLD_mglCreateContext(int offx, int offy, int w, int h)
-{
-    GLcontext context = (GLcontext)MiniGLDispatch->MGLCreateContext(offx, offy, w, h);
-    if (context) (*MiniGLDispatch->currentContext) = context;
-    return (void *)context;
-}
+    static __inline__ void *MGLD_mglCreateContext(int offx, int offy, int w, int h)
+    {
+        GLcontext context = (GLcontext)MiniGLDispatch->MGLCreateContext(offx, offy, w, h);
+        if (context)
+            (*MiniGLDispatch->currentContext) = context;
+        return (void *)context;
+    }
+
 #undef mglCreateContext
 #define mglCreateContext MGLD_mglCreateContext
 
-static __inline__ void * MGLD_mglCreateContextFromID(GLint id, GLint *w, GLint *h)
-{
-    GLcontext context = (GLcontext)MiniGLDispatch->MGLCreateContextFromID(id, w, h);
-    if (context) (*MiniGLDispatch->currentContext) = context;
-    return (void *)context;
-}
+    static __inline__ void *MGLD_mglCreateContextFromID(GLint id, GLint *w, GLint *h)
+    {
+        GLcontext context = (GLcontext)MiniGLDispatch->MGLCreateContextFromID(id, w, h);
+        if (context)
+            (*MiniGLDispatch->currentContext) = context;
+        return (void *)context;
+    }
+
 #undef mglCreateContextFromID
 #define mglCreateContextFromID MGLD_mglCreateContextFromID
 
-/* Render into a window the host already opened. Sets the client's current
- * context on success, exactly like the two above -- without this the caller
- * would get a valid context back and every subsequent gl* call would still go
- * to whatever was current before. (2026-09-20) */
-static __inline__ void * MGLD_mglCreateContextFromWindow(struct Window *window)
-{
-    GLcontext context = (GLcontext)MiniGLDispatch->MGLCreateContextFromWindow(window);
-    if (context) (*MiniGLDispatch->currentContext) = context;
-    return (void *)context;
-}
+    /* Render into a window the host already opened. Sets the client's current
+     * context on success, exactly like the two above -- without this the caller
+     * would get a valid context back and every subsequent gl* call would still go
+     * to whatever was current before. (2026-09-20) */
+    static __inline__ void *MGLD_mglCreateContextFromWindow(struct Window *window)
+    {
+        GLcontext context = (GLcontext)MiniGLDispatch->MGLCreateContextFromWindow(window);
+        if (context)
+            (*MiniGLDispatch->currentContext) = context;
+        return (void *)context;
+    }
+
 #undef mglCreateContextFromWindow
 #define mglCreateContextFromWindow MGLD_mglCreateContextFromWindow
 
-/* Render into a bitmap the host owns and presents itself. Sets the client's
- * current context, like every other creator here. (2026-09-20) */
-static __inline__ void * MGLD_mglCreateContextFromBitMap(struct BitMap *bitmap)
-{
-    GLcontext context = (GLcontext)MiniGLDispatch->MGLCreateContextFromBitMap(bitmap);
-    if (context) (*MiniGLDispatch->currentContext) = context;
-    return (void *)context;
-}
+    /* Render into a bitmap the host owns and presents itself. Sets the client's
+     * current context, like every other creator here. (2026-09-20) */
+    static __inline__ void *MGLD_mglCreateContextFromBitMap(struct BitMap *bitmap)
+    {
+        GLcontext context = (GLcontext)MiniGLDispatch->MGLCreateContextFromBitMap(bitmap);
+        if (context)
+            (*MiniGLDispatch->currentContext) = context;
+        return (void *)context;
+    }
+
 #undef mglCreateContextFromBitMap
 #define mglCreateContextFromBitMap MGLD_mglCreateContextFromBitMap
 
-static __inline__ void MGLD_mglDeleteContext(void)
-{
-    if ((*MiniGLDispatch->currentContext)) {
-        GLcontext context = (*MiniGLDispatch->currentContext);
-        (*MiniGLDispatch->currentContext) = (GLcontext)0;
-        MiniGLDispatch->MGLDeleteContext(context);
+    static __inline__ void MGLD_mglDeleteContext(void)
+    {
+        if ((*MiniGLDispatch->currentContext))
+        {
+            GLcontext context = (*MiniGLDispatch->currentContext);
+            (*MiniGLDispatch->currentContext) = (GLcontext)0;
+            MiniGLDispatch->MGLDeleteContext(context);
+        }
     }
-}
+
 #undef mglDeleteContext
 #define mglDeleteContext MGLD_mglDeleteContext
 
-static __inline__ void MGLD_mglDrawMultitexBuffer(GLenum s, GLenum d, GLenum env)
-{
-    MiniGLDispatch->MGLDrawMultitexBuffer(MGLD_CTX, s, d, env);
-}
+    static __inline__ void MGLD_mglDrawMultitexBuffer(GLenum s, GLenum d, GLenum env)
+    {
+        MiniGLDispatch->MGLDrawMultitexBuffer(MGLD_CTX, s, d, env);
+    }
+
 #undef mglDrawMultitexBuffer
 #define mglDrawMultitexBuffer MGLD_mglDrawMultitexBuffer
 
-static __inline__ void MGLD_mglEnableSync(GLboolean enable)
-{
-    MiniGLDispatch->MGLEnableSync(MGLD_CTX, enable);
-}
+    static __inline__ void MGLD_mglEnableSync(GLboolean enable)
+    {
+        MiniGLDispatch->MGLEnableSync(MGLD_CTX, enable);
+    }
+
 #undef mglEnableSync
 #define mglEnableSync MGLD_mglEnableSync
 
-static __inline__ void MGLD_mglExit(void)
-{
-    MiniGLDispatch->MGLExit(MGLD_CTX);
-}
+    static __inline__ void MGLD_mglExit(void)
+    {
+        MiniGLDispatch->MGLExit(MGLD_CTX);
+    }
+
 #undef mglExit
 #define mglExit MGLD_mglExit
 
-static __inline__ void * MGLD_mglGetWindowHandle(void)
-{
-    return MiniGLDispatch->MGLGetWindowHandle(MGLD_CTX);
-}
+    static __inline__ void *MGLD_mglGetWindowHandle(void)
+    {
+        return MiniGLDispatch->MGLGetWindowHandle(MGLD_CTX);
+    }
+
 #undef mglGetWindowHandle
 #define mglGetWindowHandle MGLD_mglGetWindowHandle
 
-static __inline__ void MGLD_mglIdleFunc(IdleFn i)
-{
-    MiniGLDispatch->MGLIdleFunc(MGLD_CTX, i);
-}
+    static __inline__ void MGLD_mglIdleFunc(IdleFn i)
+    {
+        MiniGLDispatch->MGLIdleFunc(MGLD_CTX, i);
+    }
+
 #undef mglIdleFunc
 #define mglIdleFunc MGLD_mglIdleFunc
 
-static __inline__ void MGLD_mglKeyFunc(KeyHandlerFn k)
-{
-    MiniGLDispatch->MGLKeyFunc(MGLD_CTX, k);
-}
+    static __inline__ void MGLD_mglKeyFunc(KeyHandlerFn k)
+    {
+        MiniGLDispatch->MGLKeyFunc(MGLD_CTX, k);
+    }
+
 #undef mglKeyFunc
 #define mglKeyFunc MGLD_mglKeyFunc
 
-static __inline__ GLboolean MGLD_mglLockBack(MGLLockInfo *info)
-{
-    return MiniGLDispatch->MGLLockBack(MGLD_CTX, info);
-}
+    static __inline__ GLboolean MGLD_mglLockBack(MGLLockInfo *info)
+    {
+        return MiniGLDispatch->MGLLockBack(MGLD_CTX, info);
+    }
+
 #undef mglLockBack
 #define mglLockBack MGLD_mglLockBack
 
-static __inline__ GLboolean MGLD_mglLockDisplay(void)
-{
-    return MiniGLDispatch->MGLLockDisplay(MGLD_CTX);
-}
+    static __inline__ GLboolean MGLD_mglLockDisplay(void)
+    {
+        return MiniGLDispatch->MGLLockDisplay(MGLD_CTX);
+    }
+
 #undef mglLockDisplay
 #define mglLockDisplay MGLD_mglLockDisplay
 
-static __inline__ void MGLD_mglLockMode(GLenum lockMode)
-{
-    MiniGLDispatch->MGLLockMode(MGLD_CTX, lockMode);
-}
+    static __inline__ void MGLD_mglLockMode(GLenum lockMode)
+    {
+        MiniGLDispatch->MGLLockMode(MGLD_CTX, lockMode);
+    }
+
 #undef mglLockMode
 #define mglLockMode MGLD_mglLockMode
 
-static __inline__ void MGLD_mglMainLoop(void)
-{
-    MiniGLDispatch->MGLMainLoop(MGLD_CTX);
-}
+    static __inline__ void MGLD_mglMainLoop(void)
+    {
+        MiniGLDispatch->MGLMainLoop(MGLD_CTX);
+    }
+
 #undef mglMainLoop
 #define mglMainLoop MGLD_mglMainLoop
 
-static __inline__ void MGLD_mglMinTriArea(GLfloat area)
-{
-    MiniGLDispatch->MGLMinTriArea(MGLD_CTX, area);
-}
+    static __inline__ void MGLD_mglMinTriArea(GLfloat area)
+    {
+        MiniGLDispatch->MGLMinTriArea(MGLD_CTX, area);
+    }
+
 #undef mglMinTriArea
 #define mglMinTriArea MGLD_mglMinTriArea
 
-static __inline__ void MGLD_mglMouseFunc(MouseHandlerFn m)
-{
-    MiniGLDispatch->MGLMouseFunc(MGLD_CTX, m);
-}
+    static __inline__ void MGLD_mglMouseFunc(MouseHandlerFn m)
+    {
+        MiniGLDispatch->MGLMouseFunc(MGLD_CTX, m);
+    }
+
 #undef mglMouseFunc
 #define mglMouseFunc MGLD_mglMouseFunc
 
-static __inline__ void MGLD_mglPrintMatrix(GLenum mode)
-{
-    MiniGLDispatch->MGLPrintMatrix(MGLD_CTX, mode);
-}
+    static __inline__ void MGLD_mglPrintMatrix(GLenum mode)
+    {
+        MiniGLDispatch->MGLPrintMatrix(MGLD_CTX, mode);
+    }
+
 #undef mglPrintMatrix
 #define mglPrintMatrix MGLD_mglPrintMatrix
 
-static __inline__ void MGLD_mglPrintMatrixStack(GLenum mode)
-{
-    MiniGLDispatch->MGLPrintMatrixStack(MGLD_CTX, mode);
-}
+    static __inline__ void MGLD_mglPrintMatrixStack(GLenum mode)
+    {
+        MiniGLDispatch->MGLPrintMatrixStack(MGLD_CTX, mode);
+    }
+
 #undef mglPrintMatrixStack
 #define mglPrintMatrixStack MGLD_mglPrintMatrixStack
 
-/* Returns GL_FALSE when the reopen failed and the display is now closed. The
- * table holds a POINTER, so widening the return moved no field and structSize
- * is unchanged; a caller built against the old void declaration ignores d0. */
-static __inline__ GLboolean MGLD_mglResizeContext(GLsizei width, GLsizei height)
-{
-    return MiniGLDispatch->MGLResizeContext(MGLD_CTX, width, height);
-}
+    /* Returns GL_FALSE when the reopen failed and the display is now closed. The
+     * table holds a POINTER, so widening the return moved no field and structSize
+     * is unchanged; a caller built against the old void declaration ignores d0. */
+    static __inline__ GLboolean MGLD_mglResizeContext(GLsizei width, GLsizei height)
+    {
+        return MiniGLDispatch->MGLResizeContext(MGLD_CTX, width, height);
+    }
+
 #undef mglResizeContext
 #define mglResizeContext MGLD_mglResizeContext
 
-static __inline__ void MGLD_mglSetPointer(void)
-{
-    MiniGLDispatch->MGLSetPointer(MGLD_CTX);
-}
+    static __inline__ void MGLD_mglSetPointer(void)
+    {
+        MiniGLDispatch->MGLSetPointer(MGLD_CTX);
+    }
+
 #undef mglSetPointer
 #define mglSetPointer MGLD_mglSetPointer
 
-static __inline__ void MGLD_mglSetZOffset(GLfloat offset)
-{
-    MiniGLDispatch->MGLSetZOffset(MGLD_CTX, offset);
-}
+    static __inline__ void MGLD_mglSetZOffset(GLfloat offset)
+    {
+        MiniGLDispatch->MGLSetZOffset(MGLD_CTX, offset);
+    }
+
 #undef mglSetZOffset
 #define mglSetZOffset MGLD_mglSetZOffset
 
-static __inline__ void MGLD_mglSpecialFunc(SpecialHandlerFn s)
-{
-    MiniGLDispatch->MGLSpecialFunc(MGLD_CTX, s);
-}
+    static __inline__ void MGLD_mglSpecialFunc(SpecialHandlerFn s)
+    {
+        MiniGLDispatch->MGLSpecialFunc(MGLD_CTX, s);
+    }
+
 #undef mglSpecialFunc
 #define mglSpecialFunc MGLD_mglSpecialFunc
 
-static __inline__ void MGLD_mglSwitchDisplay(void)
-{
-    MiniGLDispatch->MGLSwitchDisplay(MGLD_CTX);
-}
+    static __inline__ void MGLD_mglSwitchDisplay(void)
+    {
+        MiniGLDispatch->MGLSwitchDisplay(MGLD_CTX);
+    }
+
 #undef mglSwitchDisplay
 #define mglSwitchDisplay MGLD_mglSwitchDisplay
 
-static __inline__ void MGLD_mglTexMemStat(GLint *Current, GLint *Peak)
-{
-    MiniGLDispatch->MGLTexMemStat(MGLD_CTX, Current, Peak);
-}
+    static __inline__ void MGLD_mglTexMemStat(GLint *Current, GLint *Peak)
+    {
+        MiniGLDispatch->MGLTexMemStat(MGLD_CTX, Current, Peak);
+    }
+
 #undef mglTexMemStat
 #define mglTexMemStat MGLD_mglTexMemStat
 
-static __inline__ void MGLD_mglUnlockDisplay(void)
-{
-    MiniGLDispatch->MGLUnlockDisplay(MGLD_CTX);
-}
+    static __inline__ void MGLD_mglUnlockDisplay(void)
+    {
+        MiniGLDispatch->MGLUnlockDisplay(MGLD_CTX);
+    }
+
 #undef mglUnlockDisplay
 #define mglUnlockDisplay MGLD_mglUnlockDisplay
 
-static __inline__ void MGLD_mglWriteShotPPM(char *filename)
-{
-    MiniGLDispatch->MGLWriteShotPPM(MGLD_CTX, filename);
-}
+    static __inline__ void MGLD_mglWriteShotPPM(char *filename)
+    {
+        MiniGLDispatch->MGLWriteShotPPM(MGLD_CTX, filename);
+    }
+
 #undef mglWriteShotPPM
 #define mglWriteShotPPM MGLD_mglWriteShotPPM
 
-static __inline__ void MGLD_mglChooseNumberOfBuffers(int number)
-{
-    MiniGLDispatch->mglChooseNumberOfBuffers(number);
-}
+    static __inline__ void MGLD_mglChooseNumberOfBuffers(int number)
+    {
+        MiniGLDispatch->mglChooseNumberOfBuffers(number);
+    }
+
 #undef mglChooseNumberOfBuffers
 #define mglChooseNumberOfBuffers MGLD_mglChooseNumberOfBuffers
 
-static __inline__ void MGLD_mglChooseVertexBufferSize(int size)
-{
-    MiniGLDispatch->mglChooseVertexBufferSize(size);
-}
+    static __inline__ void MGLD_mglChooseVertexBufferSize(int size)
+    {
+        MiniGLDispatch->mglChooseVertexBufferSize(size);
+    }
+
 #undef mglChooseVertexBufferSize
 #define mglChooseVertexBufferSize MGLD_mglChooseVertexBufferSize
 
-static __inline__ void MGLD_mglChooseWindowMode(GLboolean flag)
-{
-    MiniGLDispatch->mglChooseWindowMode(flag);
-}
+    static __inline__ void MGLD_mglChooseWindowMode(GLboolean flag)
+    {
+        MiniGLDispatch->mglChooseWindowMode(flag);
+    }
+
 #undef mglChooseWindowMode
 #define mglChooseWindowMode MGLD_mglChooseWindowMode
 
-static __inline__ void MGLD_mglProposeCloseDesktop(GLboolean closeme)
-{
-    MiniGLDispatch->mglProposeCloseDesktop(closeme);
-}
+    static __inline__ void MGLD_mglProposeCloseDesktop(GLboolean closeme)
+    {
+        MiniGLDispatch->mglProposeCloseDesktop(closeme);
+    }
+
 #undef mglProposeCloseDesktop
 #define mglProposeCloseDesktop MGLD_mglProposeCloseDesktop
 
-static __inline__ void MGLD_mglChooseGuardBand(GLboolean flag)
-{
-    MiniGLDispatch->mglChooseGuardBand(flag);
-}
+    static __inline__ void MGLD_mglChooseGuardBand(GLboolean flag)
+    {
+        MiniGLDispatch->mglChooseGuardBand(flag);
+    }
+
 #undef mglChooseGuardBand
 #define mglChooseGuardBand MGLD_mglChooseGuardBand
 
-static __inline__ void MGLD_mglChooseMtexBufferSize(int size)
-{
-    MiniGLDispatch->mglChooseMtexBufferSize(size);
-}
+    static __inline__ void MGLD_mglChooseMtexBufferSize(int size)
+    {
+        MiniGLDispatch->mglChooseMtexBufferSize(size);
+    }
+
 #undef mglChooseMtexBufferSize
 #define mglChooseMtexBufferSize MGLD_mglChooseMtexBufferSize
 
-static __inline__ void MGLD_mglChooseTextureBufferSize(int size)
-{
-    MiniGLDispatch->mglChooseTextureBufferSize(size);
-}
+    static __inline__ void MGLD_mglChooseTextureBufferSize(int size)
+    {
+        MiniGLDispatch->mglChooseTextureBufferSize(size);
+    }
+
 #undef mglChooseTextureBufferSize
 #define mglChooseTextureBufferSize MGLD_mglChooseTextureBufferSize
 
-static __inline__ void MGLD_mglProhibitAlphaFallback(GLboolean flag)
-{
-    MiniGLDispatch->mglProhibitAlphaFallback(flag);
-}
+    static __inline__ void MGLD_mglProhibitAlphaFallback(GLboolean flag)
+    {
+        MiniGLDispatch->mglProhibitAlphaFallback(flag);
+    }
+
 #undef mglProhibitAlphaFallback
 #define mglProhibitAlphaFallback MGLD_mglProhibitAlphaFallback
 
-static __inline__ void MGLD_mglProhibitMipMapping(GLboolean flag)
-{
-    MiniGLDispatch->mglProhibitMipMapping(flag);
-}
+    static __inline__ void MGLD_mglProhibitMipMapping(GLboolean flag)
+    {
+        MiniGLDispatch->mglProhibitMipMapping(flag);
+    }
+
 #undef mglProhibitMipMapping
 #define mglProhibitMipMapping MGLD_mglProhibitMipMapping
 
-static __inline__ GLint MGLD_mglGetSupportedScreenModes(MGLScreenModeCallback CallbackFn)
-{
-    return MiniGLDispatch->mglGetSupportedScreenModes(CallbackFn);
-}
+    static __inline__ GLint MGLD_mglGetSupportedScreenModes(MGLScreenModeCallback CallbackFn)
+    {
+        return MiniGLDispatch->mglGetSupportedScreenModes(CallbackFn);
+    }
+
 #undef mglGetSupportedScreenModes
 #define mglGetSupportedScreenModes MGLD_mglGetSupportedScreenModes
 
-static __inline__ void * MGLD_mglGetInputWindowHandle(void)
-{
-    return MiniGLDispatch->MGLGetInputWindowHandle(MGLD_CTX);
-}
+    static __inline__ void *MGLD_mglGetInputWindowHandle(void)
+    {
+        return MiniGLDispatch->MGLGetInputWindowHandle(MGLD_CTX);
+    }
+
 #undef mglGetInputWindowHandle
 #define mglGetInputWindowHandle MGLD_mglGetInputWindowHandle
 
-/* --- APPENDED 2026-09-08, matching the four new table entries --- */
+    /* --- APPENDED 2026-09-08, matching the four new table entries --- */
 
-static __inline__ void MGLD_glClientActiveTextureARB(GLenum unit)
-{
-    MiniGLDispatch->GLClientActiveTextureARB(MGLD_CTX, unit);
-}
+    static __inline__ void MGLD_glClientActiveTextureARB(GLenum unit)
+    {
+        MiniGLDispatch->GLClientActiveTextureARB(MGLD_CTX, unit);
+    }
+
 #undef glClientActiveTextureARB
 #define glClientActiveTextureARB MGLD_glClientActiveTextureARB
 
-static __inline__ void MGLD_glInterleavedArrays(GLenum format, GLsizei stride, const GLvoid *pointer)
-{
-    MiniGLDispatch->GLInterleavedArrays(MGLD_CTX, format, stride, pointer);
-}
+    static __inline__ void MGLD_glInterleavedArrays(GLenum format, GLsizei stride, const GLvoid *pointer)
+    {
+        MiniGLDispatch->GLInterleavedArrays(MGLD_CTX, format, stride, pointer);
+    }
+
 #undef glInterleavedArrays
 #define glInterleavedArrays MGLD_glInterleavedArrays
 
-static __inline__ void MGLD_glMultiDrawArrays(GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount)
-{
-    MiniGLDispatch->GLMultiDrawArrays(MGLD_CTX, mode, first, count, primcount);
-}
+    static __inline__ void MGLD_glMultiDrawArrays(GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount)
+    {
+        MiniGLDispatch->GLMultiDrawArrays(MGLD_CTX, mode, first, count, primcount);
+    }
+
 #undef glMultiDrawArrays
 #define glMultiDrawArrays MGLD_glMultiDrawArrays
 
-static __inline__ GLboolean MGLD_glIsTexture(GLuint texture)
-{
-    return MiniGLDispatch->GLIsTexture(MGLD_CTX, texture);
-}
+    static __inline__ GLboolean MGLD_glIsTexture(GLuint texture)
+    {
+        return MiniGLDispatch->GLIsTexture(MGLD_CTX, texture);
+    }
+
 #undef glIsTexture
 #define glIsTexture MGLD_glIsTexture
 
-static __inline__ void MGLD_mglChooseZBufferDepth(int bits)
-{
-    MiniGLDispatch->mglChooseZBufferDepth(bits);
-}
+    static __inline__ void MGLD_mglChooseZBufferDepth(int bits)
+    {
+        MiniGLDispatch->mglChooseZBufferDepth(bits);
+    }
+
 #undef mglChooseZBufferDepth
 #define mglChooseZBufferDepth MGLD_mglChooseZBufferDepth
 
-static __inline__ void MGLD_glBlendEquation(GLenum mode)
-{
-    MiniGLDispatch->GLBlendEquation(MGLD_CTX, mode);
-}
+    static __inline__ void MGLD_glBlendEquation(GLenum mode)
+    {
+        MiniGLDispatch->GLBlendEquation(MGLD_CTX, mode);
+    }
+
 #undef glBlendEquation
 #define glBlendEquation MGLD_glBlendEquation
 
-static __inline__ void MGLD_glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
-{
-    MiniGLDispatch->GLBlendFuncSeparate(MGLD_CTX, srcRGB, dstRGB, srcAlpha, dstAlpha);
-}
+    static __inline__ void MGLD_glBlendFuncSeparate(GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+    {
+        MiniGLDispatch->GLBlendFuncSeparate(MGLD_CTX, srcRGB, dstRGB, srcAlpha, dstAlpha);
+    }
+
 #undef glBlendFuncSeparate
 #define glBlendFuncSeparate MGLD_glBlendFuncSeparate
 
-/* --- APPENDED 2026-09-12 (audit item 10), matching table entries 141 to 151 --- */
+    /* --- APPENDED 2026-09-12 (audit item 10), matching table entries 141 to 151 --- */
 
-static __inline__ GLboolean MGLD_glAreTexturesResident(GLsizei n, const GLuint *textures, GLboolean *residences)
-{
-    return MiniGLDispatch->GLAreTexturesResident(MGLD_CTX, n, textures, residences);
-}
+    static __inline__ GLboolean MGLD_glAreTexturesResident(GLsizei n, const GLuint *textures, GLboolean *residences)
+    {
+        return MiniGLDispatch->GLAreTexturesResident(MGLD_CTX, n, textures, residences);
+    }
+
 #undef glAreTexturesResident
 #define glAreTexturesResident MGLD_glAreTexturesResident
 
-static __inline__ void MGLD_glEdgeFlag(GLboolean flag)
-{
-    MiniGLDispatch->GLEdgeFlag(MGLD_CTX, flag);
-}
+    static __inline__ void MGLD_glEdgeFlag(GLboolean flag)
+    {
+        MiniGLDispatch->GLEdgeFlag(MGLD_CTX, flag);
+    }
+
 #undef glEdgeFlag
 #define glEdgeFlag MGLD_glEdgeFlag
 
-static __inline__ void MGLD_glEdgeFlagPointer(GLsizei stride, const GLvoid *pointer)
-{
-    MiniGLDispatch->GLEdgeFlagPointer(MGLD_CTX, stride, pointer);
-}
+    static __inline__ void MGLD_glEdgeFlagPointer(GLsizei stride, const GLvoid *pointer)
+    {
+        MiniGLDispatch->GLEdgeFlagPointer(MGLD_CTX, stride, pointer);
+    }
+
 #undef glEdgeFlagPointer
 #define glEdgeFlagPointer MGLD_glEdgeFlagPointer
 
-static __inline__ void MGLD_glEdgeFlagv(const GLboolean *flag)
-{
-    MiniGLDispatch->GLEdgeFlagv(MGLD_CTX, flag);
-}
+    static __inline__ void MGLD_glEdgeFlagv(const GLboolean *flag)
+    {
+        MiniGLDispatch->GLEdgeFlagv(MGLD_CTX, flag);
+    }
+
 #undef glEdgeFlagv
 #define glEdgeFlagv MGLD_glEdgeFlagv
 
-static __inline__ void MGLD_glGetDoublev(GLenum pname, GLdouble *params)
-{
-    MiniGLDispatch->GLGetDoublev(MGLD_CTX, pname, params);
-}
+    static __inline__ void MGLD_glGetDoublev(GLenum pname, GLdouble *params)
+    {
+        MiniGLDispatch->GLGetDoublev(MGLD_CTX, pname, params);
+    }
+
 #undef glGetDoublev
 #define glGetDoublev MGLD_glGetDoublev
 
-static __inline__ void MGLD_glGetPointerv(GLenum pname, GLvoid **params)
-{
-    MiniGLDispatch->GLGetPointerv(MGLD_CTX, pname, params);
-}
+    static __inline__ void MGLD_glGetPointerv(GLenum pname, GLvoid **params)
+    {
+        MiniGLDispatch->GLGetPointerv(MGLD_CTX, pname, params);
+    }
+
 #undef glGetPointerv
 #define glGetPointerv MGLD_glGetPointerv
 
-static __inline__ void MGLD_glIndexi(GLint c)
-{
-    MiniGLDispatch->GLIndexi(MGLD_CTX, c);
-}
+    static __inline__ void MGLD_glIndexi(GLint c)
+    {
+        MiniGLDispatch->GLIndexi(MGLD_CTX, c);
+    }
+
 #undef glIndexi
 #define glIndexi MGLD_glIndexi
 
-static __inline__ void MGLD_glIndexiv(const GLint *c)
-{
-    MiniGLDispatch->GLIndexiv(MGLD_CTX, c);
-}
+    static __inline__ void MGLD_glIndexiv(const GLint *c)
+    {
+        MiniGLDispatch->GLIndexiv(MGLD_CTX, c);
+    }
+
 #undef glIndexiv
 #define glIndexiv MGLD_glIndexiv
 
-static __inline__ void MGLD_glIndexPointer(GLenum type, GLsizei stride, const GLvoid *pointer)
-{
-    MiniGLDispatch->GLIndexPointer(MGLD_CTX, type, stride, pointer);
-}
+    static __inline__ void MGLD_glIndexPointer(GLenum type, GLsizei stride, const GLvoid *pointer)
+    {
+        MiniGLDispatch->GLIndexPointer(MGLD_CTX, type, stride, pointer);
+    }
+
 #undef glIndexPointer
 #define glIndexPointer MGLD_glIndexPointer
 
-static __inline__ void MGLD_glPrioritizeTextures(GLsizei n, const GLuint *textures, const GLclampf *priorities)
-{
-    MiniGLDispatch->GLPrioritizeTextures(MGLD_CTX, n, textures, priorities);
-}
+    static __inline__ void MGLD_glPrioritizeTextures(GLsizei n, const GLuint *textures, const GLclampf *priorities)
+    {
+        MiniGLDispatch->GLPrioritizeTextures(MGLD_CTX, n, textures, priorities);
+    }
+
 #undef glPrioritizeTextures
 #define glPrioritizeTextures MGLD_glPrioritizeTextures
 
-static __inline__ void MGLD_glReadBuffer(GLenum mode)
-{
-    MiniGLDispatch->GLReadBuffer(MGLD_CTX, mode);
-}
+    static __inline__ void MGLD_glReadBuffer(GLenum mode)
+    {
+        MiniGLDispatch->GLReadBuffer(MGLD_CTX, mode);
+    }
+
 #undef glReadBuffer
 #define glReadBuffer MGLD_glReadBuffer
 
+    /* Client wrappers for the 47 entries appended for 28.0. Same shape as every
+     * wrapper above: the context-taking ones inject MGLD_CTX, and the void ones that
+     * DRAW are guarded on a current context the way gluPerspective is. The GLUT
+     * lifecycle calls are deliberately NOT guarded -- glutInit runs before a context
+     * exists, being what creates one. */
 
-/* Client wrappers for the 47 entries appended for 28.0. Same shape as every
- * wrapper above: the context-taking ones inject MGLD_CTX, and the void ones that
- * DRAW are guarded on a current context the way gluPerspective is. The GLUT
- * lifecycle calls are deliberately NOT guarded -- glutInit runs before a context
- * exists, being what creates one. */
+    static __inline__ void MGLD_glLightf(GLenum light, GLenum pname, GLfloat param)
+    {
+        MiniGLDispatch->GLLightf(MGLD_CTX, light, pname, param);
+    }
 
-static __inline__ void MGLD_glLightf(GLenum light, GLenum pname, GLfloat param)
-{
-    MiniGLDispatch->GLLightf(MGLD_CTX, light, pname, param);
-}
 #undef glLightf
 #define glLightf MGLD_glLightf
 
-static __inline__ void MGLD_glLightfv(GLenum light, GLenum pname, const GLfloat *params)
-{
-    MiniGLDispatch->GLLightfv(MGLD_CTX, light, pname, params);
-}
+    static __inline__ void MGLD_glLightfv(GLenum light, GLenum pname, const GLfloat *params)
+    {
+        MiniGLDispatch->GLLightfv(MGLD_CTX, light, pname, params);
+    }
+
 #undef glLightfv
 #define glLightfv MGLD_glLightfv
 
-static __inline__ void MGLD_glMaterialf(GLenum face, GLenum pname, GLfloat param)
-{
-    MiniGLDispatch->GLMaterialf(MGLD_CTX, face, pname, param);
-}
+    static __inline__ void MGLD_glMaterialf(GLenum face, GLenum pname, GLfloat param)
+    {
+        MiniGLDispatch->GLMaterialf(MGLD_CTX, face, pname, param);
+    }
+
 #undef glMaterialf
 #define glMaterialf MGLD_glMaterialf
 
-static __inline__ void MGLD_glMaterialfv(GLenum face, GLenum pname, const GLfloat *params)
-{
-    MiniGLDispatch->GLMaterialfv(MGLD_CTX, face, pname, params);
-}
+    static __inline__ void MGLD_glMaterialfv(GLenum face, GLenum pname, const GLfloat *params)
+    {
+        MiniGLDispatch->GLMaterialfv(MGLD_CTX, face, pname, params);
+    }
+
 #undef glMaterialfv
 #define glMaterialfv MGLD_glMaterialfv
 
-static __inline__ void MGLD_glLightModelf(GLenum pname, GLfloat param)
-{
-    MiniGLDispatch->GLLightModelf(MGLD_CTX, pname, param);
-}
+    static __inline__ void MGLD_glLightModelf(GLenum pname, GLfloat param)
+    {
+        MiniGLDispatch->GLLightModelf(MGLD_CTX, pname, param);
+    }
+
 #undef glLightModelf
 #define glLightModelf MGLD_glLightModelf
 
-static __inline__ void MGLD_glLightModelfv(GLenum pname, const GLfloat *params)
-{
-    MiniGLDispatch->GLLightModelfv(MGLD_CTX, pname, params);
-}
+    static __inline__ void MGLD_glLightModelfv(GLenum pname, const GLfloat *params)
+    {
+        MiniGLDispatch->GLLightModelfv(MGLD_CTX, pname, params);
+    }
+
 #undef glLightModelfv
 #define glLightModelfv MGLD_glLightModelfv
 
-static __inline__ void MGLD_glGetLightfv(GLenum light, GLenum pname, GLfloat *params)
-{
-    MiniGLDispatch->GLGetLightfv(MGLD_CTX, light, pname, params);
-}
+    static __inline__ void MGLD_glGetLightfv(GLenum light, GLenum pname, GLfloat *params)
+    {
+        MiniGLDispatch->GLGetLightfv(MGLD_CTX, light, pname, params);
+    }
+
 #undef glGetLightfv
 #define glGetLightfv MGLD_glGetLightfv
 
-static __inline__ void MGLD_glGetMaterialfv(GLenum face, GLenum pname, GLfloat *params)
-{
-    MiniGLDispatch->GLGetMaterialfv(MGLD_CTX, face, pname, params);
-}
+    static __inline__ void MGLD_glGetMaterialfv(GLenum face, GLenum pname, GLfloat *params)
+    {
+        MiniGLDispatch->GLGetMaterialfv(MGLD_CTX, face, pname, params);
+    }
+
 #undef glGetMaterialfv
 #define glGetMaterialfv MGLD_glGetMaterialfv
 
-static __inline__ GLuint MGLD_glGenLists(GLsizei range)
-{
-    return MiniGLDispatch->GLGenLists(MGLD_CTX, range);
-}
+    static __inline__ GLuint MGLD_glGenLists(GLsizei range)
+    {
+        return MiniGLDispatch->GLGenLists(MGLD_CTX, range);
+    }
+
 #undef glGenLists
 #define glGenLists MGLD_glGenLists
 
-static __inline__ void MGLD_glDeleteLists(GLuint list, GLsizei range)
-{
-    MiniGLDispatch->GLDeleteLists(MGLD_CTX, list, range);
-}
+    static __inline__ void MGLD_glDeleteLists(GLuint list, GLsizei range)
+    {
+        MiniGLDispatch->GLDeleteLists(MGLD_CTX, list, range);
+    }
+
 #undef glDeleteLists
 #define glDeleteLists MGLD_glDeleteLists
 
-static __inline__ GLboolean MGLD_glIsList(GLuint list)
-{
-    return MiniGLDispatch->GLIsList(MGLD_CTX, list);
-}
+    static __inline__ GLboolean MGLD_glIsList(GLuint list)
+    {
+        return MiniGLDispatch->GLIsList(MGLD_CTX, list);
+    }
+
 #undef glIsList
 #define glIsList MGLD_glIsList
 
-static __inline__ void MGLD_glNewList(GLuint list, GLenum mode)
-{
-    MiniGLDispatch->GLNewList(MGLD_CTX, list, mode);
-}
+    static __inline__ void MGLD_glNewList(GLuint list, GLenum mode)
+    {
+        MiniGLDispatch->GLNewList(MGLD_CTX, list, mode);
+    }
+
 #undef glNewList
 #define glNewList MGLD_glNewList
 
-static __inline__ void MGLD_glEndList(void)
-{
-    MiniGLDispatch->GLEndList(MGLD_CTX);
-}
+    static __inline__ void MGLD_glEndList(void)
+    {
+        MiniGLDispatch->GLEndList(MGLD_CTX);
+    }
+
 #undef glEndList
 #define glEndList MGLD_glEndList
 
-static __inline__ void MGLD_glCallList(GLuint list)
-{
-    MiniGLDispatch->GLCallList(MGLD_CTX, list);
-}
+    static __inline__ void MGLD_glCallList(GLuint list)
+    {
+        MiniGLDispatch->GLCallList(MGLD_CTX, list);
+    }
+
 #undef glCallList
 #define glCallList MGLD_glCallList
 
-static __inline__ GLint MGLD_gluBuild2DMipmaps(GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *data)
-{
-    return MiniGLDispatch->GLUBuild2DMipmaps(MGLD_CTX, target, internalFormat, width, height, format, type, data);
-}
+    static __inline__ GLint MGLD_gluBuild2DMipmaps(GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *data)
+    {
+        return MiniGLDispatch->GLUBuild2DMipmaps(MGLD_CTX, target, internalFormat, width, height, format, type, data);
+    }
+
+    static __inline__ GLint MGLD_gluScaleImage(GLenum format, GLint wIn, GLint hIn, GLenum typeIn, const GLvoid *dataIn, GLint wOut, GLint hOut, GLenum typeOut, GLvoid *dataOut)
+    {
+        return MiniGLDispatch->GLUScaleImage(MGLD_CTX, format, wIn, hIn, typeIn, dataIn, wOut, hOut, typeOut, dataOut);
+    }
+
+    static __inline__ const GLubyte *MGLD_gluGetString(GLenum name)
+    {
+        return MiniGLDispatch->GLUGetString(name);
+    }
+
+    static __inline__ void MGLD_gluOrtho2D(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top)
+    {
+        MiniGLDispatch->GLUOrtho2D(MGLD_CTX, left, right, bottom, top);
+    }
+
+    static __inline__ GLint MGLD_gluProject(GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint *viewport, GLdouble *winX, GLdouble *winY, GLdouble *winZ)
+    {
+        return MiniGLDispatch->GLUProject(MGLD_CTX, objX, objY, objZ, model, proj, viewport, winX, winY, winZ);
+    }
+
+    static __inline__ GLint MGLD_gluUnProject(GLdouble winX, GLdouble winY, GLdouble winZ, const GLdouble *model, const GLdouble *proj, const GLint *viewport, GLdouble *objX, GLdouble *objY, GLdouble *objZ)
+    {
+        return MiniGLDispatch->GLUUnProject(MGLD_CTX, winX, winY, winZ, model, proj, viewport, objX, objY, objZ);
+    }
+
+    static __inline__ void MGLD_gluPickMatrix(GLdouble x, GLdouble y, GLdouble width, GLdouble height, const GLint *viewport)
+    {
+        MiniGLDispatch->GLUPickMatrix(MGLD_CTX, x, y, width, height, viewport);
+    }
+
 #undef gluBuild2DMipmaps
 #define gluBuild2DMipmaps MGLD_gluBuild2DMipmaps
 
-static __inline__ const GLubyte * MGLD_gluErrorString(GLenum errCode)
-{
-    return MiniGLDispatch->GLUErrorString(errCode);
-}
+#undef gluScaleImage
+#define gluScaleImage MGLD_gluScaleImage
+
+#undef gluGetString
+#define gluGetString MGLD_gluGetString
+
+#undef gluOrtho2D
+#define gluOrtho2D MGLD_gluOrtho2D
+
+#undef gluProject
+#define gluProject MGLD_gluProject
+
+#undef gluUnProject
+#define gluUnProject MGLD_gluUnProject
+
+#undef gluPickMatrix
+#define gluPickMatrix MGLD_gluPickMatrix
+
+    static __inline__ const GLubyte *MGLD_gluErrorString(GLenum errCode)
+    {
+        return MiniGLDispatch->GLUErrorString(errCode);
+    }
+
 #undef gluErrorString
 #define gluErrorString MGLD_gluErrorString
 
-static __inline__ GLUquadricObj * MGLD_gluNewQuadric(void)
-{
-    return MiniGLDispatch->GLUNewQuadric();
-}
+    static __inline__ GLUquadricObj *MGLD_gluNewQuadric(void)
+    {
+        return MiniGLDispatch->GLUNewQuadric();
+    }
+
 #undef gluNewQuadric
 #define gluNewQuadric MGLD_gluNewQuadric
 
-static __inline__ void MGLD_gluDeleteQuadric(GLUquadricObj *q)
-{
-    MiniGLDispatch->GLUDeleteQuadric(q);
-}
+    static __inline__ void MGLD_gluDeleteQuadric(GLUquadricObj *q)
+    {
+        MiniGLDispatch->GLUDeleteQuadric(q);
+    }
+
 #undef gluDeleteQuadric
 #define gluDeleteQuadric MGLD_gluDeleteQuadric
 
-static __inline__ void MGLD_gluQuadricNormals(GLUquadricObj *q, GLenum normals)
-{
-    MiniGLDispatch->GLUQuadricNormals(q, normals);
-}
+    static __inline__ void MGLD_gluQuadricNormals(GLUquadricObj *q, GLenum normals)
+    {
+        MiniGLDispatch->GLUQuadricNormals(q, normals);
+    }
+
 #undef gluQuadricNormals
 #define gluQuadricNormals MGLD_gluQuadricNormals
 
-static __inline__ void MGLD_gluQuadricTexture(GLUquadricObj *q, GLboolean textureCoords)
-{
-    MiniGLDispatch->GLUQuadricTexture(q, textureCoords);
-}
+    static __inline__ void MGLD_gluQuadricTexture(GLUquadricObj *q, GLboolean textureCoords)
+    {
+        MiniGLDispatch->GLUQuadricTexture(q, textureCoords);
+    }
+
 #undef gluQuadricTexture
 #define gluQuadricTexture MGLD_gluQuadricTexture
 
-static __inline__ void MGLD_gluQuadricDrawStyle(GLUquadricObj *q, GLenum drawStyle)
-{
-    MiniGLDispatch->GLUQuadricDrawStyle(q, drawStyle);
-}
+    static __inline__ void MGLD_gluQuadricDrawStyle(GLUquadricObj *q, GLenum drawStyle)
+    {
+        MiniGLDispatch->GLUQuadricDrawStyle(q, drawStyle);
+    }
+
 #undef gluQuadricDrawStyle
 #define gluQuadricDrawStyle MGLD_gluQuadricDrawStyle
 
-static __inline__ void MGLD_gluQuadricOrientation(GLUquadricObj *q, GLenum orientation)
-{
-    MiniGLDispatch->GLUQuadricOrientation(q, orientation);
-}
+    static __inline__ void MGLD_gluQuadricOrientation(GLUquadricObj *q, GLenum orientation)
+    {
+        MiniGLDispatch->GLUQuadricOrientation(q, orientation);
+    }
+
 #undef gluQuadricOrientation
 #define gluQuadricOrientation MGLD_gluQuadricOrientation
 
-static __inline__ void MGLD_gluCylinder(GLUquadricObj *q, GLdouble base, GLdouble top, GLdouble height, GLint slices, GLint stacks)
-{
-    if ((*MiniGLDispatch->currentContext)) MiniGLDispatch->GLUCylinder(q, base, top, height, slices, stacks);
-}
+    static __inline__ void MGLD_gluCylinder(GLUquadricObj *q, GLdouble base, GLdouble top, GLdouble height, GLint slices, GLint stacks)
+    {
+        if ((*MiniGLDispatch->currentContext))
+            MiniGLDispatch->GLUCylinder(q, base, top, height, slices, stacks);
+    }
+
 #undef gluCylinder
 #define gluCylinder MGLD_gluCylinder
 
-static __inline__ void MGLD_gluSphere(GLUquadricObj *q, GLdouble radius, GLint slices, GLint stacks)
-{
-    if ((*MiniGLDispatch->currentContext)) MiniGLDispatch->GLUSphere(q, radius, slices, stacks);
-}
+    static __inline__ void MGLD_gluSphere(GLUquadricObj *q, GLdouble radius, GLint slices, GLint stacks)
+    {
+        if ((*MiniGLDispatch->currentContext))
+            MiniGLDispatch->GLUSphere(q, radius, slices, stacks);
+    }
+
 #undef gluSphere
 #define gluSphere MGLD_gluSphere
 
-static __inline__ void MGLD_gluDisk(GLUquadricObj *q, GLdouble inner, GLdouble outer, GLint slices, GLint loops)
-{
-    if ((*MiniGLDispatch->currentContext)) MiniGLDispatch->GLUDisk(q, inner, outer, slices, loops);
-}
+    static __inline__ void MGLD_gluDisk(GLUquadricObj *q, GLdouble inner, GLdouble outer, GLint slices, GLint loops)
+    {
+        if ((*MiniGLDispatch->currentContext))
+            MiniGLDispatch->GLUDisk(q, inner, outer, slices, loops);
+    }
+
 #undef gluDisk
 #define gluDisk MGLD_gluDisk
 
@@ -1897,7 +2216,7 @@ static __inline__ void MGLD_gluDisk(GLUquadricObj *q, GLdouble inner, GLdouble o
 
 /* The EXT spellings of the compiled-vertex-array lock. Same wrappers. */
 #define glLockArraysEXT(f, c) MGLD_glLockArrays(f, c)
-#define glUnlockArraysEXT()   MGLD_glUnlockArrays()
+#define glUnlockArraysEXT() MGLD_glUnlockArrays()
 
 /*
  * Three more of exactly that kind, added with the unsuffixed multitexture
@@ -1908,66 +2227,72 @@ static __inline__ void MGLD_gluDisk(GLUquadricObj *q, GLdouble inner, GLdouble o
  * core in GL 1.3; the driver has one entry point per pair, so these are
  * aliases and not new slots.
  */
-#define glActiveTexture(unit)       MGLD_glActiveTextureARB(unit)
+#define glActiveTexture(unit) MGLD_glActiveTextureARB(unit)
 #define glClientActiveTexture(unit) MGLD_glClientActiveTextureARB(unit)
 
-/* Declared rather than pulled from <stdlib.h>: this header is included by every
- * client TU and should not drag a CRT header in behind it. The whole block is
- * inside #ifndef MINIGL_LIBRARY_BUILD, so the library's own -nostdlib build never
- * sees this and never needs an atexit at all. */
-extern int atexit(void (*func)(void));
+    /* Declared rather than pulled from <stdlib.h>: this header is included by every
+     * client TU and should not drag a CRT header in behind it. The whole block is
+     * inside #ifndef MINIGL_LIBRARY_BUILD, so the library's own -nostdlib build never
+     * sees this and never needs an atexit at all. */
+    extern int atexit(void (*func)(void));
 
-static void MGLD_glut_release_display(void)
-{
-    if (MiniGLDispatch && MiniGLDispatch->currentContext && MGLD_CTX)
+    static void MGLD_glut_release_display(void)
     {
-        MiniGLDispatch->MGLDeleteContext(MGLD_CTX);
-        /* MGLDeleteContext takes the context as a parameter and never touches
-         * the global, and every gl* macro below dereferences that global. */
-        MGLD_CTX = 0;
+        if (MiniGLDispatch && MiniGLDispatch->currentContext && MGLD_CTX)
+        {
+            MiniGLDispatch->MGLDeleteContext(MGLD_CTX);
+            /* MGLDeleteContext takes the context as a parameter and never touches
+             * the global, and every gl* macro below dereferences that global. */
+            MGLD_CTX = 0;
+        }
     }
-}
 
-static __inline__ void MGLD_glutInit(int *argcp, char **argv)
-{
-    atexit(MGLD_glut_release_display);
-    MiniGLDispatch->GLUTInit(argcp, argv);
-}
+    static __inline__ void MGLD_glutInit(int *argcp, char **argv)
+    {
+        atexit(MGLD_glut_release_display);
+        MiniGLDispatch->GLUTInit(argcp, argv);
+    }
+
 #undef glutInit
 #define glutInit MGLD_glutInit
 
-static __inline__ void MGLD_glutInitDisplayMode(unsigned int mode)
-{
-    MiniGLDispatch->GLUTInitDisplayMode(mode);
-}
+    static __inline__ void MGLD_glutInitDisplayMode(unsigned int mode)
+    {
+        MiniGLDispatch->GLUTInitDisplayMode(mode);
+    }
+
 #undef glutInitDisplayMode
 #define glutInitDisplayMode MGLD_glutInitDisplayMode
 
-static __inline__ void MGLD_glutInitWindowSize(int width, int height)
-{
-    MiniGLDispatch->GLUTInitWindowSize(width, height);
-}
+    static __inline__ void MGLD_glutInitWindowSize(int width, int height)
+    {
+        MiniGLDispatch->GLUTInitWindowSize(width, height);
+    }
+
 #undef glutInitWindowSize
 #define glutInitWindowSize MGLD_glutInitWindowSize
 
-static __inline__ void MGLD_glutInitWindowPosition(int x, int y)
-{
-    MiniGLDispatch->GLUTInitWindowPosition(x, y);
-}
+    static __inline__ void MGLD_glutInitWindowPosition(int x, int y)
+    {
+        MiniGLDispatch->GLUTInitWindowPosition(x, y);
+    }
+
 #undef glutInitWindowPosition
 #define glutInitWindowPosition MGLD_glutInitWindowPosition
 
-static __inline__ int MGLD_glutCreateWindow(const char *title)
-{
-    return MiniGLDispatch->GLUTCreateWindow(title);
-}
+    static __inline__ int MGLD_glutCreateWindow(const char *title)
+    {
+        return MiniGLDispatch->GLUTCreateWindow(title);
+    }
+
 #undef glutCreateWindow
 #define glutCreateWindow MGLD_glutCreateWindow
 
-static __inline__ void MGLD_glutMainLoop(void)
-{
-    MiniGLDispatch->GLUTMainLoop();
-}
+    static __inline__ void MGLD_glutMainLoop(void)
+    {
+        MiniGLDispatch->GLUTMainLoop();
+    }
+
 #undef glutMainLoop
 #define glutMainLoop MGLD_glutMainLoop
 
@@ -1978,117 +2303,439 @@ static __inline__ void MGLD_glutMainLoop(void)
 #undef glutLeaveMainLoop
 #define glutLeaveMainLoop() MGLD_mglExit()
 
-static __inline__ void MGLD_glutDisplayFunc(void (*func)(void))
-{
-    MiniGLDispatch->GLUTDisplayFunc(func);
-}
+    static __inline__ void MGLD_glutDisplayFunc(void (*func)(void))
+    {
+        MiniGLDispatch->GLUTDisplayFunc(func);
+    }
+
 #undef glutDisplayFunc
 #define glutDisplayFunc MGLD_glutDisplayFunc
 
-static __inline__ void MGLD_glutIdleFunc(void (*func)(void))
-{
-    MiniGLDispatch->GLUTIdleFunc(func);
-}
+    static __inline__ void MGLD_glutIdleFunc(void (*func)(void))
+    {
+        MiniGLDispatch->GLUTIdleFunc(func);
+    }
+
 #undef glutIdleFunc
 #define glutIdleFunc MGLD_glutIdleFunc
 
-static __inline__ void MGLD_glutKeyboardFunc(void (*func)(unsigned char key, int x, int y))
-{
-    MiniGLDispatch->GLUTKeyboardFunc(func);
-}
+    static __inline__ void MGLD_glutKeyboardFunc(void (*func)(unsigned char key, int x, int y))
+    {
+        MiniGLDispatch->GLUTKeyboardFunc(func);
+    }
+
 #undef glutKeyboardFunc
 #define glutKeyboardFunc MGLD_glutKeyboardFunc
 
-static __inline__ void MGLD_glutReshapeFunc(void (*func)(int width, int height))
-{
-    MiniGLDispatch->GLUTReshapeFunc(func);
-}
+    static __inline__ void MGLD_glutReshapeFunc(void (*func)(int width, int height))
+    {
+        MiniGLDispatch->GLUTReshapeFunc(func);
+    }
+
 #undef glutReshapeFunc
 #define glutReshapeFunc MGLD_glutReshapeFunc
 
-static __inline__ void MGLD_glutSwapBuffers(void)
-{
-    MiniGLDispatch->GLUTSwapBuffers();
-}
+    static __inline__ void MGLD_glutSwapBuffers(void)
+    {
+        MiniGLDispatch->GLUTSwapBuffers();
+    }
+
 #undef glutSwapBuffers
 #define glutSwapBuffers MGLD_glutSwapBuffers
 
-static __inline__ void MGLD_glutPostRedisplay(void)
-{
-    MiniGLDispatch->GLUTPostRedisplay();
-}
+    static __inline__ void MGLD_glutPostRedisplay(void)
+    {
+        MiniGLDispatch->GLUTPostRedisplay();
+    }
+
 #undef glutPostRedisplay
 #define glutPostRedisplay MGLD_glutPostRedisplay
 
-static __inline__ int MGLD_glutGet(GLenum state)
-{
-    return MiniGLDispatch->GLUTGet(state);
-}
+    static __inline__ int MGLD_glutGet(GLenum state)
+    {
+        return MiniGLDispatch->GLUTGet(state);
+    }
+
 #undef glutGet
 #define glutGet MGLD_glutGet
 
-static __inline__ void MGLD_glutGameModeString(const char *string)
-{
-    MiniGLDispatch->GLUTGameModeString(string);
-}
+    static __inline__ void MGLD_glutGameModeString(const char *string)
+    {
+        MiniGLDispatch->GLUTGameModeString(string);
+    }
+
 #undef glutGameModeString
 #define glutGameModeString MGLD_glutGameModeString
 
-static __inline__ int MGLD_glutEnterGameMode(void)
-{
-    return MiniGLDispatch->GLUTEnterGameMode();
-}
+    static __inline__ int MGLD_glutEnterGameMode(void)
+    {
+        return MiniGLDispatch->GLUTEnterGameMode();
+    }
+
 #undef glutEnterGameMode
 #define glutEnterGameMode MGLD_glutEnterGameMode
 
-static __inline__ void MGLD_glutLeaveGameMode(void)
-{
-    MiniGLDispatch->GLUTLeaveGameMode();
-}
+    static __inline__ void MGLD_glutLeaveGameMode(void)
+    {
+        MiniGLDispatch->GLUTLeaveGameMode();
+    }
+
 #undef glutLeaveGameMode
 #define glutLeaveGameMode MGLD_glutLeaveGameMode
 
-static __inline__ int MGLD_glutGameModeGet(GLenum query)
-{
-    return MiniGLDispatch->GLUTGameModeGet(query);
-}
+    static __inline__ int MGLD_glutGameModeGet(GLenum query)
+    {
+        return MiniGLDispatch->GLUTGameModeGet(query);
+    }
+
 #undef glutGameModeGet
 #define glutGameModeGet MGLD_glutGameModeGet
 
-static __inline__ void MGLD_glutSolidCube(GLdouble size)
-{
-    if ((*MiniGLDispatch->currentContext)) MiniGLDispatch->GLUTSolidCube(size);
-}
+    static __inline__ void MGLD_glutSolidCube(GLdouble size)
+    {
+        if ((*MiniGLDispatch->currentContext))
+            MiniGLDispatch->GLUTSolidCube(size);
+    }
+
 #undef glutSolidCube
 #define glutSolidCube MGLD_glutSolidCube
 
-static __inline__ void MGLD_glutSolidSphere(GLdouble radius, GLint slices, GLint stacks)
-{
-    if ((*MiniGLDispatch->currentContext)) MiniGLDispatch->GLUTSolidSphere(radius, slices, stacks);
-}
+    static __inline__ void MGLD_glutSolidSphere(GLdouble radius, GLint slices, GLint stacks)
+    {
+        if ((*MiniGLDispatch->currentContext))
+            MiniGLDispatch->GLUTSolidSphere(radius, slices, stacks);
+    }
+
 #undef glutSolidSphere
 #define glutSolidSphere MGLD_glutSolidSphere
 
-static __inline__ void MGLD_glutSolidCone(GLdouble base, GLdouble height, GLint slices, GLint stacks)
-{
-    if ((*MiniGLDispatch->currentContext)) MiniGLDispatch->GLUTSolidCone(base, height, slices, stacks);
-}
+    static __inline__ void MGLD_glutSolidCone(GLdouble base, GLdouble height, GLint slices, GLint stacks)
+    {
+        if ((*MiniGLDispatch->currentContext))
+            MiniGLDispatch->GLUTSolidCone(base, height, slices, stacks);
+    }
+
 #undef glutSolidCone
 #define glutSolidCone MGLD_glutSolidCone
 
-static __inline__ void MGLD_glutSolidTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings)
-{
-    if ((*MiniGLDispatch->currentContext)) MiniGLDispatch->GLUTSolidTorus(innerRadius, outerRadius, sides, rings);
-}
+    static __inline__ void MGLD_glutSolidTorus(GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings)
+    {
+        if ((*MiniGLDispatch->currentContext))
+            MiniGLDispatch->GLUTSolidTorus(innerRadius, outerRadius, sides, rings);
+    }
+
 #undef glutSolidTorus
 #define glutSolidTorus MGLD_glutSolidTorus
 
-static __inline__ void MGLD_glutSolidDodecahedron(void)
-{
-    if ((*MiniGLDispatch->currentContext)) MiniGLDispatch->GLUTSolidDodecahedron();
-}
+    static __inline__ void MGLD_glutSolidDodecahedron(void)
+    {
+        if ((*MiniGLDispatch->currentContext))
+            MiniGLDispatch->GLUTSolidDodecahedron();
+    }
+
 #undef glutSolidDodecahedron
 #define glutSolidDodecahedron MGLD_glutSolidDodecahedron
+
+    static __inline__ LONG MGLD_mglQuery(ULONG query, ULONG destfmt)
+    {
+        return MiniGLDispatch->mglQuery(MGLD_CTX, query, destfmt);
+    }
+
+#define mglQuery MGLD_mglQuery
+
+    static __inline__ void *MGLD_mglGetScreenmodeList(void)
+    {
+        return MiniGLDispatch->mglGetScreenmodeList();
+    }
+
+#define mglGetScreenmodeList MGLD_mglGetScreenmodeList
+
+    static __inline__ void MGLD_mglFreeScreenmodeList(void *list)
+    {
+        MiniGLDispatch->mglFreeScreenmodeList(list);
+    }
+
+#define mglFreeScreenmodeList MGLD_mglFreeScreenmodeList
+
+    static __inline__ LONG MGLD_mglGetModeDriverInfo(ULONG modeID, MGLModeDriverInfo *info)
+    {
+        return MiniGLDispatch->mglGetModeDriverInfo(modeID, info);
+    }
+
+#define mglGetModeDriverInfo MGLD_mglGetModeDriverInfo
+
+    static __inline__ LONG MGLD_mglQueryMode(ULONG modeID, ULONG query, ULONG destfmt)
+    {
+        return MiniGLDispatch->mglQueryMode(modeID, query, destfmt);
+    }
+
+#define mglQueryMode MGLD_mglQueryMode
+
+    static __inline__ ULONG MGLD_mglModeTexFmt(ULONG modeID, ULONG texfmt, ULONG destfmt)
+    {
+        return MiniGLDispatch->mglModeTexFmt(modeID, texfmt, destfmt);
+    }
+
+#define mglModeTexFmt MGLD_mglModeTexFmt
+
+    static __inline__ void MGLD_glGetTexParameteriv(GLenum target, GLenum pname, GLint *params)
+    {
+        MiniGLDispatch->GLGetTexParameteriv(MGLD_CTX, target, pname, params);
+    }
+
+#undef glGetTexParameteriv
+#define glGetTexParameteriv MGLD_glGetTexParameteriv
+
+    static __inline__ void MGLD_glGetTexEnviv(GLenum target, GLenum pname, GLint *params)
+    {
+        MiniGLDispatch->GLGetTexEnviv(MGLD_CTX, target, pname, params);
+    }
+
+#undef glGetTexEnviv
+#define glGetTexEnviv MGLD_glGetTexEnviv
+
+    static __inline__ void MGLD_glGetTexEnvfv(GLenum target, GLenum pname, GLfloat *params)
+    {
+        MiniGLDispatch->GLGetTexEnvfv(MGLD_CTX, target, pname, params);
+    }
+
+#undef glGetTexEnvfv
+#define glGetTexEnvfv MGLD_glGetTexEnvfv
+
+    static __inline__ void MGLD_glGetTexGeniv(GLenum coord, GLenum pname, GLint *params)
+    {
+        MiniGLDispatch->GLGetTexGeniv(MGLD_CTX, coord, pname, params);
+    }
+
+#undef glGetTexGeniv
+#define glGetTexGeniv MGLD_glGetTexGeniv
+
+    static __inline__ void MGLD_glGetTexGenfv(GLenum coord, GLenum pname, GLfloat *params)
+    {
+        MiniGLDispatch->GLGetTexGenfv(MGLD_CTX, coord, pname, params);
+    }
+
+#undef glGetTexGenfv
+#define glGetTexGenfv MGLD_glGetTexGenfv
+
+    static __inline__ void MGLD_glGetTexLevelParameteriv(GLenum target, GLint level, GLenum pname, GLint *params)
+    {
+        MiniGLDispatch->GLGetTexLevelParameteriv(MGLD_CTX, target, level, pname, params);
+    }
+
+#undef glGetTexLevelParameteriv
+#define glGetTexLevelParameteriv MGLD_glGetTexLevelParameteriv
+
+    static __inline__ void MGLD_glGetTexImage(GLenum target, GLint level, GLenum format, GLenum type, GLvoid *pixels)
+    {
+        MiniGLDispatch->GLGetTexImage(MGLD_CTX, target, level, format, type, pixels);
+    }
+
+#undef glGetTexImage
+#define glGetTexImage MGLD_glGetTexImage
+
+    static __inline__ void MGLD_glDrawElementsBaseVertex(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices, GLint basevertex)
+    {
+        MiniGLDispatch->GLDrawElementsBaseVertex(MGLD_CTX, mode, count, type, indices, basevertex);
+    }
+
+#undef glDrawElementsBaseVertex
+#define glDrawElementsBaseVertex MGLD_glDrawElementsBaseVertex
+
+    static __inline__ void MGLD_glInsertEventMarkerEXT(GLsizei length, const GLchar *marker)
+    {
+        MiniGLDispatch->GLInsertEventMarkerEXT(MGLD_CTX, length, marker);
+    }
+
+#undef glInsertEventMarkerEXT
+#define glInsertEventMarkerEXT MGLD_glInsertEventMarkerEXT
+
+    static __inline__ void MGLD_glPushGroupMarkerEXT(GLsizei length, const GLchar *marker)
+    {
+        MiniGLDispatch->GLPushGroupMarkerEXT(MGLD_CTX, length, marker);
+    }
+
+#undef glPushGroupMarkerEXT
+#define glPushGroupMarkerEXT MGLD_glPushGroupMarkerEXT
+
+    static __inline__ void MGLD_glPopGroupMarkerEXT(void)
+    {
+        MiniGLDispatch->GLPopGroupMarkerEXT(MGLD_CTX);
+    }
+
+#undef glPopGroupMarkerEXT
+#define glPopGroupMarkerEXT MGLD_glPopGroupMarkerEXT
+
+    static __inline__ void MGLD_glGenVertexArrays(GLsizei n, GLuint *ids)
+    {
+        MiniGLDispatch->GLGenVertexArrays(MGLD_CTX, n, ids);
+    }
+
+#undef glGenVertexArrays
+#define glGenVertexArrays MGLD_glGenVertexArrays
+
+    static __inline__ GLboolean MGLD_glIsVertexArray(GLuint id)
+    {
+        return MiniGLDispatch->GLIsVertexArray(MGLD_CTX, id);
+    }
+
+#undef glIsVertexArray
+#define glIsVertexArray MGLD_glIsVertexArray
+
+    static __inline__ void MGLD_glBindVertexArray(GLuint id)
+    {
+        MiniGLDispatch->GLBindVertexArray(MGLD_CTX, id);
+    }
+
+#undef glBindVertexArray
+#define glBindVertexArray MGLD_glBindVertexArray
+
+    static __inline__ void MGLD_glDeleteVertexArrays(GLsizei n, const GLuint *ids)
+    {
+        MiniGLDispatch->GLDeleteVertexArrays(MGLD_CTX, n, ids);
+    }
+
+#undef glDeleteVertexArrays
+#define glDeleteVertexArrays MGLD_glDeleteVertexArrays
+
+    static __inline__ void MGLD_glClipControlEXT(GLenum origin, GLenum depth)
+    {
+        MiniGLDispatch->GLClipControlEXT(MGLD_CTX, origin, depth);
+    }
+
+#undef glClipControlEXT
+#define glClipControlEXT MGLD_glClipControlEXT
+
+    static __inline__ void MGLD_glStencilFunc(GLenum func, GLint ref, GLuint mask)
+    {
+        MiniGLDispatch->GLStencilFunc(MGLD_CTX, func, ref, mask);
+    }
+
+#undef glStencilFunc
+#define glStencilFunc MGLD_glStencilFunc
+
+    static __inline__ void MGLD_glStencilMask(GLuint mask)
+    {
+        MiniGLDispatch->GLStencilMask(MGLD_CTX, mask);
+    }
+
+#undef glStencilMask
+#define glStencilMask MGLD_glStencilMask
+
+    static __inline__ void MGLD_glStencilOp(GLenum fail, GLenum zfail, GLenum zpass)
+    {
+        MiniGLDispatch->GLStencilOp(MGLD_CTX, fail, zfail, zpass);
+    }
+
+#undef glStencilOp
+#define glStencilOp MGLD_glStencilOp
+
+    static __inline__ void MGLD_glClearStencil(GLint s)
+    {
+        MiniGLDispatch->GLClearStencil(MGLD_CTX, s);
+    }
+
+#undef glClearStencil
+#define glClearStencil MGLD_glClearStencil
+
+    static __inline__ ULONG MGLD_mglSetTexChromaBounds(GLuint texture, ULONG rgba_lower, ULONG rgba_upper, ULONG mode)
+    {
+        return MiniGLDispatch->MGLSetTexChromaBounds(MGLD_CTX, texture, rgba_lower, rgba_upper, mode);
+    }
+
+#undef mglSetTexChromaBounds
+#define mglSetTexChromaBounds MGLD_mglSetTexChromaBounds
+
+    static __inline__ void MGLD_glLogicOp(GLenum opcode)
+    {
+        MiniGLDispatch->GLLogicOp(MGLD_CTX, opcode);
+    }
+
+#undef glLogicOp
+#define glLogicOp MGLD_glLogicOp
+
+    static __inline__ void MGLD_glRectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
+    {
+        MiniGLDispatch->GLRectf(MGLD_CTX, x1, y1, x2, y2);
+    }
+
+#undef glRectf
+#define glRectf MGLD_glRectf
+#define glRecti MGLD_glRectf
+#define glRectd MGLD_glRectf
+#define glRects MGLD_glRectf
+
+    static __inline__ void MGLD_glTexImage1D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
+    {
+        MiniGLDispatch->GLTexImage1D(MGLD_CTX, target, level, internalformat, width, border, format, type, pixels);
+    }
+
+#undef glTexImage1D
+#define glTexImage1D MGLD_glTexImage1D
+
+    static __inline__ void MGLD_glPushAttrib(GLbitfield mask)
+    {
+        MiniGLDispatch->GLPushAttrib(MGLD_CTX, mask);
+    }
+
+#undef glPushAttrib
+#define glPushAttrib MGLD_glPushAttrib
+
+    static __inline__ void MGLD_glPopAttrib(void)
+    {
+        MiniGLDispatch->GLPopAttrib(MGLD_CTX);
+    }
+
+#undef glPopAttrib
+#define glPopAttrib MGLD_glPopAttrib
+
+    static __inline__ void MGLD_glRasterPos4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+    {
+        MiniGLDispatch->GLRasterPos4f(MGLD_CTX, x, y, z, w);
+    }
+
+#undef glRasterPos4f
+#define glRasterPos4f MGLD_glRasterPos4f
+#define glRasterPos2f(x, y) MGLD_glRasterPos4f(x, y, 0.0f, 1.0f)
+#define glRasterPos2fv(v) MGLD_glRasterPos4f((v)[0], (v)[1], 0.0f, 1.0f)
+#define glRasterPos3f(x, y, z) MGLD_glRasterPos4f(x, y, z, 1.0f)
+#define glRasterPos3fv(v) MGLD_glRasterPos4f((v)[0], (v)[1], (v)[2], 1.0f)
+#define glRasterPos4fv(v) MGLD_glRasterPos4f((v)[0], (v)[1], (v)[2], (v)[3])
+#define glRasterPos2i(x, y) MGLD_glRasterPos4f((GLfloat)(x), (GLfloat)(y), 0.0f, 1.0f)
+#define glRasterPos3i(x, y, z) MGLD_glRasterPos4f((GLfloat)(x), (GLfloat)(y), (GLfloat)(z), 1.0f)
+#define glRasterPos4i(x, y, z, w) MGLD_glRasterPos4f((GLfloat)(x), (GLfloat)(y), (GLfloat)(z), (GLfloat)(w))
+
+    static __inline__ void MGLD_glPixelZoom(GLfloat xfactor, GLfloat yfactor)
+    {
+        MiniGLDispatch->GLPixelZoom(MGLD_CTX, xfactor, yfactor);
+    }
+
+#undef glPixelZoom
+#define glPixelZoom MGLD_glPixelZoom
+
+    static __inline__ void MGLD_glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels)
+    {
+        MiniGLDispatch->GLDrawPixels(MGLD_CTX, width, height, format, type, pixels);
+    }
+
+#undef glDrawPixels
+#define glDrawPixels MGLD_glDrawPixels
+
+    static __inline__ void MGLD_glCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum type)
+    {
+        MiniGLDispatch->GLCopyPixels(MGLD_CTX, x, y, width, height, type);
+    }
+
+#undef glCopyPixels
+#define glCopyPixels MGLD_glCopyPixels
+
+    static __inline__ void MGLD_glBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap)
+    {
+        MiniGLDispatch->GLBitmap(MGLD_CTX, width, height, xorig, yorig, xmove, ymove, bitmap);
+    }
+
+#undef glBitmap
+#define glBitmap MGLD_glBitmap
 #endif /* !MINIGL_LIBRARY_BUILD */
 
 #ifdef __cplusplus

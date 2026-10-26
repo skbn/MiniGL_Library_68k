@@ -32,21 +32,21 @@
 #ifdef __PPC__
 extern int MGLDebugLevel;
 #define LOG(level, func, format, args...) \
-	if (MGLDebugLevel >= level)            \
-	{                                       \
-		kprintf("[MiniGL::%s] ", #func);     \
-		kprintf(format , __VA_ARGS__ );           \
-		kprintf("\n");                         \
-	}
+        if (MGLDebugLevel >= level)            \
+        {                                       \
+                kprintf("[MiniGL::%s] ", #func);     \
+                kprintf(format , __VA_ARGS__ );           \
+                kprintf("\n");                         \
+        }
 #else
 extern int MGLDebugLevel;
 #define LOG(level, func, format, args...) \
-	if (MGLDebugLevel >= level)            \
-	{                                       \
-		mykprintf("[MiniGL::%s] ", #func);   \
-		mykprintf(format , __VA_ARGS__ );         \
-		mykprintf("\n");                       \
-	}
+        if (MGLDebugLevel >= level)            \
+        {                                       \
+                mykprintf("[MiniGL::%s] ", #func);   \
+                mykprintf(format , __VA_ARGS__ );         \
+                mykprintf("\n");                       \
+        }
 #endif
 
 #endif

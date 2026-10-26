@@ -32,8 +32,13 @@
 #endif
 
 #define LIBNAME "minigl.library"
+#ifndef VERSION
 #define VERSION 29
-#define REVISION 1
+#endif
+#ifndef REVISION
+#define REVISION 2
+#endif
+
 #define MINIGL_STRINGIFY_INNER(value) #value
 #define MINIGL_STRINGIFY(value) MINIGL_STRINGIFY_INNER(value)
 #ifdef MINIGL_CLASSIC_ORTHO
@@ -54,8 +59,7 @@ static const char LibName[] = LIBNAME;
 #endif
 
 static const char LibId[] =
-    "$VER: minigl.library " MINIGL_STRINGIFY(VERSION) "." MINIGL_STRINGIFY(REVISION)
-    " (5.10.2026) " MINIGL_BACKEND_ID ", direct-backend dispatch ABI " MINIGL_COMPILER_ID MINIGL_VARIANT_ID "\r\n";
+    "$VER: minigl.library " MINIGL_STRINGIFY(VERSION) "." MINIGL_STRINGIFY(REVISION) " (21.10.2026) " MINIGL_BACKEND_ID ", direct-backend dispatch ABI " MINIGL_COMPILER_ID MINIGL_VARIANT_ID "\r\n";
 
 /* Library bases used by the AmigaOS NDK proto headers. */
 struct ExecBase *SysBase = 0;
@@ -82,6 +86,7 @@ static const MGLDispatchTable *LibGetDispatchTable(void)
 {
     return &MiniGLDispatchTable;
 }
+
 static BPTR LibExpunge(MINIGL_REGARG("a6", struct MiniGLLibrary *, base));
 
 static struct MiniGLLibrary *LibInit(
@@ -111,7 +116,8 @@ static struct MiniGLLibrary *LibInit(
         return 0;
 
 #if !defined(MINIGL_BACKEND_STUB) && !defined(MINIGL_VBCC_LIBRARY)
-    if (!MiniGL_OpenMathLibrary()) {
+    if (!MiniGL_OpenMathLibrary())
+    {
         struct Library *dos = (struct Library *)DOSBase;
         DOSBase = 0;
         CloseLibrary(dos);
@@ -129,7 +135,8 @@ static struct MiniGLLibrary *LibOpen(
     MINIGL_REGARG("a6", struct MiniGLLibrary *, base))
 {
 #ifndef MINIGL_BACKEND_STUB
-    if (!MiniGLInitialized) {
+    if (!MiniGLInitialized)
+    {
         if (MGLInit() == GL_FALSE)
             return 0;
 
@@ -190,7 +197,8 @@ static BPTR LibExpunge(
     ULONG size;
     UBYTE *mem;
 
-    if (base->lib.lib_OpenCnt) {
+    if (base->lib.lib_OpenCnt)
+    {
         base->lib.lib_Flags |= LIBF_DELEXP;
         return 0;
     }
@@ -202,7 +210,8 @@ static BPTR LibExpunge(
     mini_CurrentContext = (GLcontext)0;
 
 #ifndef MINIGL_BACKEND_STUB
-    if (MiniGLInitialized) {
+    if (MiniGLInitialized)
+    {
         MGLTerm();
         MiniGLInitialized = FALSE;
     }
@@ -212,7 +221,8 @@ static BPTR LibExpunge(
 #endif
 #endif
 
-    if (DOSBase) {
+    if (DOSBase)
+    {
         struct Library *dos = (struct Library *)DOSBase;
         DOSBase = 0;
         CloseLibrary(dos);
@@ -240,14 +250,14 @@ const APTR LibVectors[] = {
     /* -30: the only public API vector. All GL/MGL calls use this table. */
     (APTR)LibGetDispatchTable,
 
-    (APTR)-1
-};
+    (APTR)-1};
 
 /*
  * No autoinit data initializer table.
  * LibInit() initializes the struct Library fields itself.
  */
-static const struct {
+static const struct
+{
     ULONG size;
     const APTR *vectors;
     const ULONG *data;
@@ -256,8 +266,7 @@ static const struct {
     sizeof(struct MiniGLLibrary),
     LibVectors,
     0,
-    (APTR)LibInit
-};
+    (APTR)LibInit};
 
 const struct Resident ROMTag = {
     RTC_MATCHWORD,
@@ -269,5 +278,4 @@ const struct Resident ROMTag = {
     0,
     (char *)LibName,
     (char *)LibId,
-    (APTR)&InitTable
-};
+    (APTR)&InitTable};

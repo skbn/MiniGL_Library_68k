@@ -32,16 +32,25 @@
  */
 
 #include <proto/minigl.h>
+#include "mgllog.h"
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <proto/graphics.h>
 #include <proto/exec.h>
 
 #ifndef D
 #ifdef DEBUG
-#define D(x) do { printf x; } while (0)
+#define D(x)      \
+    do            \
+    {             \
+        printf x; \
+    } while (0)
 #else
-#define D(x) do { } while (0)
+#define D(x) \
+    do       \
+    {        \
+    } while (0)
 #endif
 #endif
 
@@ -62,9 +71,9 @@ static GLfloat G = -0.05f;
 static GLfloat rot = 0.0f;
 static GLboolean do_cage = GL_TRUE;
 
-//#ifndef __GNUC__
+// #ifndef __GNUC__
 struct GfxBase *GfxBase = NULL;
-//#endif
+// #endif
 
 /* stricmp is not provided by every GCC/libnix configuration. */
 static int local_stricmp(const char *a, const char *b)
@@ -86,207 +95,224 @@ static int local_stricmp(const char *a, const char *b)
 
 static void drawBall(void)
 {
-	float a, b;
-	float da = 180.0f / NUMSLICE, db = 180.0f / NUMSLICE;
-	float radius = 1.0f;
-	int color = 0;
-	float x, y, z;
+    float a, b;
+    float da = 180.0f / NUMSLICE, db = 180.0f / NUMSLICE;
+    float radius = 1.0f;
+    int color = 0;
+    float x, y, z;
 
-	for (a = -90.0f; a + da <= 90.0f; a += da)
-	{
-		glBegin(GL_QUAD_STRIP);
-		for (b = 0.0f; b <= 360.0f; b += db)
-		{
-			if (color)
-				glColor3f(1.0f, 0.0f, 0.0f); /* red */
-			else
-				glColor3f(1.0f, 1.0f, 1.0f); /* white */
+    for (a = -90.0f; a + da <= 90.0f; a += da)
+    {
+        glBegin(GL_QUAD_STRIP);
+        for (b = 0.0f; b <= 360.0f; b += db)
+        {
+            if (color)
+                glColor3f(1.0f, 0.0f, 0.0f); /* red */
+            else
+                glColor3f(1.0f, 1.0f, 1.0f); /* white */
 
-			x = COS(b) * COS(a);
-			y = SIN(b) * COS(a);
-			z = SIN(a);
-			glVertex3f(x, y, z);
+            x = COS(b) * COS(a);
+            y = SIN(b) * COS(a);
+            z = SIN(a);
+            glVertex3f(x, y, z);
 
-			x = radius * COS(b) * COS(a + da);
-			y = radius * SIN(b) * COS(a + da);
-			z = radius * SIN(a + da);
-			glVertex3f(x, y, z);
+            x = radius * COS(b) * COS(a + da);
+            y = radius * SIN(b) * COS(a + da);
+            z = radius * SIN(a + da);
+            glVertex3f(x, y, z);
 
-			color = 1 - color;
-		}
-		glEnd();
-	}
+            color = 1 - color;
+        }
+        glEnd();
+    }
 }
 
 static void drawCage(void)
 {
-	GLfloat xmin = Xmin - 2.0f,
-	        xmax = Xmax + 2.0f,
-	        ymin = Ymin - 2.0f,
-	        ymax = Ymax + 2.0f;
+    GLfloat xmin = Xmin - 2.0f,
+            xmax = Xmax + 2.0f,
+            ymin = Ymin - 2.0f,
+            ymax = Ymax + 2.0f;
 
-	glEnable(GL_BLEND);
-	glColor4f(0.0f, 0.5f, 0.5f, 0.5f);
+    glEnable(GL_BLEND);
+    glColor4f(0.0f, 0.5f, 0.5f, 0.5f);
 
-	glBegin(GL_QUADS);
-		glVertex2f(xmax, ymax);
-		glVertex2f(xmax, ymin);
-		glVertex2f(xmin, ymin);
-		glVertex2f(xmin, ymax);
-	glEnd();
-	glDisable(GL_BLEND);
+    glBegin(GL_QUADS);
+    glVertex2f(xmax, ymax);
+    glVertex2f(xmax, ymin);
+    glVertex2f(xmin, ymin);
+    glVertex2f(xmin, ymax);
+    glEnd();
+    glDisable(GL_BLEND);
 }
 
 static void draw(void)
 {
-	/* Always paced to vblank -- this demo is only ever meant to be
-	 * watched/interacted with, never a flat-out timing run (see this
-	 * file's own header comment). */
-	WaitTOF();
+    /* Always paced to vblank -- this demo is only ever meant to be
+     * watched/interacted with, never a flat-out timing run (see this
+     * file's own header comment). */
+    WaitTOF();
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glRotatef(rot, 0.0f, 1.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    /* rotate accumulates on MODELVIEW if the identity isn't reloaded --
+       rot is constant today but a future value would drift every frame */
+    glLoadIdentity();
+    glRotatef(rot, 0.0f, 1.0f, 0.0f);
 
-	if (do_cage == GL_TRUE) drawCage();
+    if (do_cage == GL_TRUE)
+        drawCage();
 
-	glPushMatrix();
-		glTranslatef(Xpos, Ypos, 0.0f);
-		glScalef(2.0f, 2.0f, 2.0f);
-		glRotatef(8.0f, 0.0f, 0.0f, 1.0f);
-		glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-		glRotatef(Zrot, 0.0f, 0.0f, 1.0f);
+    glPushMatrix();
+    glTranslatef(Xpos, Ypos, 0.0f);
+    glScalef(2.0f, 2.0f, 2.0f);
+    glRotatef(8.0f, 0.0f, 0.0f, 1.0f);
+    glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+    glRotatef(Zrot, 0.0f, 0.0f, 1.0f);
 
-		drawBall();
-	glPopMatrix();
+    drawBall();
+    glPopMatrix();
 
-	glFrontFace(GL_CCW);
-	if (do_cage == GL_TRUE) drawCage();
-	glFrontFace(GL_CW);
+    glFrontFace(GL_CCW);
+    if (do_cage == GL_TRUE)
+        drawCage();
+    glFrontFace(GL_CW);
 
-	mglSwitchDisplay();
+    mglSwitchDisplay();
 }
 
 static void idle(void)
 {
-	static float vel0 = -100.0f;
+    static float vel0 = -100.0f;
 
-	Zrot += (Zstep < 0.0f) ? -Zstep : Zstep;
+    Zrot += (Zstep < 0.0f) ? -Zstep : Zstep;
 
-	Xpos += Xvel;
-	if (Xpos >= Xmax)
-	{
-		Xpos = Xmax;
-		Xvel = -Xvel;
-		Zstep = -Zstep;
-	}
-	if (Xpos <= Xmin)
-	{
-		Xpos = Xmin;
-		Xvel = -Xvel;
-		Zstep = -Zstep;
-	}
-	Ypos += Yvel;
-	Yvel += G;
-	if (Ypos < Ymin)
-	{
-		Ypos = Ymin;
-		if (vel0 == -100.0f)
-		{
-			vel0 = (Yvel < 0.0f) ? -Yvel : Yvel;
-		}
-		Yvel = vel0;
-	}
-	draw();
+    Xpos += Xvel;
+    if (Xpos >= Xmax)
+    {
+        Xpos = Xmax;
+        Xvel = -Xvel;
+        Zstep = -Zstep;
+    }
+    if (Xpos <= Xmin)
+    {
+        Xpos = Xmin;
+        Xvel = -Xvel;
+        Zstep = -Zstep;
+    }
+    Ypos += Yvel;
+    Yvel += G;
+    if (Ypos < Ymin)
+    {
+        Ypos = Ymin;
+        if (vel0 == -100.0f)
+        {
+            vel0 = (Yvel < 0.0f) ? -Yvel : Yvel;
+        }
+        Yvel = vel0;
+    }
+    draw();
 }
 
 /* IDCMP_VANILLAKEY delivers the plain ASCII code -- 27 is ESC. */
 static void keyHandler(char key)
 {
-	if (key == 27)
-	{
-		D(("milestone_bounce_interactive: ESC pressed, exiting\n"));
-		mglExit();
-	}
+    if (key == 27)
+    {
+        D(("milestone_bounce_interactive: ESC pressed, exiting\n"));
+        mglExit();
+    }
 }
 
 int main(int argc, char *argv[])
 {
-	float aspect;
-	int depth;
-	
-GfxBase = (struct GfxBase *)OpenLibrary("graphics.library", 0);
-if (!GfxBase)
-{
-    printf("Can't open graphics.library\n");
-    return 20;
-}		
-	
-	depth = 24;
-	for (int i = 1; i < argc; i++)
-	{
-		if (0 == local_stricmp(argv[i], "-depth"))
-		{
-			i++;
-			depth = atoi(argv[i]);
-			if ((depth!=15)&&(depth!=16)&&(depth!=24)) depth = 24;
-		}
-	}		
+    float aspect;
+    int depth;
 
-	if (MiniGLOpen() == GL_FALSE)
-	{
-		D(("milestone_bounce_interactive: could not open minigl.library\n"));
-		return -1;
-	}
+    GfxBase = (struct GfxBase *)OpenLibrary("graphics.library", 0);
+    if (!GfxBase)
+    {
+        printf("Can't open graphics.library\n");
+        return 20;
+    }
 
-	mglChoosePixelDepth(depth);
-	mglChooseVertexBufferSize(1000);
-	if (!mglCreateContext(0, 0, MILESTONE_WIDTH, MILESTONE_HEIGHT))
-	{
-		D(("milestone_bounce_interactive: mglCreateContext failed\n"));
-		MiniGLClose();
-		return -2;
-	}
+    depth = 24;
+    for (int i = 1; i < argc; i++)
+    {
+        if (i + 1 < argc && 0 == local_stricmp(argv[i], "-depth"))
+        {
+            i++;
+            depth = atoi(argv[i]);
+            if ((depth != 15) && (depth != 16) && (depth != 24))
+                depth = 24;
+        }
+    }
 
-	D(("milestone_bounce_interactive: context created\n"));
+    mgllog_open("bounce");
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    MGLLOG("dbg: open");
 
-	glCullFace(GL_BACK);
-	glEnable(GL_CULL_FACE);
+    if (MiniGLOpen() == GL_FALSE)
+    {
+        MGLLOG("milestone_bounce_interactive: could not open minigl.library");
+        return -1;
+    }
 
-	/* See milestone_bounce.c's own comment on this exact line -- matches
-	 * the steady-state front-face convention drawCage()'s two calls per
-	 * frame rely on, so frame 0 behaves identically to every later frame. */
-	glFrontFace(GL_CW);
+    MGLLOG("dbg: chooses");
 
-	glDisable(GL_DEPTH_TEST);
-	glShadeModel(GL_FLAT);
+    mglChoosePixelDepth(depth);
+    mglChooseVertexBufferSize(1000);
 
-	aspect = (float)MILESTONE_WIDTH / (float)MILESTONE_HEIGHT;
-	glViewport(0, 0, MILESTONE_WIDTH, MILESTONE_HEIGHT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(-6.0 * aspect, 6.0 * aspect, -6.0, 6.0, -6.0, 6.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+    MGLLOG("dbg: createcontext");
 
-	D(("milestone_bounce_interactive: setup done, entering MGLMainLoop (ESC to quit)\n"));
+    if (!mglCreateContext(0, 0, MILESTONE_WIDTH, MILESTONE_HEIGHT))
+    {
+        MGLLOG("milestone_bounce_interactive: mglCreateContext failed");
+        MiniGLClose();
+        return -2;
+    }
 
-	mglIdleFunc(idle);
-	mglKeyFunc(keyHandler);
-	mglMainLoop();
+    MGLLOG("milestone_bounce_interactive: context created");
 
-	D(("milestone_bounce_interactive: MGLMainLoop returned, tearing down\n"));
+    mglEnableSync(GL_TRUE);
 
-	mglDeleteContext();
-	MiniGLClose();
-	
-if (GfxBase)
-{
-    CloseLibrary((struct Library *)GfxBase);
-    GfxBase = NULL;
-}	
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	return 0;
+    glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+
+    /* See milestone_bounce.c's own comment on this exact line -- matches
+     * the steady-state front-face convention drawCage()'s two calls per
+     * frame rely on, so frame 0 behaves identically to every later frame. */
+    glFrontFace(GL_CW);
+
+    glDisable(GL_DEPTH_TEST);
+    glShadeModel(GL_FLAT);
+
+    aspect = (float)MILESTONE_WIDTH / (float)MILESTONE_HEIGHT;
+    glViewport(0, 0, MILESTONE_WIDTH, MILESTONE_HEIGHT);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-6.0 * aspect, 6.0 * aspect, -6.0, 6.0, -6.0, 6.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    D(("milestone_bounce_interactive: setup done, entering MGLMainLoop (ESC to quit)\n"));
+
+    mglIdleFunc(idle);
+    mglKeyFunc(keyHandler);
+    mglMainLoop();
+
+    D(("milestone_bounce_interactive: MGLMainLoop returned, tearing down\n"));
+
+    mglDeleteContext();
+    MiniGLClose();
+
+    if (GfxBase)
+    {
+        CloseLibrary((struct Library *)GfxBase);
+        GfxBase = NULL;
+    }
+
+    return 0;
 }

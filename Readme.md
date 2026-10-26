@@ -1,5 +1,15 @@
 # Classic (changes and additions: 29.2)
 
+Performance
+
+Lower cpu usage overall, more work pushed to the hw where it belongs.
+Most of the hot path was already written for the OpenLara port and got extracted into the lib, the rest is new work on the classic code.
+
+Draws go out batched in a single driver call instead of one per primitive, verts get transformed once and projected in the same pass, and the transform picks a cheaper kernel depending on the matrix.
+Per-vertex work moved to the driver: backface cull, normalized texcoords, ubyte colors, and x/y clipping rides the rasterizer guard band.
+Clipper rewritten (replaces hclip/aclip), no allocs left in the draw path, state calls only fire on real change, texture uploads go verbatim when formats match.
+glDisable(MGL_ARRAY_TRANSFORMATIONS) skips the cpu pipeline entirely and feeds client arrays straight to W3D.
+
 Stencil (full API)
 glStencilFunc, glStencilOp, glStencilMask, glClearStencil
 Implicit Enums: GL_STENCIL_FUNC/REF/VALUE_MASK/WRITEMASK/CLEAR_VALUE/FAIL/PASS_*, GL_STENCIL_BITS, GL_STENCIL_INDEX, GL_STENCIL_BUFFER_BIT, GL_KEEP/INCR/DECR, GL_NEVER..ALWAYS

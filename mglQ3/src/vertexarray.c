@@ -153,6 +153,9 @@ void GLEnableClientState(GLcontext context, GLenum cap)
     else
         context->ClientState |= bit;
 
+    context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
+
     if (!context->VertexArrayPipeline)
         va_bindptr(context);
 }
@@ -179,6 +182,9 @@ void GLDisableClientState(GLcontext context, GLenum cap)
     else
         context->ClientState &= ~bit;
 
+    context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
+
     if (!context->VertexArrayPipeline)
         va_bindptr(context);
 }
@@ -201,6 +207,8 @@ void GLVertexPointer(GLcontext context, GLint size, GLenum type, GLsizei stride,
     context->ArrayPointer.vertexstride = stride ? stride : size * va_esz(type);
     context->ArrVertSize = (GLubyte)size;
     context->ArrVertType = type;
+    context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
 
     if (!context->VertexArrayPipeline)
     {
@@ -232,6 +240,8 @@ void GLColorPointer(GLcontext context, GLint size, GLenum type, GLsizei stride, 
     context->ArrayPointer.colorstride = stride ? stride : size * va_esz(type);
     context->ArrColorSize = (GLubyte)size;
     context->ArrColorType = type;
+    context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
 
     if (!context->VertexArrayPipeline)
     {
@@ -265,6 +275,8 @@ void GLTexCoordPointer(GLcontext context, GLint size, GLenum type, GLsizei strid
     tx->stride = stride ? stride : size * va_esz(type);
     tx->size = (GLubyte)size;
     tx->type = type;
+    context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
 
     if (!context->VertexArrayPipeline && context->ClientActiveTexture == 0)
     {
@@ -297,6 +309,8 @@ void GLNormalPointer(GLcontext context, GLenum type, GLsizei stride, const GLvoi
     context->ArrNormal = (GLubyte *)pointer;
     context->ArrNormalStride = stride ? stride : 3 * va_esz(type);
     context->ArrNormalType = type;
+    context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
 }
 
 // stage unit-k texcoords from its client array into a tcoord slot
@@ -839,6 +853,8 @@ void GLEdgeFlagPointer(GLcontext context, GLsizei stride, const GLvoid *pointer)
 {
     context->EdgeFlagStride = stride ? stride : (GLsizei)sizeof(GLboolean);
     context->EdgeFlagPtr = pointer;
+    context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
 }
 
 void GLDrawArrays(GLcontext context, GLenum mode, GLint first, GLsizei count)
@@ -901,6 +917,7 @@ void GLDrawArrays(GLcontext context, GLenum mode, GLint first, GLsizei count)
     context->StripBase = 0;
     context->NormalBufferPointer = 0;
     context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
 
     ptr = 0;
 
@@ -948,6 +965,20 @@ void GLMultiDrawArrays(GLcontext context, GLenum mode, const GLint *first, const
 
     for (i = 0; i < primcount; i++)
         GLDrawArrays(context, mode, first[i], count[i]);
+}
+
+void GLMultiDrawElements(GLcontext context, GLenum mode, const GLsizei *count, GLenum type, const GLvoid *const *indices, GLsizei primcount)
+{
+    GLsizei i;
+
+    if (primcount < 0)
+    {
+        mgl_error(context, GL_INVALID_VALUE);
+        return;
+    }
+
+    for (i = 0; i < primcount; i++)
+        GLDrawElements(context, mode, count[i], type, indices[i]);
 }
 
 // selects which client's texcoord state the array calls configure
@@ -1147,6 +1178,7 @@ static void vao_load(GLcontext context, const MGLVAO *v)
     context->EdgeFlagStride = v->arredgestride;
 
     context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
 }
 
 void GLGenVertexArrays(GLcontext context, GLsizei n, GLuint *ids)

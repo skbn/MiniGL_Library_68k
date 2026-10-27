@@ -399,6 +399,17 @@ static void Stub_GLMultiDrawArrays(GLcontext context, GLenum mode, const GLint *
     stub_call("GLMultiDrawArrays");
 }
 
+static void Stub_GLMultiDrawElements(GLcontext context, GLenum mode, const GLsizei *count, GLenum type, const GLvoid *const *indices, GLsizei primcount)
+{
+    (void)context;
+    (void)mode;
+    (void)count;
+    (void)type;
+    (void)indices;
+    (void)primcount;
+    stub_call("GLMultiDrawElements");
+}
+
 static GLboolean Stub_GLIsTexture(GLcontext context, GLuint texture)
 {
     (void)context;
@@ -1395,4 +1406,5 @@ const MGLDispatchTable MiniGLDispatchTable = {
     Stub_GLUProject,
     Stub_GLUUnProject,
     Stub_GLUPickMatrix,
+    Stub_GLMultiDrawElements,
 };

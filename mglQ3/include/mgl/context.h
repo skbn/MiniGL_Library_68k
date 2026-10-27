@@ -633,8 +633,11 @@ struct GLcontext_t
 
     GLboolean ArraysLocked; /* glLockArraysEXT range is active */
     GLboolean LockStaged;   /* locked range is staged in VertexBuffer */
+    GLboolean LockXformed;  /* staged locked range already holds clip space */
     GLuint LockFirst;       /* locked client array span */
     GLuint LockCount;
+    GLuint LockExtra; /* extra slots staged by the current submit */
+    GLuint LockOrall; /* cached outcode mask of the transformed window */
 
     GLubyte ArrVertSize; /* client array element sizes for staging */
     GLubyte ArrColorSize;

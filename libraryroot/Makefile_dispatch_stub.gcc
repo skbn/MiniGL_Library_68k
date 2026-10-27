@@ -16,7 +16,7 @@ CLIENT_OBJS = $(EXOBJDIR)/minigl_base.o $(EXOBJDIR)/minigl_open.o $(EXOBJDIR)/mi
 IMPORTLIB = lib/libminigl_dispatch.a
 
 .PHONY: all clean importlib testprograms
-all: $(OUTDIR)/minigl.library
+all: $(OUTDIR)/minigl.library importlib
 
 $(OBJDIR) $(EXOBJDIR) $(OUTDIR) $(BINDIR) lib:
 	mkdir -p $@

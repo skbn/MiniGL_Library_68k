@@ -113,6 +113,8 @@ static GLint P3DStub_GLUUnProject(GLcontext context, GLdouble winX, GLdouble win
 
 static void P3DStub_GLUPickMatrix(GLcontext context, GLdouble x, GLdouble y, GLdouble width, GLdouble height, const GLint *viewport) {}
 
+static void P3DStub_GLMultiDrawElements(GLcontext context, GLenum mode, const GLsizei *count, GLenum type, const GLvoid *const *indices, GLsizei primcount) {}
+
 static void P3DStub_GLGetTexLevelParameteriv(GLcontext context, GLenum target, GLint level, GLenum pname, GLint *params) {}
 
 static void P3DStub_GLGetTexImage(GLcontext context, GLenum target, GLint level, GLenum format, GLenum type, GLvoid *pixels) {}
@@ -390,4 +392,5 @@ const MGLDispatchTable MiniGLDispatchTable = {
     P3DStub_GLUProject,
     P3DStub_GLUUnProject,
     P3DStub_GLUPickMatrix,
+    P3DStub_GLMultiDrawElements,
 };

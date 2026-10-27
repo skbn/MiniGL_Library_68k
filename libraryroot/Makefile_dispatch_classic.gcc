@@ -17,8 +17,9 @@ EX_CFLAGS = $(COMMON_CFLAGS) -fno-builtin -I$(CLASSIC_INC) -Iinclude
 LIB_OBJS = $(OBJDIR)/minigl_library.o $(OBJDIR)/dispatch_table_classic.o $(OBJDIR)/debug_output.o $(OBJDIR)/runtime_shim.o $(OBJDIR)/math_shim.o
 CLIENT_OBJS = $(EXOBJDIR)/minigl_base.o $(EXOBJDIR)/minigl_open.o $(EXOBJDIR)/minigl_dispatch_stub_gcc.o
 IMPORTLIB = lib/libminigl_dispatch.a
+ROOTLIB = ../libminigl.a
 .PHONY: all clean importlib testprograms classic_backend
-all: $(OUTDIR)/minigl.library
+all: $(OUTDIR)/minigl.library importlib $(ROOTLIB)
 classic_backend:
 	$(MAKE) -C $(CLASSIC_SRC) CC=$(CC) AR=$(AR) RANLIB=$(RANLIB) CPU=$(CPU) OBJDIR=$(Q3_OBJDIR) LIBNAME=lib/libmgl-q3.a
 $(OBJDIR) $(EXOBJDIR) $(OUTDIR) $(BINDIR) lib:
@@ -36,9 +37,13 @@ $(EXOBJDIR)/minigl_dispatch_stub_gcc.o: client/minigl_dispatch_stub_gcc.s | $(EX
 importlib: $(IMPORTLIB)
 $(IMPORTLIB): $(CLIENT_OBJS) | lib
 	$(AR) rcs $@ $(CLIENT_OBJS)
+$(ROOTLIB): $(IMPORTLIB)
+	cp $(IMPORTLIB) $@
 testprograms: importlib | $(BINDIR)
 	$(CC) $(EX_CFLAGS) examples/library_test.c $(IMPORTLIB) -o $(BINDIR)/library_test_dispatch_gcc
 	$(CC) $(EX_CFLAGS) examples/milestone_gears_stats_library.c $(IMPORTLIB) -lm -o $(BINDIR)/milestone_gears_dispatch_gcc
 clean:
 	rm -rf $(OBJDIR) $(EXOBJDIR) $(OUTDIR)
-	rm -f $(IMPORTLIB) $(BINDIR)/*_dispatch_gcc
+	rm -f $(IMPORTLIB) $(ROOTLIB) $(BINDIR)/*_dispatch_gcc
+	$(MAKE) -C $(CLASSIC_SRC) clean
+	rm -f $(CLASSIC_SRC)/lib/libmgl-q3.a

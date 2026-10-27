@@ -1287,6 +1287,7 @@ extern "C"
     void GLBitmap(GLcontext context, GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap);
     void GLDrawArrays(GLcontext context, GLenum mode, GLint first, GLsizei count);
     void GLMultiDrawArrays(GLcontext context, GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount);
+    void GLMultiDrawElements(GLcontext context, GLenum mode, const GLsizei *count, GLenum type, const GLvoid *const *indices, GLsizei primcount);
 
     /*
     ** The OpenGL compatibility macros. Each expands to the GL* entry point with the
@@ -1401,6 +1402,8 @@ extern "C"
 #define glDrawArraysEXT(mode, first, count) GLDrawArrays(mini_CurrentContext, mode, first, count)
 
 #define glMultiDrawArrays(mode, first, count, primcount) GLMultiDrawArrays(mini_CurrentContext, mode, first, count, primcount)
+
+#define glMultiDrawElements(mode, count, type, indices, primcount) GLMultiDrawElements(mini_CurrentContext, mode, count, type, indices, primcount)
 
 #define glDrawBuffer(mode) GLDrawBuffer(mini_CurrentContext, mode)
 

@@ -1243,6 +1243,9 @@ void GLPolygonOffset(GLcontext context, GLfloat factor, GLfloat units)
     context->PolygonOffsetFactor = factor;
     context->PolygonOffsetUnits = units;
     context->ZOffset = units * MGL_ZO_LSB;
+
+    context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
 }
 
 static void mgl_pack_row(UBYTE *dst, const UBYTE *src, GLenum format, GLint n)
@@ -1730,6 +1733,9 @@ void GLClipControlEXT(GLcontext context, GLenum origin, GLenum depth)
     // z' = 2z - w is applied at outcode time so the +-w clip planes stay exact
     context->ClipUpperLeft = origin == GL_UPPER_LEFT;
     context->ClipZO = depth == GL_ZERO_TO_ONE;
+
+    context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
 }
 
 static UBYTE *mgl_dec(UBYTE *p, ULONG v)

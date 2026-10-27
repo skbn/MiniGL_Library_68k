@@ -17,7 +17,7 @@ LIB_OBJS = $(OBJDIR)/minigl_library.o $(OBJDIR)/dispatch_table_pistorm3d.o $(OBJ
 CLIENT_OBJS = $(EXOBJDIR)/minigl_base.o $(EXOBJDIR)/minigl_open.o $(EXOBJDIR)/minigl_dispatch_stub_gcc.o
 IMPORTLIB = lib/libminigl_dispatch.a
 .PHONY: all clean importlib testprograms
-all: $(OUTDIR)/minigl.library
+all: $(OUTDIR)/minigl.library importlib
 $(OBJDIR) $(EXOBJDIR) $(OUTDIR) $(BINDIR) lib:
 	mkdir -p $@
 $(OBJDIR)/%.o: library/%.c | $(OBJDIR)

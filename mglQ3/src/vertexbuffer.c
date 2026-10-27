@@ -55,6 +55,7 @@ void GLBegin(GLcontext context, GLenum mode)
     context->NormalBufferPointer = 0;
     context->WOne_Hint = GL_TRUE;
     context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
 }
 
 void GLEnd(GLcontext context)
@@ -322,6 +323,9 @@ void GLDepthRange(GLcontext context, GLclampd n, GLclampd f)
     context->far = f;
     context->sz = (GLfloat)((f - n) * 0.5);
     context->az = (GLfloat)((n + f) * 0.5);
+
+    context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
 }
 
 void GLViewport(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei height)
@@ -359,6 +363,9 @@ void GLViewport(GLcontext context, GLint x, GLint y, GLsizei width, GLsizei heig
     context->ay = dh - (GLfloat)y - (GLfloat)height * 0.5f;
     context->sx = (GLfloat)width * 0.5f;
     context->sy = (GLfloat)height * 0.5f;
+
+    context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
 }
 
 void GLFinish(GLcontext context)

@@ -436,6 +436,9 @@ extern "C"
         GLint (*GLUProject)(GLcontext context, GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint *viewport, GLdouble *winX, GLdouble *winY, GLdouble *winZ);
         GLint (*GLUUnProject)(GLcontext context, GLdouble winX, GLdouble winY, GLdouble winZ, const GLdouble *model, const GLdouble *proj, const GLint *viewport, GLdouble *objX, GLdouble *objY, GLdouble *objZ);
         void (*GLUPickMatrix)(GLcontext context, GLdouble x, GLdouble y, GLdouble width, GLdouble height, const GLint *viewport);
+
+        /* slot 248*/
+        void (*GLMultiDrawElements)(GLcontext context, GLenum mode, const GLsizei *count, GLenum type, const GLvoid *const *indices, GLsizei primcount);
     } MGLDispatchTable;
 
     extern const MGLDispatchTable *MiniGLDispatch;
@@ -1732,6 +1735,14 @@ extern "C"
 
 #undef glMultiDrawArrays
 #define glMultiDrawArrays MGLD_glMultiDrawArrays
+
+    static __inline__ void MGLD_glMultiDrawElements(GLenum mode, const GLsizei *count, GLenum type, const GLvoid *const *indices, GLsizei primcount)
+    {
+        MiniGLDispatch->GLMultiDrawElements(MGLD_CTX, mode, count, type, indices, primcount);
+    }
+
+#undef glMultiDrawElements
+#define glMultiDrawElements MGLD_glMultiDrawElements
 
     static __inline__ GLboolean MGLD_glIsTexture(GLuint texture)
     {

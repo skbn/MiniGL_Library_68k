@@ -43,6 +43,7 @@ void GLLockArrays(GLcontext context, GLuint first, GLsizei count)
 
     context->ArraysLocked = GL_TRUE;
     context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
     context->LockFirst = first;
     context->LockCount = (GLuint)count;
 }
@@ -51,6 +52,7 @@ void GLUnlockArrays(GLcontext context)
 {
     context->ArraysLocked = GL_FALSE;
     context->LockStaged = GL_FALSE;
+    context->LockXformed = GL_FALSE;
 }
 
 static GLuint ve_at(GLenum type, const GLvoid *indices, GLuint i)
@@ -529,17 +531,11 @@ void GLDrawElements(GLcontext context, GLenum mode, GLsizei count, GLenum type, 
     context->StripBase = 0;
     context->NormalBufferPointer = 0;
 
-    if (locked)
+    if (!locked)
     {
-        if (!context->LockStaged)
-        {
-            va_StageRange(context, context->LockFirst, context->LockCount, MGL_EXTRA_MAX);
-
-            context->LockStaged = GL_TRUE;
-        }
-    }
-    else
         context->LockStaged = GL_FALSE;
+        context->LockXformed = GL_FALSE;
+    }
 
     pos = 0;
 
@@ -547,6 +543,18 @@ void GLDrawElements(GLcontext context, GLenum mode, GLsizei count, GLenum type, 
     while (pos < (GLuint)count)
     {
         GLuint ex[MGL_EXTRA_MAX];
+
+        if (locked)
+        {
+            if (!context->LockXformed || context->Lighting_State || context->TextureGenS_State || context->TextureGenT_State)
+            {
+                va_StageRange(context, context->LockFirst, context->LockCount, MGL_EXTRA_MAX);
+
+                context->LockStaged = GL_TRUE;
+                context->LockXformed = GL_FALSE;
+            }
+        }
+
         const GLuint vp = locked ? context->LockFirst : ve_at(type, indices, pos);
         const GLuint w0 = locked ? vp : (vp > (wsize >> 1) ? vp - (wsize >> 1) : 0);
         const GLuint wspan = locked ? context->LockCount : wsize;
@@ -700,6 +708,7 @@ void GLDrawElements(GLcontext context, GLenum mode, GLsizei count, GLenum type, 
 
         context->StripBase = (pos + seeds) & 1;
         context->EmitSkip = seeds;
+        context->LockExtra = exn;
 
         d_Submit(context, ib, seeds + len, (pos + len == (GLuint)count));
 
@@ -738,6 +747,9 @@ void GLDrawElementsBaseVertex(GLcontext context, GLenum mode, GLsizei count, GLe
 
         if (!context->VertexArrayPipeline)
             va_bindptr(context);
+
+        context->LockStaged = GL_FALSE;
+        context->LockXformed = GL_FALSE;
 
         GLDrawElements(context, mode, count, type, indices);
 

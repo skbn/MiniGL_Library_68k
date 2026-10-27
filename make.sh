@@ -13,6 +13,8 @@ for a in "$@"; do [ "$a" = clean ] && Q3T=clean; done
 
 make -C mglQ3 -f makefile clean || exit
 
+rm -f mglQ3/lib/libmgl-q3.a libminigl.a libraryroot/lib/libminigl_dispatch.a
+
 [ "$Q3T" = clean ] && exit
 
 (cd libraryroot && make -f ../Makefile_classic_verified.gcc -j12 "$@") || exit
@@ -26,5 +28,7 @@ MS=-nofastmath
 B=libraryroot/bin/v29-path-68020-60-68881-nix20$MS
 
 cp $B/stock/minigl.library minigl.library
+
+(cd libraryroot && make -f Makefile_dispatch_classic.gcc CLASSIC_SRC=../mglQ3 CPU=68020-60 ../libminigl.a) || exit
 
 exit 0

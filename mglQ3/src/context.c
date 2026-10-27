@@ -1477,6 +1477,8 @@ void MGLSetState(GLcontext context, GLenum cap, GLboolean flag)
     {
     case GL_POLYGON_OFFSET_FILL:
         context->PolygonOffsetFill_State = flag;
+        context->LockStaged = GL_FALSE;
+        context->LockXformed = GL_FALSE;
         break;
 
     case GL_ALPHA_TEST:

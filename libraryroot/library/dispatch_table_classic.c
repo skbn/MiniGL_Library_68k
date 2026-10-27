@@ -613,4 +613,5 @@ const MGLDispatchTable MiniGLDispatchTable = {
     GLUProject,
     GLUUnProject,
     GLUPickMatrix,
+    GLMultiDrawElements,
 };

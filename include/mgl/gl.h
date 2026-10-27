@@ -33,6 +33,7 @@ extern "C"
     MGLDebugLevel = level
 #endif
 
+
     typedef void GLvoid;
     // typedef unsigned char   GLboolean;
     typedef char GLbyte;
@@ -470,7 +471,6 @@ extern "C"
 #else
 #define GLFlagError(context, c, err)
 #endif
-
 
     void GLActiveTextureARB(GLcontext context, GLenum unit);
     void GLMultiTexCoord2fARB(GLcontext context, GLenum unit, GLfloat s, GLfloat t);

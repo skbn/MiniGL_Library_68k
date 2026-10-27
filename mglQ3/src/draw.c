@@ -1975,45 +1975,71 @@ void d_Submit(GLcontext context, const UWORD *in, GLuint icount, GLboolean final
     GLuint orall;
     GLuint keep;
     GLuint i;
+    GLuint xhi;
     int lspec = 0;
+    GLboolean reused;
 
     if (!n)
         return;
 
+    const GLboolean cval = context->CombinedValid;
+
     mglUpdateCombined(context);
 
+    if (context->LockXformed && (!cval || context->Lighting_State || context->TextureGenS_State || context->TextureGenT_State))
+    {
+        va_StageRange(context, context->LockFirst, context->LockCount, MGL_EXTRA_MAX);
+
+        context->LockXformed = GL_FALSE;
+    }
+
+    reused = context->LockXformed && context->LockStaged;
+    xhi = reused ? context->LockExtra : nv;
+
     if (context->TextureGenS_State || context->TextureGenT_State)
-        d_texgen(context, vb + i0, nv - i0);
+        d_texgen(context, vb + i0, xhi - i0);
 
     if (context->Lighting_State)
-        lspec = d_light(context, i0, nv);
+        lspec = d_light(context, i0, xhi);
 
     if (!(context->CombinedMatrix.flags & MGLMAT_IDENTITY))
     {
         if (context->CombinedMatrix.flags & MGLMAT_ORTHO)
         {
             if (!(m[1] || m[2] || m[4] || m[6] || m[8] || m[9]))
-                d_xdiag(vb + i0, m, nv - i0);
+                d_xdiag(vb + i0, m, xhi - i0);
             else
-                d_xaff(vb + i0, m, nv - i0);
+                d_xaff(vb + i0, m, xhi - i0);
         }
         else if (context->WOne_Hint)
         {
-            d_xgenw(vb + i0, m, nv - i0);
+            d_xgenw(vb + i0, m, xhi - i0);
         }
         else
         {
-            d_xgen(vb + i0, m, nv - i0);
+            d_xgen(vb + i0, m, xhi - i0);
         }
     }
 
     // hint consumed for this window, the next stage re-accumulates it
     context->WOne_Hint = GL_TRUE;
-
-    orall = d_screenv(context, i0, nv);
+    context->LockXformed = context->LockStaged && !context->Lighting_State && !context->TextureGenS_State && !context->TextureGenT_State;
+    orall = d_screenv(context, i0, xhi);
 
     for (i = 0; i < i0; i++)
         orall |= vb[i].outcode;
+
+    if (reused)
+        orall |= context->LockOrall;
+    else if (context->LockXformed)
+    {
+        GLuint worall = 0;
+
+        for (i = MGL_EXTRA_MAX; i < nv; i++)
+            worall |= vb[i].outcode;
+
+        context->LockOrall = worall;
+    }
 
     // one scan per submit decides uniform vs per-prim colors under flat
     d_flatvar = 0;

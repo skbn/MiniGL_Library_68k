@@ -7,7 +7,7 @@ EXOBJDIR ?= obj_gcc_examples_dispatch
 OUTDIR ?= bin/dispatch-stub-gcc
 BINDIR ?= bin
 
-COMMON_CFLAGS = -mcpu=$(CPU) -mhard-float -ffast-math -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-strict-overflow -fsigned-char -noixemul
+COMMON_CFLAGS = -m$(CPU) -mhard-float -ffast-math -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-strict-overflow -fsigned-char -noixemul
 LIB_CFLAGS = $(COMMON_CFLAGS) -Iinclude -Ilibrary -D__M68K__ -DMINIGL_BACKEND_STUB -DMINIGL_LIBRARY_BUILD -fno-baserel -fno-builtin -Wall -Wextra
 EX_CFLAGS = $(COMMON_CFLAGS) -Iinclude
 
@@ -29,7 +29,7 @@ $(EXOBJDIR)/minigl_base.o: client/minigl_base.c | $(EXOBJDIR)
 $(EXOBJDIR)/minigl_open.o: client/minigl_open.c | $(EXOBJDIR)
 	$(CC) $(EX_CFLAGS) -c $< -o $@
 $(EXOBJDIR)/minigl_dispatch_stub_gcc.o: client/minigl_dispatch_stub_gcc.s | $(EXOBJDIR)
-	$(CC) -mcpu=$(CPU) -c $< -o $@
+	$(CC) -m$(CPU) -c $< -o $@
 importlib: $(IMPORTLIB)
 $(IMPORTLIB): $(CLIENT_OBJS) | lib
 	$(AR) rcs $@ $(CLIENT_OBJS)

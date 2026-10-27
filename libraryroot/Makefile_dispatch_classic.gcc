@@ -11,7 +11,7 @@ CLASSIC_INC ?= $(CLASSIC_SRC)/include
 Q3_OBJDIR ?= obj_gcc
 Q3_LIB ?= $(CLASSIC_SRC)/lib/libmgl-q3.a
 CLASSIC_LIB ?= $(Q3_LIB)
-COMMON_CFLAGS = -mcpu=$(CPU) -mhard-float -ffast-math -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-strict-overflow -fsigned-char -noixemul
+COMMON_CFLAGS = -m$(CPU) -mhard-float -ffast-math -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-strict-overflow -fsigned-char -noixemul
 LIB_CFLAGS = $(COMMON_CFLAGS) -I$(CLASSIC_INC) -Iinclude -Ilibrary -D__M68K__ -DMINIGL_BACKEND_CLASSIC -DMINIGL_LIBRARY_BUILD -fno-baserel -fno-builtin -Wall -Wextra
 EX_CFLAGS = $(COMMON_CFLAGS) -fno-builtin -I$(CLASSIC_INC) -Iinclude
 LIB_OBJS = $(OBJDIR)/minigl_library.o $(OBJDIR)/dispatch_table_classic.o $(OBJDIR)/debug_output.o $(OBJDIR)/runtime_shim.o $(OBJDIR)/math_shim.o
@@ -33,7 +33,7 @@ $(EXOBJDIR)/minigl_base.o: client/minigl_base.c | $(EXOBJDIR)
 $(EXOBJDIR)/minigl_open.o: client/minigl_open.c | $(EXOBJDIR)
 	$(CC) $(EX_CFLAGS) -c $< -o $@
 $(EXOBJDIR)/minigl_dispatch_stub_gcc.o: client/minigl_dispatch_stub_gcc.s | $(EXOBJDIR)
-	$(CC) -mcpu=$(CPU) -c $< -o $@
+	$(CC) -m$(CPU) -c $< -o $@
 importlib: $(IMPORTLIB)
 $(IMPORTLIB): $(CLIENT_OBJS) | lib
 	$(AR) rcs $@ $(CLIENT_OBJS)

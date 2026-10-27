@@ -58,7 +58,7 @@ $(OBJ)/library/math_shim.o: FLAGS += -fno-builtin -fno-fast-math
 $(OBJ)/library/minigl_library.o: FLAGS += -DVERSION=$(LIB_VER) -DREVISION=$(LIB_REV)
 
 .PHONY: all variants checks clean q3 FORCE
-all: $(OUT)/minigl.library check-math-shim
+all: $(OUT)/minigl.library
 clean:
 	rm -rf obj_v29_path_* bin/v29-path-*
 variants:
